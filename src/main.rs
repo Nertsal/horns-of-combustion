@@ -18,7 +18,7 @@ fn main() {
     let opts: Opts = clap::Parser::parse();
 
     let geng = Geng::new_with(geng::ContextOptions {
-        title: "Geng Game".to_string(),
+        title: "Anlaut Summer Game Jam".to_string(),
         ..geng::ContextOptions::from_args(&opts.geng)
     });
 

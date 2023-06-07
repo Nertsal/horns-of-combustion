@@ -1,5 +1,5 @@
 [package]
-name = "geng_template"
+name = "anlaut-4"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,4 +7,5 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.2", features = ["derive"] }
+ecs = { git = "https://github.com/geng-engine/ecs", version = "0.1.0" }
 geng = { git = "https://github.com/kuviman/geng" }
