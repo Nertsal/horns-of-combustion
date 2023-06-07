@@ -1,2 +1,1 @@
-# geng_template
-A template for projects using [geng](https://github.com/kuviman/geng) engine
+A game *being made* for [Anlaut Summer Game Jam 2023](https://itch.io/jam/anlaut-4).
