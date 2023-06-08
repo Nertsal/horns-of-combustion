@@ -1,0 +1,20 @@
+Config(
+    camera: (
+        fov: 50.0,
+        speed: 6.0,
+        dead_zone: 0.5,
+    ),
+    player: (
+        speed: 45.0,
+        acceleration: 3.0,
+        gun: ( // Revolver
+            ammo: 6,
+            reload_time: 3.0,
+            shot_delay: 0.6,
+            shot_speed: 10.0,
+            projectile: (
+                shape: Circle( radius: 0.1 )
+            ),
+        ),
+    ),
+)
