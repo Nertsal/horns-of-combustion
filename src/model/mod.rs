@@ -10,7 +10,7 @@ pub use self::{action::*, camera::*, components::*, health::*, player::*, weapon
 
 use crate::{
     assets::config::*,
-    util::{Mat3RealConversions, RealConversions, Vec2RealConversions},
+    util::{RealConversions, Vec2RealConversions},
 };
 
 use ecs::{arena::Arena, prelude::*};

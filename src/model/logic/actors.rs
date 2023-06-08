@@ -1,7 +1,7 @@
 use super::*;
 
 impl Model {
-    pub(super) fn actors_ai(&mut self, delta_time: Time) {
+    pub(super) fn actors_ai(&mut self, _delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
@@ -31,6 +31,7 @@ impl Model {
     }
 
     pub(super) fn control_actors(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             #[query(storage = ".body")]
