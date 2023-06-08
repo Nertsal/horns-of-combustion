@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::model::{Coord, Shape, Time};
+use crate::model::{Coord, Hp, Shape, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Config {
@@ -12,6 +12,7 @@ pub struct Config {
 pub struct PlayerConfig {
     pub speed: Coord,
     pub acceleration: Coord,
+    pub hp: Hp,
     pub gun: GunConfig,
 }
 
@@ -33,6 +34,7 @@ pub struct GunConfig {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct ProjectileConfig {
     pub speed: Coord,
+    pub damage: Hp,
     pub shape: Shape,
 }
 

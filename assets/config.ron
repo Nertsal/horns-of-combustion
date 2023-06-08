@@ -7,13 +7,15 @@ Config(
     player: (
         speed: 45.0,
         acceleration: 3.0,
+        hp: 100.0,
         gun: ( // Revolver
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.6,
             projectile: (
-                speed: 10.0,
-                shape: Circle( radius: 0.1 )
+                speed: 50.0,
+                damage: 30.0,
+                shape: Circle( radius: 0.2 )
             ),
         ),
     ),

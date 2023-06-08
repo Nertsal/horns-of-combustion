@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.3.2", features = ["derive"] }
-ecs = { git = "https://github.com/geng-engine/ecs", rev = "203158db73b2e2d2bdd0b491d7097c70b54f1ea6" }
+ecs = { git = "https://github.com/geng-engine/ecs", rev = "ee9b11a46d8c74f54fa9821b3f5fcb411b01081e" }
 geng = { git = "https://github.com/kuviman/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }

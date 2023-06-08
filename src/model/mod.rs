@@ -1,11 +1,12 @@
 mod action;
 mod camera;
 mod components;
+mod health;
 mod logic;
 mod player;
 mod weapons;
 
-pub use self::{action::*, camera::*, components::*, player::*, weapons::*};
+pub use self::{action::*, camera::*, components::*, health::*, player::*, weapons::*};
 
 use crate::{
     assets::config::*,
@@ -30,12 +31,22 @@ pub struct Model {
 
 impl Model {
     pub fn new(config: Config) -> Self {
-        Self {
+        let mut model = Self {
             camera: Camera::new(config.camera.fov),
             player: Player::new(config.player),
             actors: StructOf::new(),
             projectiles: StructOf::new(),
             config,
-        }
+        };
+        model.init();
+        model
+    }
+
+    fn init(&mut self) {
+        self.actors.insert(Actor {
+            body: Body::new(vec2(5, 0).as_r32(), Shape::Circle { radius: r32(1.0) }),
+            health: Health::new(50.0),
+            gun: None,
+        });
     }
 }

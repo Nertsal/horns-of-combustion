@@ -9,6 +9,7 @@ impl Model {
     }
 
     fn update_actors(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             #[query(optic = "._Some")]

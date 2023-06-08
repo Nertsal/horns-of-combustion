@@ -15,12 +15,14 @@ pub struct Body {
 pub struct Projectile {
     #[structof(nested)]
     pub body: Body,
+    pub damage: Hp,
 }
 
 #[derive(StructOf, Debug)]
 pub struct Actor {
     #[structof(nested)]
     pub body: Body,
+    pub health: Health,
     // #[structof(nested)] // TODO: optional nesting
     pub gun: Option<Gun>,
 }
@@ -43,14 +45,16 @@ impl Projectile {
         Self {
             body: Body::new(pos, config.shape)
                 .with_velocity((target - pos).normalize_or_zero() * config.speed),
+            damage: config.damage,
         }
     }
 }
 
 impl Actor {
-    pub fn new(body: Body, gun: GunConfig) -> Self {
+    pub fn new(body: Body, hp: Hp, gun: GunConfig) -> Self {
         Self {
             body,
+            health: Health::new(hp),
             gun: Some(Gun::new(gun)),
         }
     }

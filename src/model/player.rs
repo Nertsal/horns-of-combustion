@@ -13,6 +13,7 @@ impl Player {
         Self {
             actor: Actor::new(
                 Body::new(vec2::ZERO, Shape::Circle { radius: r32(1.0) }),
+                config.hp,
                 config.gun,
             ),
             player_direction: vec2::ZERO,

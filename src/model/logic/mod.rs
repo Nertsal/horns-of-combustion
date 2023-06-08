@@ -1,4 +1,5 @@
 mod action;
+mod collisions;
 mod movement;
 mod weapons;
 
@@ -9,6 +10,7 @@ impl Model {
         self.update_weapons(delta_time);
         self.control_player(delta_time);
         self.movement(delta_time);
+        self.collisions(delta_time);
         self.update_camera(delta_time);
     }
 
