@@ -9,6 +9,7 @@ use crate::util::{Mat3RealConversions, RealConversions, Vec2RealConversions};
 use ecs::{arena::Arena, prelude::*};
 use geng::prelude::*;
 
+pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
 pub type Id = ecs::arena::Index;
@@ -20,12 +21,13 @@ pub struct Player {
 
 #[derive(StructOf, Debug)]
 pub struct Body {
-    #[structof(nested)]
+    // #[structof(nested)] // TODO
     pub collider: Collider,
     pub velocity: vec2<Coord>,
 }
 
 pub struct Model {
+    pub camera: Camera2d,
     pub player: Player,
     pub bodies: StructOf<Arena<Body>>,
 }
@@ -39,6 +41,11 @@ impl Model {
         });
 
         Self {
+            camera: Camera2d {
+                center: vec2::ZERO,
+                rotation: 0.0,
+                fov: 50.0,
+            },
             player: Player { body: player_body },
             bodies,
         }

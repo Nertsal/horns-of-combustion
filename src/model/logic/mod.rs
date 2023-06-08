@@ -9,7 +9,7 @@ impl Model {
     fn movement(&mut self, delta_time: Time) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            #[query(nested = ".collider")]
+            #[query(optic = ".collider._get", component = "Collider")]
             position: &'a mut vec2<Coord>,
             velocity: &'a vec2<Coord>,
         }
