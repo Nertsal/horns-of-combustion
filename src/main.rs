@@ -8,7 +8,7 @@ use geng::prelude::*;
 
 #[derive(clap::Parser)]
 struct Opts {
-    #[clap(long, default_value = "assets/config.toml")]
+    #[clap(long, default_value = "assets/config.ron")]
     config: std::path::PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,

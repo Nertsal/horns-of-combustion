@@ -1,18 +1,21 @@
 use super::*;
 
-#[derive(Serialize, Deserialize)]
+use crate::model::{Coord, Shape, Time};
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct Config {
     pub player: PlayerConfig,
     pub camera: CameraConfig,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct PlayerConfig {
     pub speed: Coord,
     pub acceleration: Coord,
+    pub gun: GunConfig,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct CameraConfig {
     pub fov: Coord,
     pub speed: Coord,
@@ -20,10 +23,22 @@ pub struct CameraConfig {
     pub dead_zone: Coord,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct GunConfig {
+    /// Delay between shots.
+    pub shot_delay: Time,
+    pub shot_speed: Coord,
+    pub projectile: ProjectileConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct ProjectileConfig {
+    pub shape: Shape,
+}
+
 impl Config {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        let s = file::load_string(path).await?;
-        let config = toml::de::from_str(&s)?;
+        let config = file::load_detect(path).await?;
         Ok(config)
     }
 }

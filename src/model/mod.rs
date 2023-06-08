@@ -2,8 +2,9 @@ mod camera;
 mod components;
 mod logic;
 mod player;
+mod weapons;
 
-pub use self::{camera::*, components::*, player::*};
+pub use self::{camera::*, components::*, player::*, weapons::*};
 
 use crate::{
     assets::config::*,
@@ -22,16 +23,17 @@ pub struct Model {
     pub config: Config,
     pub camera: Camera,
     pub player: Player,
-    pub bodies: StructOf<Arena<Body>>,
+    pub actors: StructOf<Arena<Actor>>,
+    pub projectiles: StructOf<Arena<Projectile>>,
 }
 
 impl Model {
     pub fn new(config: Config) -> Self {
-        let mut bodies = StructOf::new();
         Self {
             camera: Camera::new(config.camera.fov),
-            player: Player::init(&mut bodies),
-            bodies,
+            player: Player::new(config.player),
+            actors: StructOf::new(),
+            projectiles: StructOf::new(),
             config,
         }
     }

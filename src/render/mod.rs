@@ -30,21 +30,28 @@ impl GameRender {
             &model.camera.to_camera2d(),
             framebuffer,
         );
-        self.draw_bodies(model, framebuffer);
+
+        self.draw_collider(
+            &model.player.body.collider,
+            Color::BLUE,
+            &model.camera.to_camera2d(),
+            framebuffer,
+        );
+        self.draw_actors(model, framebuffer);
     }
 
-    fn draw_bodies(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+    fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
-        struct BodyRef<'a> {
-            #[query(nested)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
             collider: &'a Collider,
         }
 
         let camera = &model.camera.to_camera2d();
-        for (_id, body) in &query_body_ref!(model.bodies) {
+        for (_id, actor) in &query_actor_ref!(model.actors) {
             let color = Color::BLUE; // TODO
-            self.draw_collider(&body.collider.clone(), color, camera, framebuffer);
+            self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
         }
     }
 

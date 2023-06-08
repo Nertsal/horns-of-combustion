@@ -1,7 +1,5 @@
 pub mod config;
 
-use crate::model::Coord;
-
 use geng::prelude::*;
 
 #[derive(geng::asset::Load)]
