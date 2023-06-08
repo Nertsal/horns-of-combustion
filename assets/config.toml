@@ -1,0 +1,6 @@
+[camera]
+speed = 6
+
+[player]
+speed = 45
+acceleration = 3
