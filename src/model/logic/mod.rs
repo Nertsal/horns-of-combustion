@@ -17,22 +17,25 @@ impl Model {
         // camera.fov = TODO: interpolate fov to player speed.
 
         // Do not follow player if it is inside the bounds of the camera.
-        let direction = player_position.as_f32() - camera.center;
+        let direction = *player_position - camera.center.as_r32();
         let distance = direction.len();
-        if distance > camera.fov / 3.0 {
+        if distance > camera.fov / r32(3.0) {
             self.player.out_of_view = true;
         }
 
         if self.player.out_of_view {
-            if distance < 0.1 {
+            let config = &self.config.camera;
+            if distance < config.dead_zone {
                 self.player.out_of_view = false;
-                camera.center = player_position.as_f32();
+                // camera.target_position = *player_position;
             } else {
-                // Interpolate camera position to player position.
-                let config = &self.config.camera;
-                // Take min to not overshoot the player
-                camera.center += direction * (config.speed * delta_time).as_f32().min(1.0);
+                // Update the target position
+                camera.target_position = *player_position;
             }
+
+            // Interpolate camera position to the target
+            // Take min to not overshoot the target
+            camera.center += direction * (config.speed * delta_time).min(Coord::ONE);
         }
     }
 

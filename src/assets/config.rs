@@ -14,7 +14,10 @@ pub struct PlayerConfig {
 
 #[derive(Serialize, Deserialize)]
 pub struct CameraConfig {
+    pub fov: Coord,
     pub speed: Coord,
+    /// Radius in which the camera allows the target to move without affecting the camera.
+    pub dead_zone: Coord,
 }
 
 impl Config {

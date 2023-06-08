@@ -27,7 +27,7 @@ impl GameRender {
             Shape::Circle { radius: r32(10.0) },
             mat3::identity(),
             Color::RED,
-            &model.camera,
+            &model.camera.to_camera2d(),
             framebuffer,
         );
         self.draw_bodies(model, framebuffer);
@@ -41,9 +41,10 @@ impl GameRender {
             collider: &'a Collider,
         }
 
+        let camera = &model.camera.to_camera2d();
         for (_id, body) in &query_body_ref!(model.bodies) {
             let color = Color::BLUE; // TODO
-            self.draw_collider(&body.collider.clone(), color, &model.camera, framebuffer);
+            self.draw_collider(&body.collider.clone(), color, camera, framebuffer);
         }
     }
 

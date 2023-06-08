@@ -1,5 +1,7 @@
 [camera]
+fov = 50.0
 speed = 6
+dead_zone = 0.5
 
 [player]
 speed = 45

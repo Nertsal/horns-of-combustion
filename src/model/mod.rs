@@ -32,9 +32,34 @@ pub struct Body {
     pub velocity: vec2<Coord>,
 }
 
+#[derive(Debug)]
+pub struct Camera {
+    pub center: vec2<Coord>,
+    pub fov: Coord,
+    pub target_position: vec2<Coord>,
+}
+
+impl Camera {
+    pub fn new(fov: impl Float) -> Self {
+        Self {
+            center: vec2::ZERO,
+            fov: fov.as_r32(),
+            target_position: vec2::ZERO,
+        }
+    }
+
+    pub fn to_camera2d(&self) -> geng::Camera2d {
+        geng::Camera2d {
+            center: self.center.as_f32(),
+            rotation: 0.0,
+            fov: self.fov.as_f32(),
+        }
+    }
+}
+
 pub struct Model {
     pub config: Config,
-    pub camera: Camera2d,
+    pub camera: Camera,
     pub player: Player,
     pub bodies: StructOf<Arena<Body>>,
 }
@@ -48,11 +73,7 @@ impl Model {
         });
 
         Self {
-            camera: Camera2d {
-                center: vec2::ZERO,
-                rotation: 0.0,
-                fov: 50.0,
-            },
+            camera: Camera::new(config.camera.fov),
             player: Player {
                 body: player_body,
                 player_direction: vec2::ZERO,
