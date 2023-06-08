@@ -14,8 +14,12 @@ impl Player {
             actor: Actor::new(
                 Body::new(vec2::ZERO, Shape::Circle { radius: r32(1.0) }),
                 config.hp,
-                config.gun,
-            ),
+                config.acceleration,
+                Stats {
+                    move_speed: config.speed,
+                },
+            )
+            .with_gun(config.gun),
             player_direction: vec2::ZERO,
             target_velocity: vec2::ZERO,
             out_of_view: false,

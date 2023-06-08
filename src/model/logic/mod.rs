@@ -1,4 +1,5 @@
 mod action;
+mod actors;
 mod collisions;
 mod movement;
 mod weapons;
@@ -8,7 +9,9 @@ use super::*;
 impl Model {
     pub fn update(&mut self, delta_time: Time) {
         self.update_weapons(delta_time);
+        self.actors_ai(delta_time);
         self.control_player(delta_time);
+        self.control_actors(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
         self.update_camera(delta_time);

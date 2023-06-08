@@ -25,6 +25,25 @@ pub struct Actor {
     pub health: Health,
     // #[structof(nested)] // TODO: optional nesting
     pub gun: Option<Gun>,
+    pub stats: Stats,
+    pub controller: Controller,
+    pub ai: Option<ActorAI>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Stats {
+    pub move_speed: Coord,
+}
+
+#[derive(Debug, Clone)]
+pub struct Controller {
+    pub target_velocity: vec2<Coord>,
+    pub acceleration: Coord,
+}
+
+#[derive(Debug, Clone)]
+pub enum ActorAI {
+    Crawler,
 }
 
 impl Body {
@@ -51,11 +70,31 @@ impl Projectile {
 }
 
 impl Actor {
-    pub fn new(body: Body, hp: Hp, gun: GunConfig) -> Self {
+    pub fn new(body: Body, hp: Hp, acceleration: Coord, stats: Stats) -> Self {
         Self {
             body,
             health: Health::new(hp),
+            gun: None,
+            stats,
+            controller: Controller {
+                target_velocity: vec2::ZERO,
+                acceleration,
+            },
+            ai: None,
+        }
+    }
+
+    pub fn with_gun(self, gun: GunConfig) -> Self {
+        Self {
             gun: Some(Gun::new(gun)),
+            ..self
+        }
+    }
+
+    pub fn with_ai(self, ai: ActorAI) -> Self {
+        Self {
+            ai: Some(ai),
+            ..self
         }
     }
 }
