@@ -11,3 +11,4 @@ ecs = { git = "https://github.com/geng-engine/ecs", rev = "203158db73b2e2d2bdd0b
 geng = { git = "https://github.com/kuviman/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
+toml = "0.7.4"

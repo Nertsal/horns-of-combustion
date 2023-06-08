@@ -1,5 +1,9 @@
-use crate::{assets::Assets, model::*, render::GameRender};
-use crate::util::{Vec2RealConversions};
+use crate::util::Vec2RealConversions;
+use crate::{
+    assets::{config::Config, Assets},
+    model::*,
+    render::GameRender,
+};
 
 use geng::prelude::*;
 
@@ -11,11 +15,11 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>) -> Self {
+    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config) -> Self {
         Self {
             geng: geng.clone(),
             render: GameRender::new(geng, assets),
-            model: Model::new(),
+            model: Model::new(config),
         }
     }
 }
@@ -31,16 +35,24 @@ impl geng::State for Game {
 
         // Change player velocity based on input.
         let mut player_direction: vec2<f32> = vec2::ZERO;
-        if self.geng.window().is_key_pressed(geng::Key::W) || self.geng.window().is_key_pressed(geng::Key::Up) {
+        if self.geng.window().is_key_pressed(geng::Key::W)
+            || self.geng.window().is_key_pressed(geng::Key::Up)
+        {
             player_direction.y += 1.0;
         }
-        if self.geng.window().is_key_pressed(geng::Key::S) || self.geng.window().is_key_pressed(geng::Key::Down) {
+        if self.geng.window().is_key_pressed(geng::Key::S)
+            || self.geng.window().is_key_pressed(geng::Key::Down)
+        {
             player_direction.y -= 1.0;
         }
-        if self.geng.window().is_key_pressed(geng::Key::D) || self.geng.window().is_key_pressed(geng::Key::Right) {
+        if self.geng.window().is_key_pressed(geng::Key::D)
+            || self.geng.window().is_key_pressed(geng::Key::Right)
+        {
             player_direction.x += 1.0;
         }
-        if self.geng.window().is_key_pressed(geng::Key::A) || self.geng.window().is_key_pressed(geng::Key::Left) {
+        if self.geng.window().is_key_pressed(geng::Key::A)
+            || self.geng.window().is_key_pressed(geng::Key::Left)
+        {
             player_direction.x -= 1.0;
         }
 
@@ -48,8 +60,6 @@ impl geng::State for Game {
         player_direction = player_direction.normalize_or_zero();
 
         player.player_direction = player_direction.as_r32();
-
-
     }
 
     fn update(&mut self, delta_time: f64) {

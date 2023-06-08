@@ -8,6 +8,8 @@ use geng::prelude::*;
 
 #[derive(clap::Parser)]
 struct Opts {
+    #[clap(long, default_value = "assets/config.toml")]
+    config: std::path::PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,
 }
@@ -28,7 +30,8 @@ fn main() {
         async move {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
-            game::Game::new(&geng, &Rc::new(assets))
+            let config = assets::config::Config::load(&opts.config).await.unwrap();
+            game::Game::new(&geng, &Rc::new(assets), config)
         }
     };
     geng.run_loading(future)

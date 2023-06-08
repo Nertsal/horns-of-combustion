@@ -4,7 +4,10 @@ mod shape;
 
 pub use self::{collider::*, shape::*};
 
-use crate::util::{Mat3RealConversions, RealConversions, Vec2RealConversions};
+use crate::{
+    assets::config::*,
+    util::{Mat3RealConversions, RealConversions, Vec2RealConversions},
+};
 
 use ecs::{arena::Arena, prelude::*};
 use geng::prelude::*;
@@ -18,10 +21,7 @@ pub type Id = ecs::arena::Index;
 pub struct Player {
     pub body: Id,
     pub player_direction: vec2<Coord>,
-    pub player_speed: vec2<Coord>,
-    pub player_acceleration: vec2<Coord>,
     pub target_velocity: vec2<Coord>,
-
     pub out_of_view: bool,
 }
 
@@ -33,13 +33,14 @@ pub struct Body {
 }
 
 pub struct Model {
+    pub config: Config,
     pub camera: Camera2d,
     pub player: Player,
     pub bodies: StructOf<Arena<Body>>,
 }
 
 impl Model {
-    pub fn new() -> Self {
+    pub fn new(config: Config) -> Self {
         let mut bodies = StructOf::<Arena<Body>>::new();
         let player_body = bodies.insert(Body {
             collider: Collider::new(vec2::ZERO, Shape::Circle { radius: r32(1.0) }),
@@ -55,12 +56,11 @@ impl Model {
             player: Player {
                 body: player_body,
                 player_direction: vec2::ZERO,
-                player_speed: vec2(45, 45).as_r32(),
-                player_acceleration: vec2(3, 3).as_r32(),
                 target_velocity: vec2::ZERO,
                 out_of_view: false,
             },
             bodies,
+            config,
         }
     }
 }

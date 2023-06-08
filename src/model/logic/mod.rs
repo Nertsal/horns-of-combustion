@@ -29,26 +29,25 @@ impl Model {
                 camera.center = player_position.as_f32();
             } else {
                 // Interpolate camera position to player position.
-                // TODO: <--- move to camera config.
-                let camera_speed = 6.0;
+                let config = &self.config.camera;
                 // Take min to not overshoot the player
-                camera.center += direction * (camera_speed * delta_time.as_f32()).min(1.0);
+                camera.center += direction * (config.speed * delta_time).as_f32().min(1.0);
             }
         }
     }
 
     fn control_player(&mut self, delta_time: Time) {
         // Change target velocity to body velocity.
+        let config = &self.config.player;
         let player = &mut self.player;
         let player_body = self.bodies.get_mut(player.body).unwrap();
 
         // Use player direction to change target velocity.
-        player.target_velocity = player.player_direction * player.player_speed;
+        player.target_velocity = player.player_direction * config.speed;
 
         // Interpolate body velocity to target velocity.
-        *player_body.velocity += (player.target_velocity - *player_body.velocity)
-            * player.player_acceleration
-            * delta_time;
+        *player_body.velocity +=
+            (player.target_velocity - *player_body.velocity) * config.acceleration * delta_time;
     }
 
     /// System that moves all bodies in the world according to their velocity.
