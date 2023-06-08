@@ -21,6 +21,8 @@ pub struct Player {
     pub player_speed: vec2<Coord>,
     pub player_acceleration: vec2<Coord>,
     pub target_velocity: vec2<Coord>,
+
+    pub out_of_view: bool,
 }
 
 #[derive(StructOf, Debug)]
@@ -53,9 +55,11 @@ impl Model {
             player: Player {
                 body: player_body,
                 player_direction: vec2::ZERO,
-                player_speed: vec2(25, 25).as_r32(),
-                player_acceleration: vec2(0.1, 0.1).as_r32(),
+                player_speed: vec2(45, 45).as_r32(),
+                player_acceleration: vec2(0.05, 0.05).as_r32(),
                 target_velocity: vec2::ZERO,
+
+                out_of_view: false,
             },
             bodies,
         }
