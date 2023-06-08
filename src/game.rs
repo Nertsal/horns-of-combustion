@@ -10,6 +10,7 @@ use geng::prelude::*;
 #[allow(dead_code)]
 pub struct Game {
     geng: Geng,
+    framebuffer_size: vec2<usize>,
     render: GameRender,
     model: Model,
 }
@@ -18,19 +19,13 @@ impl Game {
     pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config) -> Self {
         Self {
             geng: geng.clone(),
+            framebuffer_size: vec2(1, 1),
             render: GameRender::new(geng, assets),
             model: Model::new(config),
         }
     }
-}
 
-impl geng::State for Game {
-    fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
-        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
-        self.render.draw(&self.model, framebuffer);
-    }
-
-    fn handle_event(&mut self, _event: geng::Event) {
+    fn update_player(&mut self) {
         let player = &mut self.model.player;
 
         // Change player velocity based on input.
@@ -61,9 +56,39 @@ impl geng::State for Game {
 
         player.player_direction = player_direction.as_r32();
     }
+}
+
+impl geng::State for Game {
+    fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
+        self.framebuffer_size = framebuffer.size();
+        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
+        self.render.draw(&self.model, framebuffer);
+    }
+
+    fn handle_event(&mut self, _event: geng::Event) {
+        self.update_player();
+    }
 
     fn update(&mut self, delta_time: f64) {
         let delta_time = Time::new(delta_time as _);
+
+        if self
+            .geng
+            .window()
+            .is_button_pressed(geng::MouseButton::Left)
+        {
+            let position = self.geng.window().cursor_position();
+            let world_pos = self
+                .model
+                .camera
+                .to_camera2d()
+                .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
+                .as_r32();
+            self.model.player_action(PlayerAction::Shoot {
+                target_pos: world_pos,
+            });
+        }
+
         self.model.update(delta_time);
     }
 }

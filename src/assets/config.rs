@@ -27,12 +27,12 @@ pub struct CameraConfig {
 pub struct GunConfig {
     /// Delay between shots.
     pub shot_delay: Time,
-    pub shot_speed: Coord,
     pub projectile: ProjectileConfig,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct ProjectileConfig {
+    pub speed: Coord,
     pub shape: Shape,
 }
 

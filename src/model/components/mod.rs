@@ -21,7 +21,8 @@ pub struct Projectile {
 pub struct Actor {
     #[structof(nested)]
     pub body: Body,
-    pub gun: Gun,
+    // #[structof(nested)] // TODO: optional nesting
+    pub gun: Option<Gun>,
 }
 
 impl Body {
@@ -29,6 +30,28 @@ impl Body {
         Self {
             collider: Collider::new(pos, shape),
             velocity: vec2::ZERO,
+        }
+    }
+
+    pub fn with_velocity(self, velocity: vec2<Coord>) -> Self {
+        Self { velocity, ..self }
+    }
+}
+
+impl Projectile {
+    pub fn new(pos: vec2<Coord>, target: vec2<Coord>, config: ProjectileConfig) -> Self {
+        Self {
+            body: Body::new(pos, config.shape)
+                .with_velocity((target - pos).normalize_or_zero() * config.speed),
+        }
+    }
+}
+
+impl Actor {
+    pub fn new(body: Body, gun: GunConfig) -> Self {
+        Self {
+            body,
+            gun: Some(Gun::new(gun)),
         }
     }
 }

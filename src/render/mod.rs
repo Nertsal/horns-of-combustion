@@ -32,12 +32,13 @@ impl GameRender {
         );
 
         self.draw_collider(
-            &model.player.body.collider,
+            &model.player.actor.body.collider,
             Color::BLUE,
             &model.camera.to_camera2d(),
             framebuffer,
         );
         self.draw_actors(model, framebuffer);
+        self.draw_projectiles(model, framebuffer);
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
@@ -52,6 +53,21 @@ impl GameRender {
         for (_id, actor) in &query_actor_ref!(model.actors) {
             let color = Color::BLUE; // TODO
             self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
+        }
+    }
+
+    fn draw_projectiles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ProjRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+        }
+
+        let camera = &model.camera.to_camera2d();
+        for (_id, proj) in &query_proj_ref!(model.projectiles) {
+            let color = Color::RED; // TODO
+            self.draw_collider(&proj.collider.clone(), color, camera, framebuffer);
         }
     }
 

@@ -1,16 +1,19 @@
+mod action;
 mod movement;
+mod weapons;
 
 use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: Time) {
+        self.update_weapons(delta_time);
         self.control_player(delta_time);
         self.movement(delta_time);
         self.update_camera(delta_time);
     }
 
     fn update_camera(&mut self, delta_time: Time) {
-        let player_position = self.player.body.collider.position;
+        let player_position = self.player.actor.body.collider.position;
         let camera = &mut self.camera;
 
         // Zoom out if player is moving fast.
@@ -50,7 +53,8 @@ impl Model {
         player.target_velocity = player.player_direction * config.speed;
 
         // Interpolate body velocity to target velocity.
-        player.body.velocity +=
-            (player.target_velocity - player.body.velocity) * config.acceleration * delta_time;
+        player.actor.body.velocity += (player.target_velocity - player.actor.body.velocity)
+            * config.acceleration
+            * delta_time;
     }
 }

@@ -11,8 +11,8 @@ Config(
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.6,
-            shot_speed: 10.0,
             projectile: (
+                speed: 10.0,
                 shape: Circle( radius: 0.1 )
             ),
         ),

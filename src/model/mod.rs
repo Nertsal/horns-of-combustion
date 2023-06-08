@@ -1,10 +1,11 @@
+mod action;
 mod camera;
 mod components;
 mod logic;
 mod player;
 mod weapons;
 
-pub use self::{camera::*, components::*, player::*, weapons::*};
+pub use self::{action::*, camera::*, components::*, player::*, weapons::*};
 
 use crate::{
     assets::config::*,
