@@ -8,7 +8,7 @@ pub struct Collision {
     pub penetration: Coord,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(StructOf, Debug, Clone, Serialize, Deserialize)]
 pub struct Collider {
     pub position: vec2<Coord>,
     pub rotation: Angle<Coord>,

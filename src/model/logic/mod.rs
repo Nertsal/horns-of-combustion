@@ -27,7 +27,8 @@ impl Model {
                 camera.center = player_position.as_f32();
             } else {
                 // Interpolate camera position to player position.
-                camera.center += (player_position.as_f32() - camera.center) * 0.1; // TODO: <--- move to camera config.
+                camera.center += (player_position.as_f32() - camera.center) * 0.1;
+                // TODO: <--- move to camera config.
             }
         }
     }
@@ -41,14 +42,15 @@ impl Model {
         player.target_velocity = player.player_direction * player.player_speed;
 
         // Interpolate body velocity to target velocity.
-        *player_body.velocity += (player.target_velocity - *player_body.velocity) * player.player_acceleration;
+        *player_body.velocity +=
+            (player.target_velocity - *player_body.velocity) * player.player_acceleration;
     }
 
     /// System that moves all bodies in the world according to their velocity.
     fn movement(&mut self, delta_time: Time) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
-            #[query(optic = ".collider._get", component = "Collider")]
+            #[query(storage = ".collider")]
             position: &'a mut vec2<Coord>,
             velocity: &'a vec2<Coord>,
         }

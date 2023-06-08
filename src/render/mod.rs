@@ -19,19 +19,26 @@ impl GameRender {
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         // Draw a circle at the center of the world.
-        self.draw_shape(Shape::Circle { radius: r32(10.0) }, mat3::identity(), Color::RED, &model.camera, framebuffer);
+        self.draw_shape(
+            Shape::Circle { radius: r32(10.0) },
+            mat3::identity(),
+            Color::RED,
+            &model.camera,
+            framebuffer,
+        );
         self.draw_bodies(model, framebuffer);
     }
 
     fn draw_bodies(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[derive(StructQuery)]
         struct BodyRef<'a> {
+            #[query(nested)]
             collider: &'a Collider,
         }
 
         for (_id, body) in &query_body_ref!(model.bodies) {
             let color = Color::BLUE; // TODO
-            self.draw_collider(body.collider, color, &model.camera, framebuffer);
+            self.draw_collider(&body.collider.clone(), color, &model.camera, framebuffer);
         }
     }
 

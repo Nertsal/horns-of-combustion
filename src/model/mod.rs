@@ -27,7 +27,7 @@ pub struct Player {
 
 #[derive(StructOf, Debug)]
 pub struct Body {
-    // #[structof(nested)] // TODO
+    #[structof(nested)]
     pub collider: Collider,
     pub velocity: vec2<Coord>,
 }
