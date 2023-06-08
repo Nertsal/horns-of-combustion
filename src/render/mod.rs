@@ -26,7 +26,7 @@ impl GameRender {
         self.draw_shape(
             Shape::Circle { radius: r32(10.0) },
             mat3::identity(),
-            Color::RED,
+            Color::opaque(0.0, 0.0, 0.3),
             &model.camera.to_camera2d(),
             framebuffer,
         );
