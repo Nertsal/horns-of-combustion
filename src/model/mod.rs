@@ -56,9 +56,8 @@ impl Model {
                 body: player_body,
                 player_direction: vec2::ZERO,
                 player_speed: vec2(45, 45).as_r32(),
-                player_acceleration: vec2(0.05, 0.05).as_r32(),
+                player_acceleration: vec2(3, 3).as_r32(),
                 target_velocity: vec2::ZERO,
-
                 out_of_view: false,
             },
             bodies,

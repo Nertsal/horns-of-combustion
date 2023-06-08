@@ -1,4 +1,8 @@
-use crate::{assets::Assets, model::*, util::Mat3RealConversions};
+use crate::{
+    assets::Assets,
+    model::*,
+    util::{Mat3RealConversions, Vec2RealConversions},
+};
 
 use ecs::prelude::*;
 use geng::prelude::*;
@@ -30,6 +34,7 @@ impl GameRender {
     }
 
     fn draw_bodies(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             #[query(nested)]
@@ -74,7 +79,15 @@ impl GameRender {
                 &draw2d::Ellipse::circle(vec2::ZERO, radius.as_f32(), color),
                 transform,
             ),
-            Shape::Rectangle { width, height } => todo!(),
+            Shape::Rectangle { width, height } => {
+                let size = vec2(width, height).as_f32();
+                self.geng.draw2d().draw2d_transformed(
+                    framebuffer,
+                    camera,
+                    &draw2d::Quad::new(Aabb2::ZERO.extend_symmetric(size / 2.0), color),
+                    transform,
+                )
+            }
         }
     }
 }

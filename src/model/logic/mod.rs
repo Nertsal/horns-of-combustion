@@ -12,23 +12,27 @@ impl Model {
         let camera = &mut self.camera;
 
         // Zoom out if player is moving fast.
-        let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
-        let player_speed = player_velocity.len();
+        // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
+        // let player_speed = player_velocity.len();
         // camera.fov = TODO: interpolate fov to player speed.
 
         // Do not follow player if it is inside the bounds of the camera.
-        if (player_position.as_f32() - camera.center).len() > camera.fov / 3.0 {
+        let direction = player_position.as_f32() - camera.center;
+        let distance = direction.len();
+        if distance > camera.fov / 3.0 {
             self.player.out_of_view = true;
         }
 
         if self.player.out_of_view {
-            if (player_position.as_f32() - camera.center).len() < 0.1 {
+            if distance < 0.1 {
                 self.player.out_of_view = false;
                 camera.center = player_position.as_f32();
             } else {
                 // Interpolate camera position to player position.
-                camera.center += (player_position.as_f32() - camera.center) * 0.1;
                 // TODO: <--- move to camera config.
+                let camera_speed = 6.0;
+                // Take min to not overshoot the player
+                camera.center += direction * (camera_speed * delta_time.as_f32()).min(1.0);
             }
         }
     }
@@ -42,12 +46,14 @@ impl Model {
         player.target_velocity = player.player_direction * player.player_speed;
 
         // Interpolate body velocity to target velocity.
-        *player_body.velocity +=
-            (player.target_velocity - *player_body.velocity) * player.player_acceleration;
+        *player_body.velocity += (player.target_velocity - *player_body.velocity)
+            * player.player_acceleration
+            * delta_time;
     }
 
     /// System that moves all bodies in the world according to their velocity.
     fn movement(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
         #[derive(StructQuery)]
         struct BodyRef<'a> {
             #[query(storage = ".collider")]
