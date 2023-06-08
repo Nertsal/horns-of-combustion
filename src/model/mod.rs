@@ -17,6 +17,10 @@ pub type Id = ecs::arena::Index;
 #[derive(Debug)]
 pub struct Player {
     pub body: Id,
+    pub player_direction: vec2<Coord>,
+    pub player_speed: vec2<Coord>,
+    pub player_acceleration: vec2<Coord>,
+    pub target_velocity: vec2<Coord>,
 }
 
 #[derive(StructOf, Debug)]
@@ -46,7 +50,13 @@ impl Model {
                 rotation: 0.0,
                 fov: 50.0,
             },
-            player: Player { body: player_body },
+            player: Player {
+                body: player_body,
+                player_direction: vec2::ZERO,
+                player_speed: vec2(25, 25).as_r32(),
+                player_acceleration: vec2(0.1, 0.1).as_r32(),
+                target_velocity: vec2::ZERO,
+            },
             bodies,
         }
     }
