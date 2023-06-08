@@ -1,3 +1,7 @@
+mod shape;
+
+pub use self::shape::*;
+
 use super::*;
 
 #[derive(Debug, Clone, Copy)]
