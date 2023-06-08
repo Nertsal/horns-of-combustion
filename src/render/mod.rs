@@ -18,6 +18,8 @@ impl GameRender {
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        // Draw a circle at the center of the world.
+        self.draw_shape(Shape::Circle { radius: r32(10.0) }, mat3::identity(), Color::RED, &model.camera, framebuffer);
         self.draw_bodies(model, framebuffer);
     }
 
