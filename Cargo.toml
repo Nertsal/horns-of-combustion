@@ -9,3 +9,5 @@ edition = "2021"
 clap = { version = "4.3.2", features = ["derive"] }
 ecs = { git = "https://github.com/geng-engine/ecs", version = "0.1.0" }
 geng = { git = "https://github.com/kuviman/geng" }
+parry2d = "0.13.4"
+serde = { version = "1.0.164", features = ["derive"] }
