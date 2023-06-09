@@ -14,8 +14,8 @@ Config(
         barrel_state: (
             steering: 1.0,
             shape: Rectangle(
-                width: 1.0,
-                height: 1.5,
+                width: 1.75,
+                height: 2.5,
             ),
         ),
         gun: ( // Revolver
