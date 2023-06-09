@@ -44,7 +44,6 @@ impl Model {
                     velocity: *player.velocity,
                 });
 
-                // TODO: angular
                 // TODO: stun enemy
 
                 let relative_vel = player_cor.velocity - *actor.velocity;
