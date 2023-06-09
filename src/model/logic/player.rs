@@ -56,10 +56,16 @@ impl Model {
         *player.shape = self.config.player.barrel_state.shape;
 
         // Controller
-        // left (-1) steers in the positive angle
-        let steering = self.config.player.barrel_state.steering;
-        let input_angle = -self.player.input_direction.x * steering;
-        player.controller.target_velocity = player.velocity.rotate(input_angle * delta_time);
+        let delta_angle = if self.player.input_direction == vec2::ZERO {
+            Coord::ZERO
+        } else {
+            let current_angle = Angle::from_radians(player.velocity.arg());
+            let target_angle = Angle::from_radians(self.player.input_direction.arg());
+            let delta_angle = current_angle.angle_to(target_angle).as_radians();
+            let steering = self.config.player.barrel_state.steering;
+            delta_angle.clamp_abs(steering * delta_time)
+        };
+        player.controller.target_velocity = player.velocity.rotate(delta_angle);
         player.controller.acceleration = r32(100.0);
 
         // Look in the direction of travel
