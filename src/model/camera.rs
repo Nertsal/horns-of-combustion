@@ -16,11 +16,21 @@ impl Camera {
         }
     }
 
-    pub fn to_camera2d(&self) -> geng::Camera2d {
+    fn to_camera2d(&self) -> geng::Camera2d {
         geng::Camera2d {
             center: self.center.as_f32(),
             rotation: 0.0,
             fov: self.fov.as_f32(),
         }
+    }
+}
+
+impl geng::AbstractCamera2d for Camera {
+    fn view_matrix(&self) -> mat3<f32> {
+        self.to_camera2d().view_matrix()
+    }
+
+    fn projection_matrix(&self, framebuffer_size: vec2<f32>) -> mat3<f32> {
+        self.to_camera2d().projection_matrix(framebuffer_size)
     }
 }

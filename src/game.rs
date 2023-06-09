@@ -88,7 +88,6 @@ impl geng::State for Game {
             let world_pos = self
                 .model
                 .camera
-                .to_camera2d()
                 .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
                 .as_r32();
             self.model.player_action(PlayerAction::Shoot {

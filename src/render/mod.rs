@@ -27,7 +27,7 @@ impl GameRender {
             Shape::Circle { radius: r32(10.0) },
             mat3::identity(),
             Color::opaque(0.0, 0.0, 0.3),
-            &model.camera.to_camera2d(),
+            &model.camera,
             framebuffer,
         );
 
@@ -43,7 +43,7 @@ impl GameRender {
             collider: &'a Collider,
         }
 
-        let camera = &model.camera.to_camera2d();
+        let camera = &model.camera;
         for (_, gas) in &query_gas_ref!(model.gasoline) {
             let color = Color::opaque(0.8, 0.4, 0.0); // TODO
             self.draw_collider(&gas.collider.clone(), color, camera, framebuffer);
@@ -58,7 +58,7 @@ impl GameRender {
             collider: &'a Collider,
         }
 
-        let camera = &model.camera.to_camera2d();
+        let camera = &model.camera;
         for (_id, actor) in &query_actor_ref!(model.actors) {
             let color = Color::BLUE; // TODO
             self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
@@ -73,7 +73,7 @@ impl GameRender {
             collider: &'a Collider,
         }
 
-        let camera = &model.camera.to_camera2d();
+        let camera = &model.camera;
         for (_id, proj) in &query_proj_ref!(model.projectiles) {
             let color = Color::RED; // TODO
             self.draw_collider(&proj.collider.clone(), color, camera, framebuffer);
@@ -84,7 +84,7 @@ impl GameRender {
         &self,
         collider: &Collider,
         color: Color,
-        camera: &Camera2d,
+        camera: &Camera,
         framebuffer: &mut ugli::Framebuffer,
     ) {
         let transform = collider.transform_mat();
@@ -102,7 +102,7 @@ impl GameRender {
         shape: Shape,
         transform: mat3<f32>,
         color: Color,
-        camera: &Camera2d,
+        camera: &Camera,
         framebuffer: &mut ugli::Framebuffer,
     ) {
         match shape {
