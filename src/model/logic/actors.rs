@@ -12,6 +12,7 @@ impl Model {
             #[query(optic = "._Some")]
             ai: &'a mut ActorAI,
             gun: &'a mut Option<Gun>,
+            stunned: &'a Option<Time>,
         }
 
         let player = self
@@ -23,6 +24,10 @@ impl Model {
         let mut query = query_actor_ref!(self.actors);
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
+            if actor.stunned.is_some() {
+                continue;
+            }
+
             let player_dir = player.body.collider.position - *actor.position;
             // let player_dist = player_dir.len();
             let player_dir = player_dir.normalize_or_zero();
