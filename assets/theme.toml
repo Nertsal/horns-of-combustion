@@ -1,0 +1,8 @@
+background = "#000"
+player = "#009FB7"
+projectile = "#9FFFCB"
+gasoline = "#FED766"
+fire = "#BF211E"
+
+[enemies]
+crawler = "#6D545D"
