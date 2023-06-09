@@ -1,0 +1,8 @@
+(
+    left: [Key(Left), Key(A)],
+    right: [Key(Right), Key(D)],
+    up: [Key(Up), Key(W)],
+    down: [Key(Down), Key(S)],
+    shoot: [Mouse(Left)],
+    transform: [Key(Space)],
+)
