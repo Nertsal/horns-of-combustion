@@ -3,6 +3,8 @@ player = "#009FB7"
 projectile = "#9FFFCB"
 gasoline = "#FED766"
 fire = "#BF211E"
+health_bg = "#0008"
+health_fg = "#F308"
 
 [enemies]
 crawler = "#6D545D"
