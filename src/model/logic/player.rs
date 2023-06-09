@@ -4,7 +4,7 @@ impl Model {
     pub(super) fn control_player(&mut self, delta_time: Time) {
         match self.player.state {
             PlayerState::Human => self.human_control(delta_time),
-            PlayerState::Barrel => self.barrel_control(delta_time),
+            PlayerState::Barrel { next_gas } => self.barrel_control(next_gas, delta_time),
         };
     }
 
@@ -33,7 +33,7 @@ impl Model {
         player.controller.acceleration = self.config.player.acceleration;
     }
 
-    fn barrel_control(&mut self, delta_time: Time) {
+    fn barrel_control(&mut self, mut next_gas: Coord, delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct PlayerRef<'a> {
@@ -44,6 +44,8 @@ impl Model {
             #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<Coord>,
             controller: &'a mut Controller,
+            #[query(storage = ".body.collider")]
+            position: &'a vec2<Coord>,
             stats: &'a Stats,
         }
 
@@ -70,5 +72,16 @@ impl Model {
 
         // Look in the direction of travel
         *player.rotation = Angle::from_radians(player.velocity.arg());
+
+        // Update state
+        next_gas -= player.velocity.len() * delta_time;
+        if next_gas <= Coord::ZERO {
+            let config = &self.config.player.barrel_state.gasoline;
+            next_gas = config.distance_period;
+            self.gasoline.insert(Gasoline {
+                collider: Collider::new(*player.position, config.shape),
+            });
+        }
+        self.player.state = PlayerState::Barrel { next_gas };
     }
 }

@@ -27,6 +27,7 @@ pub struct Model {
     pub player: Player,
     pub actors: StructOf<Arena<Actor>>,
     pub projectiles: StructOf<Arena<Projectile>>,
+    pub gasoline: StructOf<Arena<Gasoline>>,
 }
 
 impl Model {
@@ -37,6 +38,7 @@ impl Model {
             player: Player::init(config.player, &mut actors),
             actors,
             projectiles: StructOf::new(),
+            gasoline: StructOf::new(),
             config,
         };
         model.init();

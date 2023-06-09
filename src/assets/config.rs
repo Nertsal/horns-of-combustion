@@ -35,6 +35,13 @@ pub struct HumanStateConfig {
 pub struct BarrelStateConfig {
     pub steering: R32,
     pub shape: Shape,
+    pub gasoline: GasolineConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct GasolineConfig {
+    pub distance_period: Coord,
+    pub shape: Shape,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

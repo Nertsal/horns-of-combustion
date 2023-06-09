@@ -46,6 +46,11 @@ pub enum ActorAI {
     Crawler,
 }
 
+#[derive(StructOf, Debug)]
+pub struct Gasoline {
+    pub collider: Collider,
+}
+
 impl Body {
     pub fn new(pos: vec2<Coord>, shape: Shape) -> Self {
         Self {

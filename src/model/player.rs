@@ -11,7 +11,7 @@ pub struct Player {
 #[derive(Debug, Clone)]
 pub enum PlayerState {
     Human,
-    Barrel,
+    Barrel { next_gas: Coord },
 }
 
 impl Player {

@@ -30,8 +30,10 @@ impl Model {
             }
             PlayerAction::SwitchState => {
                 self.player.state = match self.player.state {
-                    PlayerState::Human => PlayerState::Barrel,
-                    PlayerState::Barrel => PlayerState::Human,
+                    PlayerState::Human => PlayerState::Barrel {
+                        next_gas: self.config.player.barrel_state.gasoline.distance_period,
+                    },
+                    PlayerState::Barrel { .. } => PlayerState::Human,
                 };
             }
         }
