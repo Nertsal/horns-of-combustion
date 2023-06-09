@@ -13,13 +13,42 @@ impl Model {
         self.update_weapons(delta_time);
         self.update_gas(delta_time);
         self.update_fire(delta_time);
+        self.update_on_fire(delta_time);
         self.actors_ai(delta_time);
         self.control_player(delta_time);
         self.control_actors(delta_time);
         self.control_projectiles(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
+        self.check_deaths(delta_time);
         self.update_camera(delta_time);
+    }
+
+    fn check_deaths(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            health: &'a Health,
+        }
+
+        let dead_actors: Vec<Id> = query_actor_ref!(self.actors)
+            .iter()
+            .filter(|(_, actor)| actor.health.is_dead())
+            .map(|(id, _)| id)
+            .collect();
+        for id in dead_actors {
+            self.actors.remove(id);
+        }
+    }
+
+    fn ignite_gasoline(&mut self, gas_id: Id) {
+        if let Some(gas) = self.gasoline.remove(gas_id) {
+            self.fire.insert(Fire {
+                collider: gas.collider,
+                lifetime: Lifetime::new(5.0),
+                config: gas.fire,
+            });
+        }
     }
 
     fn update_camera(&mut self, delta_time: Time) {
@@ -106,6 +135,27 @@ impl Model {
 
         for id in expired {
             self.fire.remove(id);
+        }
+    }
+
+    fn update_on_fire(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            health: &'a mut Health,
+            on_fire: &'a mut Option<OnFire>,
+        }
+
+        let mut query = query_actor_ref!(self.actors);
+        let mut iter = query.iter_mut();
+        while let Some((_, actor)) = iter.next() {
+            if let Some(on_fire) = actor.on_fire {
+                actor.health.damage(on_fire.damage_per_second * delta_time);
+                on_fire.duration -= delta_time;
+                if on_fire.duration <= Time::ZERO {
+                    *actor.on_fire = None;
+                }
+            }
         }
     }
 }

@@ -82,6 +82,7 @@ impl Model {
                 collider: Collider::new(*player.position, config.shape),
                 lifetime: Lifetime::new(config.lifetime),
                 ignite_timer: config.ignite_timer,
+                fire: config.fire,
             });
         }
         self.player.state = PlayerState::Barrel { next_gas };

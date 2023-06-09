@@ -49,6 +49,13 @@ pub struct GasolineConfig {
     pub distance_period: Coord,
     pub ignite_timer: Time,
     pub shape: Shape,
+    pub fire: FireConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct FireConfig {
+    pub duration: Time,
+    pub damage_per_second: Hp,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

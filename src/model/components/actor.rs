@@ -23,6 +23,12 @@ pub enum ActorAI {
     Ranger { preferred_distance: Coord },
 }
 
+#[derive(Debug, Clone)]
+pub struct OnFire {
+    pub duration: Time,
+    pub damage_per_second: Hp,
+}
+
 #[derive(StructOf, Debug)]
 pub struct Actor {
     pub fraction: Fraction,
@@ -36,6 +42,7 @@ pub struct Actor {
     pub ai: Option<ActorAI>,
     pub stops_barrel: bool,
     pub stunned: Option<Time>,
+    pub on_fire: Option<OnFire>,
 }
 
 impl Actor {
@@ -53,6 +60,7 @@ impl Actor {
             ai: None,
             stops_barrel: false,
             stunned: None,
+            on_fire: None,
         }
     }
 

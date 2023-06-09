@@ -45,13 +45,7 @@ impl Model {
         }
 
         for id in ignite {
-            // Multiple projectiles might ignite the same gasoline
-            if let Some(gas) = self.gasoline.remove(id) {
-                self.fire.insert(Fire {
-                    collider: gas.collider,
-                    lifetime: Lifetime::new(5.0),
-                });
-            }
+            self.ignite_gasoline(id);
         }
     }
 }

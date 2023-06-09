@@ -13,10 +13,12 @@ pub struct Gasoline {
     pub lifetime: Lifetime,
     /// Ignites after being in contact with fire for that time.
     pub ignite_timer: Time,
+    pub fire: FireConfig,
 }
 
 #[derive(StructOf, Debug)]
 pub struct Fire {
     pub collider: Collider,
     pub lifetime: Lifetime,
+    pub config: FireConfig,
 }
