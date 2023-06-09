@@ -4,6 +4,7 @@ impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
         self.collide_barrel(delta_time);
         self.collide_projectiles(delta_time);
+        self.projectile_gas(delta_time);
         self.fire_gas(delta_time);
         self.fire(delta_time);
     }
@@ -142,6 +143,37 @@ impl Model {
 
         for id in proj_hits {
             self.projectiles.remove(id);
+        }
+    }
+
+    /// Projectiles ignite gas when passing over it.
+    fn projectile_gas(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ProjRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct GasRef<'a> {
+            collider: &'a Collider,
+        }
+
+        let mut gas_ignited: Vec<Id> = Vec::new();
+
+        for (gas_id, gas) in &query_gas_ref!(self.gasoline) {
+            for (_proj_id, proj) in &query_proj_ref!(self.projectiles) {
+                if proj.collider.clone().check(gas.collider) {
+                    gas_ignited.push(gas_id);
+                    break;
+                }
+            }
+        }
+
+        for id in gas_ignited {
+            self.ignite_gasoline(id);
         }
     }
 
