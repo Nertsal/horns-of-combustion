@@ -11,6 +11,7 @@ impl Model {
             controller: &'a mut Controller,
             #[query(optic = "._Some")]
             ai: &'a mut ActorAI,
+            gun: &'a mut Option<Gun>,
         }
 
         let player = self
@@ -29,6 +30,23 @@ impl Model {
             match actor.ai {
                 ActorAI::Crawler => {
                     actor.controller.target_velocity = player_dir * actor.stats.move_speed;
+                }
+                ActorAI::Ranger { preferred_distance } => {
+                    let target = player.body.collider.position - player_dir * *preferred_distance;
+                    let target_dir = (target - *actor.position).normalize_or_zero();
+                    actor.controller.target_velocity = target_dir * actor.stats.move_speed;
+
+                    if let Some(gun) = actor.gun {
+                        if gun.shot_delay <= Time::ZERO {
+                            gun.shot_delay = gun.config.shot_delay;
+                            self.projectiles.insert(Projectile::new(
+                                *actor.position,
+                                player.body.collider.position,
+                                Fraction::Enemy,
+                                gun.config.projectile,
+                            ));
+                        }
+                    }
                 }
             }
         }

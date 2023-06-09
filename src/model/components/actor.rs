@@ -20,6 +20,7 @@ pub struct Controller {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ActorAI {
     Crawler,
+    Ranger { preferred_distance: Coord },
 }
 
 #[derive(StructOf, Debug)]
@@ -56,7 +57,7 @@ impl Actor {
     }
 
     pub fn new_enemy(pos: vec2<Coord>, config: EnemyConfig) -> Self {
-        Self::new(
+        let mut enemy = Self::new(
             Body::new(pos, config.shape),
             config.hp,
             config.acceleration,
@@ -66,7 +67,11 @@ impl Actor {
             },
         )
         .with_ai(config.ai)
-        .stop_barrel(config.stops_barrel)
+        .stop_barrel(config.stops_barrel);
+        if let Some(gun) = config.gun {
+            enemy = enemy.with_gun(gun);
+        }
+        enemy
     }
 
     pub fn with_gun(self, gun: GunConfig) -> Self {

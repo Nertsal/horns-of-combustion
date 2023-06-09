@@ -83,6 +83,7 @@ impl GameRender {
             let color = match actor.ai {
                 None => self.theme.player,
                 Some(ActorAI::Crawler) => self.theme.enemies.crawler,
+                Some(ActorAI::Ranger { .. }) => self.theme.enemies.ranger,
             };
             self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
         }

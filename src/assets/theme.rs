@@ -15,6 +15,7 @@ pub struct Theme {
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct EnemiesTheme {
     pub crawler: Color,
+    pub ranger: Color,
 }
 
 impl Theme {
