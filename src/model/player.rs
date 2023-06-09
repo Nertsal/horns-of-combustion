@@ -3,18 +3,24 @@ use super::*;
 #[derive(Debug)]
 pub struct Player {
     pub actor: Id,
-    pub player_direction: vec2<Coord>,
-    pub target_velocity: vec2<Coord>,
+    pub input_direction: vec2<Coord>,
     pub out_of_view: bool,
+    pub state: PlayerState,
+}
+
+#[derive(Debug, Clone)]
+pub enum PlayerState {
+    Human,
+    Barrel,
 }
 
 impl Player {
     pub fn new(actor: Id) -> Self {
         Self {
             actor,
-            player_direction: vec2::ZERO,
-            target_velocity: vec2::ZERO,
+            input_direction: vec2::ZERO,
             out_of_view: false,
+            state: PlayerState::Human,
         }
     }
 

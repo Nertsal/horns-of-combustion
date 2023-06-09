@@ -28,6 +28,12 @@ impl Model {
                     ));
                 }
             }
+            PlayerAction::SwitchState => {
+                self.player.state = match self.player.state {
+                    PlayerState::Human => PlayerState::Barrel,
+                    PlayerState::Barrel => PlayerState::Human,
+                };
+            }
         }
     }
 }

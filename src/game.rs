@@ -54,7 +54,7 @@ impl Game {
         // Normalize player direction.
         player_direction = player_direction.normalize_or_zero();
 
-        player.player_direction = player_direction.as_r32();
+        player.input_direction = player_direction.as_r32();
     }
 }
 
@@ -65,8 +65,15 @@ impl geng::State for Game {
         self.render.draw(&self.model, framebuffer);
     }
 
-    fn handle_event(&mut self, _event: geng::Event) {
+    fn handle_event(&mut self, event: geng::Event) {
         self.update_player();
+
+        if let geng::Event::KeyDown {
+            key: geng::Key::Space,
+        } = event
+        {
+            self.model.player_action(PlayerAction::SwitchState);
+        }
     }
 
     fn update(&mut self, delta_time: f64) {

@@ -18,8 +18,8 @@ pub struct CameraConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct PlayerConfig {
-    pub human_state: PlayerStateConfig,
-    pub barrel_state: PlayerStateConfig,
+    pub human_state: HumanStateConfig,
+    pub barrel_state: BarrelStateConfig,
     pub speed: Coord,
     pub acceleration: Coord,
     pub hp: Hp,
@@ -27,7 +27,13 @@ pub struct PlayerConfig {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub struct PlayerStateConfig {
+pub struct HumanStateConfig {
+    pub shape: Shape,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct BarrelStateConfig {
+    pub steering: R32,
     pub shape: Shape,
 }
 

@@ -47,9 +47,9 @@ impl Model {
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
             // Interpolate body velocity to target velocity.
+            // Take min(1.0) to not overshoot
             *actor.velocity += (actor.controller.target_velocity - *actor.velocity)
-                * actor.controller.acceleration
-                * delta_time;
+                * (actor.controller.acceleration * delta_time).min(Coord::ONE);
         }
     }
 }

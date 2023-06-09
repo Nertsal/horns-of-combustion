@@ -2,6 +2,7 @@ mod action;
 mod actors;
 mod collisions;
 mod movement;
+mod player;
 mod weapons;
 
 use super::*;
@@ -58,27 +59,5 @@ impl Model {
             // Take min to not overshoot the target
             camera.center += direction * (config.speed * delta_time).min(Coord::ONE);
         }
-    }
-
-    fn control_player(&mut self, delta_time: Time) {
-        // Change target velocity to body velocity.
-        let config = &self.config.player;
-        // Use player direction to change target velocity.
-        self.player.target_velocity = self.player.player_direction * config.speed;
-
-        // Interpolate body velocity to target velocity.
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body")]
-            velocity: &'a mut vec2<Coord>,
-        }
-
-        let mut query = query_player_ref!(self.actors);
-        let player = query
-            .get_mut(self.player.actor)
-            .expect("Player actor not found");
-        *player.velocity +=
-            (self.player.target_velocity - *player.velocity) * config.acceleration * delta_time;
     }
 }
