@@ -6,20 +6,6 @@ pub enum Fraction {
     Enemy,
 }
 
-#[derive(StructOf, Debug)]
-pub struct Actor {
-    pub fraction: Fraction,
-    #[structof(nested)]
-    pub body: Body,
-    pub health: Health,
-    // #[structof(nested)] // TODO: optional nesting
-    pub gun: Option<Gun>,
-    pub stats: Stats,
-    pub controller: Controller,
-    pub ai: Option<ActorAI>,
-    pub stops_barrel: bool,
-}
-
 #[derive(Debug, Clone)]
 pub struct Stats {
     pub move_speed: Coord,
@@ -36,6 +22,21 @@ pub enum ActorAI {
     Crawler,
 }
 
+#[derive(StructOf, Debug)]
+pub struct Actor {
+    pub fraction: Fraction,
+    #[structof(nested)]
+    pub body: Body,
+    pub health: Health,
+    // #[structof(nested)] // TODO: optional nesting
+    pub gun: Option<Gun>,
+    pub stats: Stats,
+    pub controller: Controller,
+    pub ai: Option<ActorAI>,
+    pub stops_barrel: bool,
+    pub stunned: Option<Time>,
+}
+
 impl Actor {
     pub fn new(body: Body, hp: Hp, acceleration: Coord, fraction: Fraction, stats: Stats) -> Self {
         Self {
@@ -50,6 +51,7 @@ impl Actor {
             },
             ai: None,
             stops_barrel: false,
+            stunned: None,
         }
     }
 

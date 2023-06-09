@@ -41,14 +41,25 @@ impl Model {
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             controller: &'a Controller,
+            stunned: &'a mut Option<Time>,
         }
 
         let mut query = query_actor_ref!(self.actors);
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
+            let target_velocity = if let Some(time) = actor.stunned {
+                *time -= delta_time;
+                if *time <= Time::ZERO {
+                    *actor.stunned = None;
+                }
+                vec2::ZERO
+            } else {
+                actor.controller.target_velocity
+            };
+
             // Interpolate body velocity to target velocity.
             // Take min(1.0) to not overshoot
-            *actor.velocity += (actor.controller.target_velocity - *actor.velocity)
+            *actor.velocity += (target_velocity - *actor.velocity)
                 * (actor.controller.acceleration * delta_time).min(Coord::ONE);
         }
     }

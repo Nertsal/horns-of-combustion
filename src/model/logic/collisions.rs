@@ -28,9 +28,11 @@ impl Model {
             .expect("Player actor not found");
         let player_collider = &player.collider.clone();
 
+        #[derive(Clone)]
         struct Correction {
             position: vec2<Coord>,
             velocity: vec2<Coord>,
+            stun: Option<Time>,
         }
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
 
@@ -39,12 +41,27 @@ impl Model {
                 continue;
             }
             if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
-                let player_cor = corrections.entry(self.player.actor).or_insert(Correction {
-                    position: *player.collider.position,
-                    velocity: *player.velocity,
+                let mut player_cor =
+                    corrections
+                        .get(&self.player.actor)
+                        .cloned()
+                        .unwrap_or(Correction {
+                            position: *player.collider.position,
+                            velocity: *player.velocity,
+                            stun: None,
+                        });
+                let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+                    position: *actor.collider.position,
+                    velocity: *actor.velocity,
+                    stun: None,
                 });
 
-                // TODO: stun enemy
+                // TODO: configurable + better formula
+                actor_cor.stun = if *actor.stops_barrel {
+                    None
+                } else {
+                    Some(r32(3.0))
+                };
 
                 let relative_vel = player_cor.velocity - *actor.velocity;
                 let dot = vec2::dot(relative_vel, collision.normal);
@@ -58,6 +75,9 @@ impl Model {
                     dot.min(r32(2.0))
                 };
                 player_cor.velocity -= collision.normal * hit_barrel;
+
+                corrections.insert(self.player.actor, player_cor);
+                corrections.insert(actor_id, actor_cor);
             }
         }
 
@@ -68,6 +88,7 @@ impl Model {
             position: &'a mut vec2<Coord>,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
+            stunned: &'a mut Option<Time>,
         }
 
         let mut query = query_update_ref!(self.actors);
@@ -75,6 +96,7 @@ impl Model {
             let actor = query.get_mut(id).expect("invalid correction");
             *actor.position = correction.position;
             *actor.velocity = correction.velocity;
+            *actor.stunned = std::cmp::max(*actor.stunned, correction.stun);
         }
     }
 
