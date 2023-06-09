@@ -11,6 +11,8 @@ use super::*;
 pub struct Gasoline {
     pub collider: Collider,
     pub lifetime: Lifetime,
+
+    pub health: Health,
 }
 
 #[derive(StructOf, Debug)]

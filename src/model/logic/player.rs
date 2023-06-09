@@ -81,6 +81,8 @@ impl Model {
             self.gasoline.insert(Gasoline {
                 collider: Collider::new(*player.position, config.shape),
                 lifetime: Lifetime::new(config.lifetime),
+
+                health: Health::new(5.0),
             });
         }
         self.player.state = PlayerState::Barrel { next_gas };
