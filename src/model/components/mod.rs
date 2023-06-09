@@ -11,8 +11,8 @@ use super::*;
 pub struct Gasoline {
     pub collider: Collider,
     pub lifetime: Lifetime,
-
-    pub health: Health,
+    /// Ignites after being in contact with fire for that time.
+    pub ignite_timer: Time,
 }
 
 #[derive(StructOf, Debug)]

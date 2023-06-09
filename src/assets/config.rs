@@ -47,6 +47,7 @@ pub struct BarrelStateConfig {
 pub struct GasolineConfig {
     pub lifetime: Time,
     pub distance_period: Coord,
+    pub ignite_timer: Time,
     pub shape: Shape,
 }
 

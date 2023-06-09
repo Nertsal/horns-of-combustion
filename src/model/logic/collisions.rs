@@ -151,7 +151,7 @@ impl Model {
         }
     }
 
-    fn fire_gas(&mut self, _delta_time: Time) {
+    fn fire_gas(&mut self, delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct FireRef<'a> {
@@ -162,7 +162,7 @@ impl Model {
         #[derive(StructQuery)]
         struct GasRef<'a> {
             collider: &'a Collider,
-            health:   &'a mut Health,
+            ignite_timer: &'a mut Time,
         }
 
         let fire_query = query_fire_ref!(self.fire);
@@ -174,11 +174,10 @@ impl Model {
         while let Some((gas_id, gas)) = gas_iter.next() {
             for (_, fire) in &fire_query {
                 if fire.collider.check(gas.collider) {
-                    if gas.health.is_dead() {
+                    *gas.ignite_timer -= delta_time;
+                    if *gas.ignite_timer <= Time::ZERO {
                         to_ignite.push(gas_id);
                         break;
-                    } else {
-                        gas.health.damage(_delta_time * r32(100.0));
                     }
                 }
             }
