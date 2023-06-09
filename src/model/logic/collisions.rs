@@ -10,6 +10,7 @@ impl Model {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ProjRef<'a> {
+            fraction: &'a Fraction,
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
             damage: &'a Hp,
@@ -18,6 +19,7 @@ impl Model {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
+            fraction: &'a Fraction,
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
             health: &'a mut Health,
@@ -33,6 +35,9 @@ impl Model {
         while let Some((proj_id, proj)) = proj_iter.next() {
             let mut actor_iter = actors.iter_mut();
             while let Some((actor_id, actor)) = actor_iter.next() {
+                if proj.fraction == actor.fraction {
+                    continue;
+                }
                 if proj.collider.clone().check(&actor.collider.clone()) {
                     proj_hits.push(proj_id);
                     actor.health.damage(*proj.damage);

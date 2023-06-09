@@ -54,6 +54,7 @@ impl Model {
                 Body::new(vec2(15, 0).as_r32(), Shape::Circle { radius: r32(1.0) }),
                 r32(50.0),
                 r32(1.0),
+                Fraction::Enemy,
                 Stats {
                     move_speed: r32(10.0),
                 },

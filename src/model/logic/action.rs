@@ -24,6 +24,7 @@ impl Model {
                     self.projectiles.insert(Projectile::new(
                         pos,
                         target_pos,
+                        Fraction::Player,
                         player.gun.config.projectile,
                     ));
                 }

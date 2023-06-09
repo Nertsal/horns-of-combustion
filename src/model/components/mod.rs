@@ -13,13 +13,21 @@ pub struct Body {
 
 #[derive(StructOf, Debug)]
 pub struct Projectile {
+    pub fraction: Fraction,
     #[structof(nested)]
     pub body: Body,
     pub damage: Hp,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Fraction {
+    Player,
+    Enemy,
+}
+
 #[derive(StructOf, Debug)]
 pub struct Actor {
+    pub fraction: Fraction,
     #[structof(nested)]
     pub body: Body,
     pub health: Health,
@@ -72,8 +80,14 @@ impl Body {
 }
 
 impl Projectile {
-    pub fn new(pos: vec2<Coord>, target: vec2<Coord>, config: ProjectileConfig) -> Self {
+    pub fn new(
+        pos: vec2<Coord>,
+        target: vec2<Coord>,
+        fraction: Fraction,
+        config: ProjectileConfig,
+    ) -> Self {
         Self {
+            fraction,
             body: Body::new(pos, config.shape)
                 .with_velocity((target - pos).normalize_or_zero() * config.speed),
             damage: config.damage,
@@ -82,8 +96,9 @@ impl Projectile {
 }
 
 impl Actor {
-    pub fn new(body: Body, hp: Hp, acceleration: Coord, stats: Stats) -> Self {
+    pub fn new(body: Body, hp: Hp, acceleration: Coord, fraction: Fraction, stats: Stats) -> Self {
         Self {
+            fraction,
             body,
             health: Health::new(hp),
             gun: None,

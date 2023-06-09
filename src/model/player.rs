@@ -30,6 +30,7 @@ impl Player {
                 Body::new(vec2::ZERO, Shape::Circle { radius: r32(1.0) }),
                 config.hp,
                 config.acceleration,
+                Fraction::Player,
                 Stats {
                     move_speed: config.speed,
                 },
