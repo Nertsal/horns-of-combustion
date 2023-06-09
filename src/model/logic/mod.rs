@@ -3,6 +3,7 @@ mod actors;
 mod collisions;
 mod movement;
 mod player;
+mod projectiles;
 mod weapons;
 
 use super::*;
@@ -15,6 +16,7 @@ impl Model {
         self.actors_ai(delta_time);
         self.control_player(delta_time);
         self.control_actors(delta_time);
+        self.control_projectiles(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
         self.update_camera(delta_time);

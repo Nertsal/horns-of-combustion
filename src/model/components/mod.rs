@@ -17,6 +17,7 @@ pub struct Projectile {
     #[structof(nested)]
     pub body: Body,
     pub damage: Hp,
+    pub target_pos: Option<vec2<Coord>>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -91,6 +92,14 @@ impl Projectile {
             body: Body::new(pos, config.shape)
                 .with_velocity((target - pos).normalize_or_zero() * config.speed),
             damage: config.damage,
+            target_pos: None,
+        }
+    }
+
+    pub fn with_target(self, target_pos: vec2<Coord>) -> Self {
+        Self {
+            target_pos: Some(target_pos),
+            ..self
         }
     }
 }
