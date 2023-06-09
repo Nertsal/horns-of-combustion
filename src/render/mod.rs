@@ -1,5 +1,5 @@
 use crate::{
-    assets::Assets,
+    assets::{theme::Theme, Assets},
     model::*,
     util::{Mat3RealConversions, Vec2RealConversions},
 };
@@ -11,17 +11,21 @@ use geng::prelude::*;
 pub struct GameRender {
     geng: Geng,
     assets: Rc<Assets>,
+    theme: Theme,
 }
 
 impl GameRender {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>) -> Self {
+    pub fn new(geng: &Geng, assets: &Rc<Assets>, theme: Theme) -> Self {
         Self {
             geng: geng.clone(),
             assets: assets.clone(),
+            theme,
         }
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        ugli::clear(framebuffer, Some(self.theme.background), None, None);
+
         // Draw a circle at the center of the world.
         self.draw_shape(
             Shape::Circle { radius: r32(10.0) },
@@ -45,8 +49,8 @@ impl GameRender {
         }
 
         let camera = &model.camera;
+        let color = self.theme.gasoline;
         for (_, gas) in &query_gas_ref!(model.gasoline) {
-            let color = Color::opaque(0.8, 0.4, 0.0); // TODO
             self.draw_collider(&gas.collider.clone(), color, camera, framebuffer);
         }
     }
@@ -59,8 +63,8 @@ impl GameRender {
         }
 
         let camera = &model.camera;
+        let color = self.theme.fire;
         for (_, fire) in &query_fire_ref!(model.fire) {
-            let color = Color::opaque(0.8, 0.4, 0.0); // TODO
             self.draw_collider(&fire.collider.clone(), color, camera, framebuffer);
         }
     }
@@ -71,11 +75,15 @@ impl GameRender {
         struct ActorRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            ai: &'a Option<ActorAI>,
         }
 
         let camera = &model.camera;
         for (_id, actor) in &query_actor_ref!(model.actors) {
-            let color = Color::BLUE; // TODO
+            let color = match actor.ai {
+                None => self.theme.player,
+                Some(ActorAI::Crawler) => self.theme.enemies.crawler,
+            };
             self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
         }
     }
@@ -89,8 +97,8 @@ impl GameRender {
         }
 
         let camera = &model.camera;
+        let color = self.theme.projectile;
         for (_id, proj) in &query_proj_ref!(model.projectiles) {
-            let color = Color::RED; // TODO
             self.draw_collider(&proj.collider.clone(), color, camera, framebuffer);
         }
     }

@@ -1,8 +1,8 @@
-use crate::util::Vec2RealConversions;
 use crate::{
-    assets::{config::Config, Assets},
+    assets::{config::Config, theme::Theme, Assets},
     model::*,
     render::GameRender,
+    util::Vec2RealConversions,
 };
 
 use geng::prelude::*;
@@ -16,11 +16,11 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config) -> Self {
+    pub fn new(geng: &Geng, assets: &Rc<Assets>, config: Config, theme: Theme) -> Self {
         Self {
             geng: geng.clone(),
             framebuffer_size: vec2(1, 1),
-            render: GameRender::new(geng, assets),
+            render: GameRender::new(geng, assets, theme),
             model: Model::new(config),
         }
     }
@@ -61,7 +61,6 @@ impl Game {
 impl geng::State for Game {
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         self.framebuffer_size = framebuffer.size();
-        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
         self.render.draw(&self.model, framebuffer);
     }
 

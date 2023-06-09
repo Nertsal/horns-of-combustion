@@ -10,6 +10,8 @@ use geng::prelude::*;
 struct Opts {
     #[clap(long, default_value = "assets/config.ron")]
     config: std::path::PathBuf,
+    #[clap(long, default_value = "assets/theme.toml")]
+    theme: std::path::PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,
 }
@@ -31,7 +33,8 @@ fn main() {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
             let config = assets::config::Config::load(&opts.config).await.unwrap();
-            game::Game::new(&geng, &Rc::new(assets), config)
+            let theme = assets::theme::Theme::load(&opts.theme).await.unwrap();
+            game::Game::new(&geng, &Rc::new(assets), config, theme)
         }
     };
     geng.run_loading(future)
