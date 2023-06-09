@@ -5,14 +5,16 @@ Config(
         dead_zone: 0.5,
     ),
     player: (
-        speed: 45.0,
+        speed: 20.0,
         acceleration: 3.0,
+        dash_burst: 20.0,
         hp: 100.0,
         human_state: (
             shape: Circle( radius: 1.0 ),
         ),
         barrel_state: (
             steering: 1.0,
+            speed: 40.0,
             shape: Rectangle(
                 width: 1.75,
                 height: 2.5,

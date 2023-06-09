@@ -21,6 +21,8 @@ pub struct CameraConfig {
 pub struct PlayerConfig {
     pub human_state: HumanStateConfig,
     pub barrel_state: BarrelStateConfig,
+    /// Increase in speed from a barrel dash.
+    pub dash_burst: Coord,
     pub speed: Coord,
     pub acceleration: Coord,
     pub hp: Hp,
@@ -34,6 +36,8 @@ pub struct HumanStateConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct BarrelStateConfig {
+    /// Max possible speed.
+    pub speed: Coord,
     pub steering: R32,
     pub shape: Shape,
     pub gasoline: GasolineConfig,

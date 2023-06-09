@@ -34,9 +34,29 @@ impl Model {
             }
             PlayerAction::SwitchState => {
                 self.player.state = match self.player.state {
-                    PlayerState::Human => PlayerState::Barrel {
-                        next_gas: self.config.player.barrel_state.gasoline.distance_period,
-                    },
+                    PlayerState::Human => {
+                        #[allow(dead_code)]
+                        #[derive(StructQuery)]
+                        struct PlayerRef<'a> {
+                            #[query(storage = ".body")]
+                            velocity: &'a mut vec2<Coord>,
+                        }
+
+                        let mut query = query_player_ref!(self.actors);
+                        let player = query
+                            .get_mut(self.player.actor)
+                            .expect("Player actor not found");
+
+                        let dash_speed = (vec2::dot(*player.velocity, self.player.input_direction)
+                            .max(Coord::ZERO)
+                            + self.config.player.dash_burst)
+                            .min(self.config.player.barrel_state.speed);
+                        *player.velocity = self.player.input_direction * dash_speed;
+
+                        PlayerState::Barrel {
+                            next_gas: self.config.player.barrel_state.gasoline.distance_period,
+                        }
+                    }
                     PlayerState::Barrel { .. } => PlayerState::Human,
                 };
             }
