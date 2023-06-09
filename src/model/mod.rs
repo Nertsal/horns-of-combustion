@@ -49,17 +49,9 @@ impl Model {
     }
 
     fn init(&mut self) {
-        self.actors.insert(
-            Actor::new(
-                Body::new(vec2(15, 0).as_r32(), Shape::Circle { radius: r32(1.0) }),
-                r32(50.0),
-                r32(1.0),
-                Fraction::Enemy,
-                Stats {
-                    move_speed: r32(10.0),
-                },
-            )
-            .with_ai(ActorAI::Crawler),
-        );
+        for (i, config) in self.config.enemies.iter() {
+            self.actors
+                .insert(Actor::new_enemy(vec2(15, i * 3).as_r32(), config.clone()));
+        }
     }
 }

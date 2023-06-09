@@ -73,6 +73,8 @@ impl Model {
         let fire_query = query_fire_ref!(self.fire);
         let gas_query = query_gas_ref!(self.gasoline);
 
+        // TODO: fix framerate dependency
+        // e.g. iterate until no more overlaps are found
         let mut to_ignite: Vec<Id> = Vec::new();
         for (gas_id, gas) in &gas_query {
             for (_, fire) in &fire_query {

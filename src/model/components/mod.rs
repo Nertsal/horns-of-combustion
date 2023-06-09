@@ -50,7 +50,7 @@ pub struct Controller {
     pub acceleration: Coord,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum ActorAI {
     Crawler,
 }
@@ -118,6 +118,19 @@ impl Actor {
             },
             ai: None,
         }
+    }
+
+    pub fn new_enemy(pos: vec2<Coord>, config: EnemyConfig) -> Self {
+        Self::new(
+            Body::new(pos, config.shape),
+            config.hp,
+            config.acceleration,
+            Fraction::Enemy,
+            Stats {
+                move_speed: config.speed,
+            },
+        )
+        .with_ai(config.ai)
     }
 
     pub fn with_gun(self, gun: GunConfig) -> Self {
