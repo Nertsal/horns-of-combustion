@@ -12,6 +12,8 @@ struct Opts {
     config: std::path::PathBuf,
     #[clap(long, default_value = "assets/theme.toml")]
     theme: std::path::PathBuf,
+    #[clap(long, default_value = "assets/controls.ron")]
+    controls: std::path::PathBuf,
     #[clap(flatten)]
     geng: geng::CliArgs,
 }
@@ -34,7 +36,10 @@ fn main() {
             let assets = assets::Assets::load(manager).await.unwrap();
             let config = assets::config::Config::load(&opts.config).await.unwrap();
             let theme = assets::theme::Theme::load(&opts.theme).await.unwrap();
-            game::Game::new(&geng, &Rc::new(assets), config, theme)
+            let controls = assets::controls::Controls::load(&opts.controls)
+                .await
+                .unwrap();
+            game::Game::new(&geng, &Rc::new(assets), config, theme, controls)
         }
     };
     geng.run_loading(future)

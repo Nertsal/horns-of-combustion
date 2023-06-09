@@ -61,7 +61,6 @@ pub struct ProjectileConfig {
 
 impl Config {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        let config = file::load_detect(path).await?;
-        Ok(config)
+        file::load_detect(path).await
     }
 }

@@ -19,7 +19,6 @@ pub struct EnemiesTheme {
 
 impl Theme {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        let theme = file::load_detect(path).await?;
-        Ok(theme)
+        file::load_detect(path).await
     }
 }

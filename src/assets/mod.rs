@@ -1,4 +1,5 @@
 pub mod config;
+pub mod controls;
 pub mod theme;
 
 use geng::prelude::*;

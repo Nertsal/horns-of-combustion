@@ -1,3 +1,4 @@
+mod keys;
 mod real;
 
-pub use self::real::*;
+pub use self::{keys::*, real::*};
