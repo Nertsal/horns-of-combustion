@@ -68,6 +68,8 @@ pub struct EnemyConfig {
     pub hp: Hp,
     pub ai: ActorAI,
     pub gun: Option<GunConfig>,
+    #[serde(default)]
+    pub stops_barrel: bool,
 }
 
 impl Config {

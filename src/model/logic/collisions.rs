@@ -2,8 +2,75 @@ use super::*;
 
 impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
+        self.collide_barrel(delta_time);
         self.collide_projectiles(delta_time);
         self.fire_gas(delta_time);
+    }
+
+    fn collide_barrel(&mut self, _delta_time: Time) {
+        if !matches!(self.player.state, PlayerState::Barrel { .. }) {
+            return;
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a vec2<Coord>,
+            stops_barrel: &'a bool,
+        }
+
+        let query = query_actor_ref!(self.actors);
+        let player = query
+            .get(self.player.actor)
+            .expect("Player actor not found");
+        let player_collider = &player.collider.clone();
+
+        struct Correction {
+            position: vec2<Coord>,
+            velocity: vec2<Coord>,
+        }
+        let mut corrections: HashMap<Id, Correction> = HashMap::new();
+
+        for (actor_id, actor) in &query {
+            if actor_id == self.player.actor {
+                continue;
+            }
+            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
+                let player_cor = corrections.entry(self.player.actor).or_insert(Correction {
+                    position: *player.collider.position,
+                    velocity: *player.velocity,
+                });
+
+                // TODO: angular
+                // TODO: stun enemy
+
+                let hit_barrel = if *actor.stops_barrel {
+                    player_cor.velocity.len()
+                } else {
+                    player_cor.velocity.len().min(r32(5.0))
+                };
+                player_cor.velocity -= collision.normal * hit_barrel;
+            }
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct UpdateRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a mut vec2<Coord>,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let mut query = query_update_ref!(self.actors);
+        for (id, correction) in corrections {
+            let actor = query.get_mut(id).expect("invalid correction");
+            *actor.position = correction.position;
+            *actor.velocity = correction.velocity;
+        }
     }
 
     fn collide_projectiles(&mut self, _delta_time: Time) {

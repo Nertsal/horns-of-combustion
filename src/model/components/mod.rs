@@ -37,6 +37,7 @@ pub struct Actor {
     pub stats: Stats,
     pub controller: Controller,
     pub ai: Option<ActorAI>,
+    pub stops_barrel: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -117,6 +118,7 @@ impl Actor {
                 acceleration,
             },
             ai: None,
+            stops_barrel: false,
         }
     }
 
@@ -131,6 +133,7 @@ impl Actor {
             },
         )
         .with_ai(config.ai)
+        .stop_barrel(config.stops_barrel)
     }
 
     pub fn with_gun(self, gun: GunConfig) -> Self {
@@ -143,6 +146,13 @@ impl Actor {
     pub fn with_ai(self, ai: ActorAI) -> Self {
         Self {
             ai: Some(ai),
+            ..self
+        }
+    }
+
+    pub fn stop_barrel(self, stops_barrel: bool) -> Self {
+        Self {
+            stops_barrel,
             ..self
         }
     }
