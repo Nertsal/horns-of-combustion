@@ -47,10 +47,16 @@ impl Model {
                 // TODO: angular
                 // TODO: stun enemy
 
+                let relative_vel = player_cor.velocity - *actor.velocity;
+                let dot = vec2::dot(relative_vel, collision.normal);
+                if dot <= Coord::ZERO {
+                    continue;
+                }
+
                 let hit_barrel = if *actor.stops_barrel {
-                    player_cor.velocity.len()
+                    dot
                 } else {
-                    player_cor.velocity.len().min(r32(5.0))
+                    dot.min(r32(2.0))
                 };
                 player_cor.velocity -= collision.normal * hit_barrel;
             }
