@@ -24,6 +24,10 @@ Config(
                 distance_period: 1.0,
                 ignite_timer: 0.05,
                 shape: Circle( radius: 1.5 ),
+                fire: (
+                    duration: 5.0,
+                    damage_per_second: 10.0,
+                ),
             ),
         ),
         gun: ( // Revolver
