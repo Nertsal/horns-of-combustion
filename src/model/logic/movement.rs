@@ -3,7 +3,6 @@ use super::*;
 impl Model {
     /// System that moves all bodies in the world according to their velocity.
     pub(super) fn movement(&mut self, delta_time: Time) {
-        self.player.actor.body.collider.position += self.player.actor.body.velocity * delta_time;
         self.move_actors(delta_time);
         self.move_projectiles(delta_time);
     }

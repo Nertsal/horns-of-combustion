@@ -31,10 +31,11 @@ pub struct Model {
 
 impl Model {
     pub fn new(config: Config) -> Self {
+        let mut actors = StructOf::new();
         let mut model = Self {
             camera: Camera::new(config.camera.fov),
-            player: Player::new(config.player),
-            actors: StructOf::new(),
+            player: Player::init(config.player, &mut actors),
+            actors,
             projectiles: StructOf::new(),
             config,
         };

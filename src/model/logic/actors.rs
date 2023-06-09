@@ -13,12 +13,16 @@ impl Model {
             ai: &'a mut ActorAI,
         }
 
-        let player = &self.player;
+        let player = self
+            .actors
+            .get(self.player.actor)
+            .expect("Player actor not found")
+            .clone();
 
         let mut query = query_actor_ref!(self.actors);
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
-            let player_dir = player.actor.body.collider.position - *actor.position;
+            let player_dir = player.body.collider.position - *actor.position;
             // let player_dist = player_dir.len();
             let player_dir = player_dir.normalize_or_zero();
 

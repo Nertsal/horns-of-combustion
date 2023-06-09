@@ -18,7 +18,18 @@ impl Model {
     }
 
     fn update_camera(&mut self, delta_time: Time) {
-        let player_position = self.player.actor.body.collider.position;
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PlayerRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a vec2<Coord>,
+        }
+
+        let query = query_player_ref!(self.actors);
+        let player = query
+            .get(self.player.actor)
+            .expect("Player actor not found");
+
         let camera = &mut self.camera;
 
         // Zoom out if player is moving fast.
@@ -27,7 +38,7 @@ impl Model {
         // camera.fov = TODO: interpolate fov to player speed.
 
         // Do not follow player if it is inside the bounds of the camera.
-        let direction = player_position - camera.center.as_r32();
+        let direction = *player.position - camera.center.as_r32();
         let distance = direction.len();
         if distance > camera.fov / r32(3.0) {
             self.player.out_of_view = true;
@@ -40,7 +51,7 @@ impl Model {
                 // camera.target_position = *player_position;
             } else {
                 // Update the target position
-                camera.target_position = player_position;
+                camera.target_position = *player.position;
             }
 
             // Interpolate camera position to the target
@@ -52,14 +63,22 @@ impl Model {
     fn control_player(&mut self, delta_time: Time) {
         // Change target velocity to body velocity.
         let config = &self.config.player;
-        let player = &mut self.player;
-
         // Use player direction to change target velocity.
-        player.target_velocity = player.player_direction * config.speed;
+        self.player.target_velocity = self.player.player_direction * config.speed;
 
         // Interpolate body velocity to target velocity.
-        player.actor.body.velocity += (player.target_velocity - player.actor.body.velocity)
-            * config.acceleration
-            * delta_time;
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PlayerRef<'a> {
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let mut query = query_player_ref!(self.actors);
+        let player = query
+            .get_mut(self.player.actor)
+            .expect("Player actor not found");
+        *player.velocity +=
+            (self.player.target_velocity - *player.velocity) * config.acceleration * delta_time;
     }
 }

@@ -9,7 +9,17 @@ pub struct Config {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct CameraConfig {
+    pub fov: Coord,
+    pub speed: Coord,
+    /// Radius in which the camera allows the target to move without affecting the camera.
+    pub dead_zone: Coord,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct PlayerConfig {
+    pub human_state: PlayerStateConfig,
+    pub barrel_state: PlayerStateConfig,
     pub speed: Coord,
     pub acceleration: Coord,
     pub hp: Hp,
@@ -17,11 +27,8 @@ pub struct PlayerConfig {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub struct CameraConfig {
-    pub fov: Coord,
-    pub speed: Coord,
-    /// Radius in which the camera allows the target to move without affecting the camera.
-    pub dead_zone: Coord,
+pub struct PlayerStateConfig {
+    pub shape: Shape,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

@@ -31,12 +31,6 @@ impl GameRender {
             framebuffer,
         );
 
-        self.draw_collider(
-            &model.player.actor.body.collider,
-            Color::BLUE,
-            &model.camera.to_camera2d(),
-            framebuffer,
-        );
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
     }

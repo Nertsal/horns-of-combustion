@@ -8,6 +8,15 @@ Config(
         speed: 45.0,
         acceleration: 3.0,
         hp: 100.0,
+        human_state: (
+            shape: Circle( radius: 1.0 ),
+        ),
+        barrel_state: (
+            shape: Rectangle(
+                width: 1.0,
+                height: 1.5,
+            ),
+        ),
         gun: ( // Revolver
             ammo: 6,
             reload_time: 3.0,

@@ -2,9 +2,6 @@ use super::*;
 
 impl Model {
     pub fn update_weapons(&mut self, delta_time: Time) {
-        if let Some(gun) = &mut self.player.actor.gun {
-            update_weapon(&mut gun.shot_delay, delta_time);
-        }
         self.update_actors(delta_time);
     }
 
