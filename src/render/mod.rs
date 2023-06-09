@@ -39,6 +39,7 @@ impl GameRender {
         self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
+        self.draw_health(model, framebuffer);
     }
 
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
@@ -86,6 +87,29 @@ impl GameRender {
                 Some(ActorAI::Ranger { .. }) => self.theme.enemies.ranger,
             };
             self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
+        }
+    }
+
+    fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            health: &'a Health,
+        }
+
+        let camera = &model.camera;
+        for (_id, actor) in &query_actor_ref!(model.actors) {
+            if actor.health.ratio().as_f32() == 1.0 {
+                continue;
+            }
+
+            let aabb = actor.collider.clone().compute_aabb();
+            let pos = vec2(aabb.center().x, aabb.min.y + aabb.height() * r32(0.9));
+            let size = vec2(1.3, 0.4).as_r32();
+            let aabb = Aabb2::point(pos).extend_symmetric(size / r32(2.0));
+            self.draw_health_bar(aabb, actor.health, camera, framebuffer);
         }
     }
 
@@ -146,5 +170,37 @@ impl GameRender {
                 )
             }
         }
+    }
+
+    fn draw_health_bar(
+        &self,
+        aabb: Aabb2<Coord>,
+        health: &Health,
+        camera: &Camera,
+        framebuffer: &mut ugli::Framebuffer,
+    ) {
+        let transform = mat3::translate(aabb.center()).as_f32();
+
+        self.draw_shape(
+            Shape::Rectangle {
+                width: aabb.width(),
+                height: aabb.height(),
+            },
+            transform,
+            self.theme.health_bg,
+            camera,
+            framebuffer,
+        );
+
+        self.draw_shape(
+            Shape::Rectangle {
+                width: aabb.width() * health.ratio() * r32(0.9),
+                height: aabb.height() * r32(0.9),
+            },
+            transform,
+            self.theme.health_fg,
+            camera,
+            framebuffer,
+        );
     }
 }
