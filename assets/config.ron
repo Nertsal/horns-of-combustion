@@ -17,6 +17,10 @@ Config(
                 width: 1.75,
                 height: 2.5,
             ),
+            gasoline: (
+                distance_period: 1.0,
+                shape: Circle( radius: 1.5 ),
+            ),
         ),
         gun: ( // Revolver
             ammo: 6,
