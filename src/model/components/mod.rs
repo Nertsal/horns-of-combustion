@@ -49,6 +49,13 @@ pub enum ActorAI {
 #[derive(StructOf, Debug)]
 pub struct Gasoline {
     pub collider: Collider,
+    pub lifetime: Lifetime,
+}
+
+#[derive(StructOf, Debug)]
+pub struct Fire {
+    pub collider: Collider,
+    pub lifetime: Lifetime,
 }
 
 impl Body {

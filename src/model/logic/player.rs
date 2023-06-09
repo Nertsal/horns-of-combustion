@@ -80,6 +80,7 @@ impl Model {
             next_gas = config.distance_period;
             self.gasoline.insert(Gasoline {
                 collider: Collider::new(*player.position, config.shape),
+                lifetime: Lifetime::new(config.lifetime),
             });
         }
         self.player.state = PlayerState::Barrel { next_gas };

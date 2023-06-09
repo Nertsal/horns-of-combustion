@@ -3,6 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
         self.collide_projectiles(delta_time);
+        self.fire_gas(delta_time);
     }
 
     fn collide_projectiles(&mut self, _delta_time: Time) {
@@ -48,6 +49,41 @@ impl Model {
         }
         for id in dead_actors {
             self.actors.remove(id);
+        }
+    }
+
+    fn fire_gas(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct FireRef<'a> {
+            collider: &'a Collider,
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct GasRef<'a> {
+            collider: &'a Collider,
+        }
+
+        let fire_query = query_fire_ref!(self.fire);
+        let gas_query = query_gas_ref!(self.gasoline);
+
+        let mut to_ignite: Vec<Id> = Vec::new();
+        for (gas_id, gas) in &gas_query {
+            for (_, fire) in &fire_query {
+                if fire.collider.check(gas.collider) {
+                    to_ignite.push(gas_id);
+                    break;
+                }
+            }
+        }
+
+        for gas_id in to_ignite {
+            let gas = self.gasoline.remove(gas_id).unwrap();
+            self.fire.insert(Fire {
+                collider: gas.collider,
+                lifetime: Health::new(5.0),
+            });
         }
     }
 }

@@ -10,6 +10,8 @@ use super::*;
 impl Model {
     pub fn update(&mut self, delta_time: Time) {
         self.update_weapons(delta_time);
+        self.update_gas(delta_time);
+        self.update_fire(delta_time);
         self.actors_ai(delta_time);
         self.control_player(delta_time);
         self.control_actors(delta_time);
@@ -58,6 +60,50 @@ impl Model {
             // Interpolate camera position to the target
             // Take min to not overshoot the target
             camera.center += direction * (config.speed * delta_time).min(Coord::ONE);
+        }
+    }
+
+    fn update_gas(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct GasRef<'a> {
+            lifetime: &'a mut Lifetime,
+        }
+
+        let mut query = query_gas_ref!(self.gasoline);
+        let mut iter = query.iter_mut();
+        let mut expired: Vec<Id> = Vec::new();
+        while let Some((id, gas)) = iter.next() {
+            gas.lifetime.damage(delta_time);
+            if gas.lifetime.is_dead() {
+                expired.push(id);
+            }
+        }
+
+        for id in expired {
+            self.gasoline.remove(id);
+        }
+    }
+
+    fn update_fire(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct FireRef<'a> {
+            lifetime: &'a mut Lifetime,
+        }
+
+        let mut query = query_fire_ref!(self.fire);
+        let mut iter = query.iter_mut();
+        let mut expired: Vec<Id> = Vec::new();
+        while let Some((id, fire)) = iter.next() {
+            fire.lifetime.damage(delta_time);
+            if fire.lifetime.is_dead() {
+                expired.push(id);
+            }
+        }
+
+        for id in expired {
+            self.fire.remove(id);
         }
     }
 }

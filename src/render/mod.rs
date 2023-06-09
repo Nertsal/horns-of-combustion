@@ -32,6 +32,7 @@ impl GameRender {
         );
 
         self.draw_gasoline(model, framebuffer);
+        self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
     }
@@ -47,6 +48,20 @@ impl GameRender {
         for (_, gas) in &query_gas_ref!(model.gasoline) {
             let color = Color::opaque(0.8, 0.4, 0.0); // TODO
             self.draw_collider(&gas.collider.clone(), color, camera, framebuffer);
+        }
+    }
+
+    fn draw_fire(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct FireRef<'a> {
+            collider: &'a Collider,
+        }
+
+        let camera = &model.camera;
+        for (_, fire) in &query_fire_ref!(model.fire) {
+            let color = Color::opaque(0.8, 0.4, 0.0); // TODO
+            self.draw_collider(&fire.collider.clone(), color, camera, framebuffer);
         }
     }
 

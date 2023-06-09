@@ -40,6 +40,7 @@ pub struct BarrelStateConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct GasolineConfig {
+    pub lifetime: Time,
     pub distance_period: Coord,
     pub shape: Shape,
 }

@@ -20,6 +20,7 @@ pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
 pub type Id = ecs::arena::Index;
+pub type Lifetime = Health;
 
 pub struct Model {
     pub config: Config,
@@ -28,6 +29,7 @@ pub struct Model {
     pub actors: StructOf<Arena<Actor>>,
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
+    pub fire: StructOf<Arena<Fire>>,
 }
 
 impl Model {
@@ -39,6 +41,7 @@ impl Model {
             actors,
             projectiles: StructOf::new(),
             gasoline: StructOf::new(),
+            fire: StructOf::new(),
             config,
         };
         model.init();
