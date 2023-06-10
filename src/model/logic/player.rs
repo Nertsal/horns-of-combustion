@@ -58,7 +58,8 @@ impl Model {
         *player.shape = self.config.player.barrel_state.shape;
 
         // Controller
-        let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
+        // let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
+        let input_direction = self.player.input_direction;
         let delta_angle = if input_direction == vec2::ZERO {
             Coord::ZERO
         } else {
