@@ -54,6 +54,13 @@ impl Model {
 
     fn ignite_gasoline(&mut self, gas_id: Id) {
         if let Some(gas) = self.gasoline.remove(gas_id) {
+            self.queued_effects.push_back(QueuedEffect {
+                effect: Effect::Explosion {
+                    position: gas.collider.position,
+                    radius: gas.explosion_radius,
+                    strength: gas.explosion_strength,
+                },
+            });
             self.fire.insert(Fire {
                 collider: gas.collider,
                 lifetime: Lifetime::new(5.0),
