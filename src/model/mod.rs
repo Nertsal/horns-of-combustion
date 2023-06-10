@@ -1,18 +1,23 @@
 mod action;
 mod camera;
 mod components;
+mod effect;
 mod health;
 mod logic;
 mod player;
 mod waves;
 mod weapons;
 
-pub use self::{action::*, camera::*, components::*, health::*, player::*, waves::*, weapons::*};
+pub use self::{
+    action::*, camera::*, components::*, effect::*, health::*, player::*, waves::*, weapons::*,
+};
 
 use crate::{
     assets::{config::*, waves::*},
     util::{RealConversions, Vec2RealConversions},
 };
+
+use std::collections::VecDeque;
 
 use ecs::{arena::Arena, prelude::*};
 use geng::prelude::*;
@@ -33,6 +38,7 @@ pub struct Model {
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
+    pub queued_effects: VecDeque<QueuedEffect>,
 }
 
 impl Model {
@@ -47,6 +53,7 @@ impl Model {
             fire: StructOf::new(),
             wave_manager: WaveManager::new(waves),
             enemies_list: enemies,
+            queued_effects: VecDeque::new(),
             config,
         };
         model.init();

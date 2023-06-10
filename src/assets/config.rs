@@ -4,6 +4,8 @@ use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, ShotPattern, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
+    pub death_explosion_radius: Coord,
+    pub death_explosion_strength: Coord,
     pub player: PlayerConfig,
     pub camera: CameraConfig,
 }

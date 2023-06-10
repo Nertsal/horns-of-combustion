@@ -1,4 +1,6 @@
 Config(
+    death_explosion_radius: 5.0,
+    death_explosion_strength: 10.0,
     camera: (
         fov: 50.0,
         speed: 6.0,

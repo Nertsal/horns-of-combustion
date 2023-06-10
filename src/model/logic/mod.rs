@@ -1,6 +1,7 @@
 mod action;
 mod actors;
 mod collisions;
+mod effects;
 mod movement;
 mod player;
 mod projectiles;
@@ -22,6 +23,7 @@ impl Model {
         self.control_projectiles(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
+        self.handle_effects(delta_time);
         self.check_deaths(delta_time);
         self.update_camera(delta_time);
     }
@@ -39,7 +41,14 @@ impl Model {
             .map(|(id, _)| id)
             .collect();
         for id in dead_actors {
-            self.actors.remove(id);
+            let actor = self.actors.remove(id).unwrap();
+            self.queued_effects.push_back(QueuedEffect {
+                effect: Effect::Explosion {
+                    position: actor.body.collider.position,
+                    radius: self.config.death_explosion_radius,
+                    strength: self.config.death_explosion_strength,
+                },
+            });
         }
     }
 
