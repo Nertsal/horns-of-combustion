@@ -1,0 +1,26 @@
+(
+    shape: Circle( radius: 1.0 ),
+    speed: 20.0,
+    acceleration: 0.5,
+    hp: 50.0,
+    ai: Ranger(
+        preferred_distance: 10.0,
+    ),
+    gun: Some((
+        ammo: 2,
+        reload_time: 3.0,
+        shot_delay: 1.0,
+        shot: (
+            pattern: Multiple (
+                spread_degrees: 30.0,
+                bullets: 3,
+            ),
+            projectile: (
+                lifetime: 5.0,
+                speed: 40.0,
+                damage: 5.0,
+                shape: Circle( radius: 0.2 )
+            ),
+        )
+    )),
+)

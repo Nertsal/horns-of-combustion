@@ -1,0 +1,40 @@
+(
+    min_spawn_distance: 10.0,
+    max_spawn_distance: 15.0,
+    spawn_circle_radius: 5.0,
+    waves: [
+        (
+            wave_delay: 1.0,
+            spawn_delay: 0.1,
+            wait_for_deaths: true,
+            enemies: [
+                "crawler",
+            ],
+        ),
+        (
+            wave_delay: 1.0,
+            spawn_delay: 0.1,
+            wait_for_deaths: true,
+            enemies: [
+                "crawler",
+                "tank",
+            ],
+        ),
+        (
+            wave_delay: 1.0,
+            spawn_delay: 0.1,
+            wait_for_deaths: true,
+            enemies: [
+                "ranger",
+            ],
+        ),
+        (
+            wave_delay: 1.0,
+            spawn_delay: 0.1,
+            wait_for_deaths: true,
+            enemies: [
+                "ranger2",
+            ],
+        ),
+    ],
+)
