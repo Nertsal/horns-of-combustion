@@ -25,6 +25,8 @@ Config(
                 lifetime: 10.0,
                 distance_period: 1.0,
                 ignite_timer: 0.05,
+                explosion_radius: 5.0,
+                explosion_strength: 5.0,
                 shape: Circle( radius: 1.5 ),
                 fire: (
                     duration: 5.0,
