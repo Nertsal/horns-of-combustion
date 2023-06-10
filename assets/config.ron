@@ -36,6 +36,7 @@ Config(
             shot_delay: 0.6,
             shot: (
                 projectile: (
+                    lifetime: 5.0,
                     speed: 50.0,
                     damage: 30.0,
                     shape: Circle( radius: 0.2 ),
@@ -79,6 +80,7 @@ Config(
                         bullets: 3,
                     ),
                     projectile: (
+                        lifetime: 5.0,
                         speed: 40.0,
                         damage: 5.0,
                         shape: Circle( radius: 0.2 )
@@ -101,6 +103,7 @@ Config(
                 shot: (
                     pattern: Single,
                     projectile: (
+                        lifetime: 5.0,
                         speed: 20.0,
                         damage: 5.0,
                         shape: Circle( radius: 0.2 ),
