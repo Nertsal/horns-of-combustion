@@ -30,7 +30,7 @@ Config(
                 ),
             ),
         ),
-        gun: ( // Revolver
+        gun: (
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.1,
@@ -38,7 +38,7 @@ Config(
                 projectile: (
                     lifetime: 5.0,
                     speed: 50.0,
-                    damage: 30.0,
+                    damage: 10.0,
                     shape: Circle( radius: 0.2 ),
                 ),
             ),
