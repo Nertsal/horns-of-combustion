@@ -48,7 +48,7 @@ impl Model {
                                 *actor.position,
                                 player.body.collider.position,
                                 Fraction::Enemy,
-                                gun.config.projectile,
+                                gun.config.projectile.clone(),
                             ));
                         }
                     }

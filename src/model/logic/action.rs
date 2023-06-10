@@ -25,7 +25,7 @@ impl Model {
                         pos,
                         target_pos,
                         Fraction::Player,
-                        player.gun.config.projectile,
+                        player.gun.config.projectile.clone(),
                     ));
                 }
             }

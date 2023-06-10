@@ -1,5 +1,11 @@
 use super::*;
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ProjectileAI {
+    Straight,
+    ConstantTurn { degrees_per_second: R32 },
+}
+
 #[derive(StructOf, Debug)]
 pub struct Projectile {
     pub fraction: Fraction,
@@ -7,6 +13,7 @@ pub struct Projectile {
     pub body: Body,
     pub damage: Hp,
     pub target_pos: Option<vec2<Coord>>,
+    pub ai: ProjectileAI,
 }
 
 impl Projectile {
@@ -22,13 +29,21 @@ impl Projectile {
                 .with_velocity((target - pos).normalize_or_zero() * config.speed),
             damage: config.damage,
             target_pos: None,
+            ai: config.ai,
         }
     }
 
-    pub fn with_target(self, target_pos: vec2<Coord>) -> Self {
-        Self {
-            target_pos: Some(target_pos),
-            ..self
-        }
+    // TODO: grenades or smth
+    // pub fn with_target(self, target_pos: vec2<Coord>) -> Self {
+    //     Self {
+    //         target_pos: Some(target_pos),
+    //         ..self
+    //     }
+    // }
+}
+
+impl Default for ProjectileAI {
+    fn default() -> Self {
+        Self::Straight
     }
 }

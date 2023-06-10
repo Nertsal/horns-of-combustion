@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::model::{ActorAI, Coord, Hp, Shape, Time};
+use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
@@ -17,7 +17,7 @@ pub struct CameraConfig {
     pub dead_zone: Coord,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct PlayerConfig {
     pub human_state: HumanStateConfig,
     pub barrel_state: BarrelStateConfig,
@@ -58,18 +58,20 @@ pub struct FireConfig {
     pub damage_per_second: Hp,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GunConfig {
     /// Delay between shots.
     pub shot_delay: Time,
     pub projectile: ProjectileConfig,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProjectileConfig {
     pub speed: Coord,
     pub damage: Hp,
     pub shape: Shape,
+    #[serde(default)]
+    pub ai: ProjectileAI,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

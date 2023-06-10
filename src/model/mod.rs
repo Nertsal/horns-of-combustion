@@ -37,7 +37,7 @@ impl Model {
         let mut actors = StructOf::new();
         let mut model = Self {
             camera: Camera::new(config.camera.fov),
-            player: Player::init(config.player, &mut actors),
+            player: Player::init(config.player.clone(), &mut actors),
             actors,
             projectiles: StructOf::new(),
             gasoline: StructOf::new(),
