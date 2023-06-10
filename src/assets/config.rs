@@ -6,7 +6,6 @@ use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, ShotPattern, Time};
 pub struct Config {
     pub player: PlayerConfig,
     pub camera: CameraConfig,
-    pub enemies: Vec<EnemyConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

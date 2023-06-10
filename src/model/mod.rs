@@ -4,12 +4,13 @@ mod components;
 mod health;
 mod logic;
 mod player;
+mod waves;
 mod weapons;
 
-pub use self::{action::*, camera::*, components::*, health::*, player::*, weapons::*};
+pub use self::{action::*, camera::*, components::*, health::*, player::*, waves::*, weapons::*};
 
 use crate::{
-    assets::config::*,
+    assets::{config::*, waves::*},
     util::{RealConversions, Vec2RealConversions},
 };
 
@@ -30,10 +31,11 @@ pub struct Model {
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
+    pub wave_manager: WaveManager,
 }
 
 impl Model {
-    pub fn new(config: Config) -> Self {
+    pub fn new(config: Config, waves: WavesConfig) -> Self {
         let mut actors = StructOf::new();
         let mut model = Self {
             camera: Camera::new(config.camera.fov),
@@ -42,16 +44,12 @@ impl Model {
             projectiles: StructOf::new(),
             gasoline: StructOf::new(),
             fire: StructOf::new(),
+            wave_manager: WaveManager::new(waves),
             config,
         };
         model.init();
         model
     }
 
-    fn init(&mut self) {
-        for (i, config) in self.config.enemies.iter() {
-            self.actors
-                .insert(Actor::new_enemy(vec2(15, i * 3).as_r32(), config.clone()));
-        }
-    }
+    fn init(&mut self) {}
 }

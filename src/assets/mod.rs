@@ -1,6 +1,7 @@
 pub mod config;
 pub mod controls;
 pub mod theme;
+pub mod waves;
 
 use geng::prelude::*;
 

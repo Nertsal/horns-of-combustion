@@ -4,6 +4,7 @@ mod collisions;
 mod movement;
 mod player;
 mod projectiles;
+mod waves;
 mod weapons;
 
 use super::*;
@@ -14,6 +15,7 @@ impl Model {
         self.update_gas(delta_time);
         self.update_fire(delta_time);
         self.update_on_fire(delta_time);
+        self.update_waves(delta_time);
         self.actors_ai(delta_time);
         self.control_player(delta_time);
         self.control_actors(delta_time);
