@@ -8,6 +8,7 @@ pub enum ProjectileAI {
 
 #[derive(StructOf, Debug)]
 pub struct Projectile {
+    pub lifetime: Lifetime,
     pub fraction: Fraction,
     #[structof(nested)]
     pub body: Body,
@@ -26,6 +27,7 @@ impl Projectile {
         Self {
             fraction,
             body: Body::new(pos, config.shape).with_velocity(direction.unit_vec() * config.speed),
+            lifetime: Lifetime::new(config.lifetime),
             damage: config.damage,
             target_pos: None,
             ai: config.ai,

@@ -74,6 +74,7 @@ pub struct ShotConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProjectileConfig {
+    pub lifetime: Time,
     pub speed: Coord,
     pub damage: Hp,
     pub shape: Shape,
