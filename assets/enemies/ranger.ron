@@ -11,15 +11,22 @@
         reload_time: 3.0,
         shot_delay: 1.0,
         shot: (
-            pattern: Multiple (
-                spread_degrees: 30.0,
-                bullets: 3,
-            ),
+            pattern: Single,
             projectile: (
                 lifetime: 5.0,
                 speed: 40.0,
                 damage: 5.0,
-                shape: Circle( radius: 0.2 )
+                shape: Circle( radius: 0.2 ),
+                ai: CircleBomb (
+                    explosive_type: (
+                        lifetime: 5.0,
+                        speed: 40.0,
+                        damage: 5.0,
+                        shape: Circle( radius: 0.2 ),
+                        ai: ConstantTurn ( degrees_per_second: 30.0 )
+                    ),
+                    delay: 1.5
+                )
             ),
         )
     )),

@@ -8,7 +8,7 @@ Config(
         speed: 20.0,
         acceleration: 3.0,
         dash_burst: 20.0,
-        hp: 100.0,
+        hp: 1000.0,
         human_state: (
             shape: Circle( radius: 1.0 ),
         ),
@@ -33,7 +33,7 @@ Config(
         gun: ( // Revolver
             ammo: 6,
             reload_time: 3.0,
-            shot_delay: 0.6,
+            shot_delay: 0.1,
             shot: (
                 projectile: (
                     lifetime: 5.0,

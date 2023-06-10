@@ -4,5 +4,5 @@
     up: [Key(Up), Key(W)],
     down: [Key(Down), Key(S)],
     shoot: [Mouse(Left)],
-    transform: [Key(Space)],
+    transform: [Mouse(Right)],
 )
