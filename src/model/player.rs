@@ -3,6 +3,7 @@ use super::*;
 #[derive(Debug)]
 pub struct Player {
     pub actor: Id,
+    pub aim_at: vec2<Coord>,
     pub input_direction: vec2<Coord>,
     pub out_of_view: bool,
     pub state: PlayerState,
@@ -18,6 +19,7 @@ impl Player {
     pub fn new(actor: Id) -> Self {
         Self {
             actor,
+            aim_at: vec2::ZERO,
             input_direction: vec2::ZERO,
             out_of_view: false,
             state: PlayerState::Human,

@@ -58,11 +58,12 @@ impl Model {
         *player.shape = self.config.player.barrel_state.shape;
 
         // Controller
-        let delta_angle = if self.player.input_direction == vec2::ZERO {
+        let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
+        let delta_angle = if input_direction == vec2::ZERO {
             Coord::ZERO
         } else {
             let current_angle = Angle::from_radians(player.velocity.arg());
-            let target_angle = Angle::from_radians(self.player.input_direction.arg());
+            let target_angle = Angle::from_radians(input_direction.arg());
             let delta_angle = current_angle.angle_to(target_angle).as_radians();
             let steering = self.config.player.barrel_state.steering;
             delta_angle.clamp_abs(steering * delta_time)

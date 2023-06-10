@@ -55,6 +55,15 @@ impl Game {
         // Assign normalized
         player.input_direction = player_direction.normalize_or_zero().as_r32();
 
+        // Aim
+        let cursor_pos = window.cursor_position().as_f32();
+        let aim_position = self
+            .model
+            .camera
+            .screen_to_world(self.framebuffer_size.as_f32(), cursor_pos);
+        player.aim_at = aim_position.as_r32();
+
+        // Transform state
         if is_event_down(event, &self.controls.transform) {
             self.model.player_action(PlayerAction::SwitchState);
         }
