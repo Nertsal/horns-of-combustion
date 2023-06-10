@@ -97,4 +97,19 @@ impl Config {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
         file::load_detect(path).await
     }
+
+    pub async fn load_enemies(
+        path: impl AsRef<std::path::Path>,
+    ) -> anyhow::Result<HashMap<String, EnemyConfig>> {
+        let path = path.as_ref();
+        let list: Vec<String> = file::load_detect(path.join("_list.ron")).await?;
+
+        let mut enemies = HashMap::new();
+        for name in list {
+            let path = path.join(&name).with_extension("ron");
+            let enemy: EnemyConfig = file::load_detect(path).await?;
+            enemies.insert(name, enemy);
+        }
+        Ok(enemies)
+    }
 }

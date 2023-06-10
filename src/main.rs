@@ -10,6 +10,8 @@ use geng::prelude::*;
 struct Opts {
     #[clap(long, default_value = "assets/config.ron")]
     config: std::path::PathBuf,
+    #[clap(long, default_value = "assets/enemies/")]
+    enemies: std::path::PathBuf,
     #[clap(long, default_value = "assets/waves.ron")]
     waves: std::path::PathBuf,
     #[clap(long, default_value = "assets/theme.toml")]
@@ -37,12 +39,23 @@ fn main() {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
             let config = assets::config::Config::load(&opts.config).await.unwrap();
+            let enemies = assets::config::Config::load_enemies(&opts.enemies)
+                .await
+                .unwrap();
             let waves = assets::waves::WavesConfig::load(&opts.waves).await.unwrap();
             let theme = assets::theme::Theme::load(&opts.theme).await.unwrap();
             let controls = assets::controls::Controls::load(&opts.controls)
                 .await
                 .unwrap();
-            game::Game::new(&geng, &Rc::new(assets), config, theme, controls, waves)
+            game::Game::new(
+                &geng,
+                &Rc::new(assets),
+                config,
+                theme,
+                controls,
+                enemies,
+                waves,
+            )
         }
     };
     geng.run_loading(future)

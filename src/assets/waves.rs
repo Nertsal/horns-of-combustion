@@ -1,4 +1,4 @@
-use super::{config::EnemyConfig, *};
+use super::*;
 
 use crate::model::{Coord, Time};
 
@@ -23,7 +23,8 @@ pub struct WaveConfig {
     pub wait_for_deaths: bool,
     /// Delay the first enemy spawn.
     pub wave_delay: Time,
-    pub enemies: VecDeque<EnemyConfig>,
+    /// List of enemy names.
+    pub enemies: VecDeque<String>,
 }
 
 impl WavesConfig {

@@ -1,5 +1,11 @@
 use crate::{
-    assets::{config::Config, controls::Controls, theme::Theme, waves::WavesConfig, Assets},
+    assets::{
+        config::{Config, EnemyConfig},
+        controls::Controls,
+        theme::Theme,
+        waves::WavesConfig,
+        Assets,
+    },
     model::*,
     render::GameRender,
     util::{is_event_down, is_key_pressed, Vec2RealConversions},
@@ -23,6 +29,7 @@ impl Game {
         config: Config,
         theme: Theme,
         controls: Controls,
+        enemies: HashMap<String, EnemyConfig>,
         waves: WavesConfig,
     ) -> Self {
         Self {
@@ -30,7 +37,7 @@ impl Game {
             framebuffer_size: vec2(1, 1),
             controls,
             render: GameRender::new(geng, assets, theme),
-            model: Model::new(config, waves),
+            model: Model::new(config, enemies, waves),
         }
     }
 

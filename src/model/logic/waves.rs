@@ -16,13 +16,18 @@ impl Model {
 
         let mut rng = thread_rng();
 
-        if let Some(enemy) = self.wave_manager.current_wave.enemies.pop_front() {
+        if let Some(enemy_name) = self.wave_manager.current_wave.enemies.pop_front() {
             // Spawn the next enemy
+            let enemy_config = self
+                .enemies_list
+                .get(&enemy_name)
+                .unwrap_or_else(|| panic!("Enemy {:?} not found", enemy_name))
+                .clone();
             let pos = rng.gen_circle(
                 self.wave_manager.spawn_point,
                 self.wave_manager.config.spawn_circle_radius,
             );
-            let _enemy = self.actors.insert(Actor::new_enemy(pos, enemy));
+            let _enemy = self.actors.insert(Actor::new_enemy(pos, enemy_config));
             // self.wave_manager.current_enemies.push(enemy);
             self.wave_manager.spawn_delay = self.wave_manager.current_wave.spawn_delay;
             return;

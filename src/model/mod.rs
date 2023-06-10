@@ -26,16 +26,17 @@ pub type Lifetime = Health;
 pub struct Model {
     pub config: Config,
     pub camera: Camera,
+    pub enemies_list: HashMap<String, EnemyConfig>,
+    pub wave_manager: WaveManager,
     pub player: Player,
     pub actors: StructOf<Arena<Actor>>,
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
-    pub wave_manager: WaveManager,
 }
 
 impl Model {
-    pub fn new(config: Config, waves: WavesConfig) -> Self {
+    pub fn new(config: Config, enemies: HashMap<String, EnemyConfig>, waves: WavesConfig) -> Self {
         let mut actors = StructOf::new();
         let mut model = Self {
             camera: Camera::new(config.camera.fov),
@@ -45,6 +46,7 @@ impl Model {
             gasoline: StructOf::new(),
             fire: StructOf::new(),
             wave_manager: WaveManager::new(waves),
+            enemies_list: enemies,
             config,
         };
         model.init();
