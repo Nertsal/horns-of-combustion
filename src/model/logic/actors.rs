@@ -21,6 +21,8 @@ impl Model {
             .expect("Player actor not found")
             .clone();
 
+        let mut shots = Vec::new();
+
         let mut query = query_actor_ref!(self.actors);
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
@@ -44,16 +46,20 @@ impl Model {
                     if let Some(gun) = actor.gun {
                         if gun.shot_delay <= Time::ZERO {
                             gun.shot_delay = gun.config.shot_delay;
-                            self.projectiles.insert(Projectile::new(
+                            shots.push((
                                 *actor.position,
                                 player.body.collider.position,
                                 Fraction::Enemy,
-                                gun.config.projectile.clone(),
+                                gun.config.shot.clone(),
                             ));
                         }
                     }
                 }
             }
+        }
+
+        for (pos, aimed_towards, fraction, config) in shots {
+            self.shoot(pos, aimed_towards, fraction, config);
         }
     }
 

@@ -34,10 +34,12 @@ Config(
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.6,
-            projectile: (
-                speed: 50.0,
-                damage: 30.0,
-                shape: Circle( radius: 0.2 )
+            shot: (
+                projectile: (
+                    speed: 50.0,
+                    damage: 30.0,
+                    shape: Circle( radius: 0.2 ),
+                ),
             ),
         ),
     ),
@@ -71,11 +73,17 @@ Config(
                 ammo: 2,
                 reload_time: 3.0,
                 shot_delay: 1.0,
-                projectile: (
-                    speed: 40.0,
-                    damage: 5.0,
-                    shape: Circle( radius: 0.2 )
-                ),
+                shot: (
+                    pattern: Multiple (
+                        spread_degrees: 30.0,
+                        bullets: 3,
+                    ),
+                    projectile: (
+                        speed: 40.0,
+                        damage: 5.0,
+                        shape: Circle( radius: 0.2 )
+                    ),
+                )
             )),
         ),
         (
@@ -90,11 +98,14 @@ Config(
                 ammo: 2,
                 reload_time: 3.0,
                 shot_delay: 1.0,
-                projectile: (
-                    speed: 20.0,
-                    damage: 5.0,
-                    shape: Circle( radius: 0.2 ),
-                    ai: ConstantTurn ( degrees_per_second: 90.0 ),
+                shot: (
+                    pattern: Single,
+                    projectile: (
+                        speed: 20.0,
+                        damage: 5.0,
+                        shape: Circle( radius: 0.2 ),
+                        ai: ConstantTurn ( degrees_per_second: 90.0 ),
+                    ),
                 ),
             )),
         ),

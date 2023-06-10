@@ -19,14 +19,13 @@ pub struct Projectile {
 impl Projectile {
     pub fn new(
         pos: vec2<Coord>,
-        target: vec2<Coord>,
+        direction: Angle<R32>,
         fraction: Fraction,
         config: ProjectileConfig,
     ) -> Self {
         Self {
             fraction,
-            body: Body::new(pos, config.shape)
-                .with_velocity((target - pos).normalize_or_zero() * config.speed),
+            body: Body::new(pos, config.shape).with_velocity(direction.unit_vec() * config.speed),
             damage: config.damage,
             target_pos: None,
             ai: config.ai,

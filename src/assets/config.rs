@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, Time};
+use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, ShotPattern, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
@@ -62,6 +62,13 @@ pub struct FireConfig {
 pub struct GunConfig {
     /// Delay between shots.
     pub shot_delay: Time,
+    pub shot: ShotConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ShotConfig {
+    #[serde(default)]
+    pub pattern: ShotPattern,
     pub projectile: ProjectileConfig,
 }
 

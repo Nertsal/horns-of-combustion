@@ -1,6 +1,38 @@
 use super::*;
 
 impl Model {
+    pub fn shoot(
+        &mut self,
+        pos: vec2<Coord>,
+        aimed_towards: vec2<Coord>,
+        fraction: Fraction,
+        config: ShotConfig,
+    ) {
+        let aim_angle = Angle::from_radians((aimed_towards - pos).arg());
+
+        let mut shoot_at = |angle: Angle<R32>| {
+            self.projectiles.insert(Projectile::new(
+                pos,
+                angle,
+                fraction,
+                config.projectile.clone(),
+            ));
+        };
+
+        match config.pattern {
+            ShotPattern::Single => shoot_at(aim_angle),
+            ShotPattern::Multiple {
+                spread_degrees,
+                bullets,
+            } => {
+                for i in 0..bullets {
+                    let i = i as f32 / (bullets - 1) as f32 - 0.5;
+                    shoot_at(aim_angle + Angle::from_degrees(spread_degrees * r32(i)));
+                }
+            }
+        }
+    }
+
     pub fn update_weapons(&mut self, delta_time: Time) {
         self.update_actors(delta_time);
     }

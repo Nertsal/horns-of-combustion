@@ -21,12 +21,8 @@ impl Model {
                 if player.gun.shot_delay <= Time::ZERO {
                     let pos = *player.position;
                     player.gun.shot_delay = player.gun.config.shot_delay;
-                    self.projectiles.insert(Projectile::new(
-                        pos,
-                        target_pos,
-                        Fraction::Player,
-                        player.gun.config.projectile.clone(),
-                    ));
+                    let config = player.gun.config.shot.clone();
+                    self.shoot(pos, target_pos, Fraction::Player, config);
                 }
             }
             PlayerAction::SwitchState => {
