@@ -4,6 +4,7 @@ use super::*;
 pub enum ProjectileAI {
     Straight,
     ConstantTurn { degrees_per_second: R32 },
+    CircleBomb { explosive_type: Box<ProjectileConfig>, delay: Time },
 }
 
 #[derive(StructOf, Debug)]

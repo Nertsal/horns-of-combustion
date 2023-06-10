@@ -6,16 +6,18 @@ impl Model {
         #[derive(StructQuery)]
         struct ProjRef<'a> {
             lifetime: &'a mut Lifetime,
+            fraction: &'a Fraction,
             #[query(storage = ".body.collider")]
             position: &'a vec2<Coord>,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             target_pos: &'a Option<vec2<Coord>>,
-            ai: &'a ProjectileAI,
+            ai: &'a mut ProjectileAI,
         }
 
         let mut grounded_projs: Vec<Id> = Vec::new();
         let mut kill_projs: Vec<Id> = Vec::new();
+        let mut to_be_spawned: Vec<Projectile> = Vec::new();
 
         let mut query = query_proj_ref!(self.projectiles);
         let mut iter = query.iter_mut();
@@ -43,12 +45,37 @@ impl Model {
                     let angle = Angle::from_degrees(*degrees_per_second * delta_time);
                     *proj.velocity = proj.velocity.rotate(angle.as_radians());
                 }
+                ProjectileAI::CircleBomb { explosive_type, delay } => {
+                    // Until the delay is over, the projectile flies straight
+                    if *delay >= Time::ZERO {
+                        *delay -= delta_time;
+                    } else {
+                        // Explode!
+                        kill_projs.push(proj_id);
+
+                        // Create a circle of projectiles
+                        for i in 1..18 {
+                            to_be_spawned.push(
+                                Projectile::new(
+                                    *proj.position,
+                                    Angle::from_degrees(r32(i as f32 * 20.0)),
+                                    *proj.fraction,
+                                    *explosive_type.clone()
+                                )
+                            );
+                        }
+                    }
+                }
             }
         }
 
         for id in kill_projs {
             // TODO: smoothly
             self.projectiles.remove(id);
+        }
+
+        for proj in to_be_spawned {
+            self.projectiles.insert(proj);
         }
 
         #[allow(dead_code)]
