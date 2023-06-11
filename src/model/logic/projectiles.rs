@@ -62,7 +62,7 @@ impl Model {
                         kill_projs.push(proj_id);
 
                         // Create a circle of projectiles
-                        for i in 1..18 {
+                        for i in 0..18 {
                             to_be_spawned.push(Projectile::new(
                                 *proj.position,
                                 Angle::from_degrees(r32(i as f32 * 20.0)),

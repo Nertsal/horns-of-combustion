@@ -54,7 +54,7 @@ impl Model {
                     .get(self.player.actor)
                     .expect("Player actor not found");
                 let player_dist = (*player.position - position).len().max(r32(0.1));
-                let amplitude = (r32(50.0) / player_dist).clamp_range(r32(0.0)..=r32(20.0));
+                let amplitude = (r32(100.0) / player_dist).clamp_range(r32(0.0)..=r32(100.0));
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::ScreenShake(ScreenShake {
                         duration: Time::ONE,
