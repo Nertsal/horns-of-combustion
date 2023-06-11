@@ -16,6 +16,7 @@ pub struct GameRender {
     assets: Rc<Assets>,
     world: WorldRender,
     postprocess_texture: ugli::Texture,
+    world_texture: ugli::Texture,
 }
 
 impl GameRender {
@@ -27,10 +28,15 @@ impl GameRender {
             postprocess_texture: ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| {
                 Rgba::BLACK
             }),
+            world_texture: ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| {
+                Rgba::BLACK
+            }),
         }
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
+
         // Update postprocess texture size
         if self.postprocess_texture.size() != framebuffer.size() {
             self.postprocess_texture =
@@ -40,33 +46,54 @@ impl GameRender {
         // Draw to an intermediate texture for postprocess effects
         let mut world_framebuffer = ugli::Framebuffer::new_color(
             self.geng.ugli(),
-            ugli::ColorAttachment::Texture(&mut self.postprocess_texture),
+            ugli::ColorAttachment::Texture(&mut self.world_texture),
         );
 
         // Render the world
         self.world.draw(model, &mut world_framebuffer);
 
         // Fire effect
-        // TODO
-        // ugli::draw(
-        //     framebuffer,
-        //     &self.assets.shaders.fire,
-        //     ugli::DrawMode::TriangleFan,
-        //     &unit_geometry(self.geng.ugli()),
-        //     ugli::uniforms! {},
-        //     ugli::DrawParameters {
-        //         blend_mode: Some(ugli::BlendMode::straight_alpha()),
-        //         ..default()
-        //     },
-        // );
+        let mut fire_framebuffer = ugli::Framebuffer::new_color(
+            self.geng.ugli(),
+            ugli::ColorAttachment::Texture(&mut self.postprocess_texture),
+        );
+        ugli::clear(&mut fire_framebuffer, Some(Rgba::BLACK), None, None);
+
+        ugli::draw(
+            &mut fire_framebuffer,
+            &self.assets.shaders.tile_background,
+            ugli::DrawMode::TriangleFan,
+            &unit_geometry(self.geng.ugli()),
+            ugli::uniforms! {
+                u_texture: &self.world_texture,
+                u_fireTexture: &self.assets.sprites.tex_fire,
+                u_cameraPos: &model.camera.center.as_f32(),
+            },
+            ugli::DrawParameters { ..default() },
+        );
 
         // Draw the final texture to screen
         self.geng.draw2d().textured_quad(
             framebuffer,
             &geng::PixelPerfectCamera,
             Aabb2::ZERO.extend_positive(framebuffer.size().as_f32()),
-            &self.postprocess_texture,
+            &self.world_texture,
             Rgba::WHITE,
+        );
+
+        ugli::draw(
+            framebuffer,
+            &self.assets.shaders.conv_drunk17,
+            ugli::DrawMode::TriangleFan,
+            &unit_geometry(self.geng.ugli()),
+            ugli::uniforms! {
+                u_texture: &self.postprocess_texture,
+                u_resolution: &self.postprocess_texture.size().as_f32(),
+            },
+            ugli::DrawParameters {
+                blend_mode: Some(ugli::BlendMode::straight_alpha()),
+                ..default()
+            },
         );
     }
 }

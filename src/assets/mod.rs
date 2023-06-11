@@ -29,23 +29,29 @@ pub struct SpriteAssets {
     pub projectile_squid_like: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub projectile_wheel_pizza: ugli::Texture,
+    #[load(postprocess = "wrap_around")]
+    pub tex_fire: ugli::Texture,
 }
 
 #[derive(geng::asset::Load)]
 pub struct ShaderAssets {
-    // pub fire: ugli::Program,
+    pub tile_background: ugli::Program,
+    pub conv_drunk17: ugli::Program,
 }
 
 /// Use in Assets as `#[asset(postprocess = "looping")]`
-#[allow(dead_code)]
 fn looping(sfx: &mut geng::Sound) {
     sfx.set_looped(true)
 }
 
 /// Use in Assets as `#[asset(postprocess = "pixel")]`
-#[allow(dead_code)]
 fn pixel(texture: &mut ugli::Texture) {
     texture.set_filter(ugli::Filter::Nearest);
+}
+
+fn wrap_around(texture: &mut ugli::Texture) {
+    texture.set_filter(ugli::Filter::Nearest);
+    texture.set_wrap_mode(ugli::WrapMode::Repeat);
 }
 
 impl Assets {
