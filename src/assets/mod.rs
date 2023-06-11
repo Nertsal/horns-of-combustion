@@ -6,7 +6,17 @@ pub mod waves;
 use geng::prelude::*;
 
 #[derive(geng::asset::Load)]
-pub struct Assets {}
+pub struct Assets {
+    pub sprites: SpriteAssets,
+}
+
+#[derive(geng::asset::Load)]
+pub struct SpriteAssets {
+    #[load(postprocess = "pixel")]
+    pub player_human: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub player_barrel: ugli::Texture,
+}
 
 /// Use in Assets as `#[asset(postprocess = "looping")]`
 #[allow(dead_code)]

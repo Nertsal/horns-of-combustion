@@ -81,6 +81,25 @@ impl GameRender {
 
         let camera = &model.camera;
         for (_id, actor) in &query_actor_ref!(model.actors) {
+            match actor.ai {
+                None => {
+                    // Draw player sprite.
+                    let sprite = match actor.collider.shape {
+                        Shape::Circle { .. } => &self.assets.sprites.player_human,
+                        Shape::Rectangle { .. } => &self.assets.sprites.player_barrel
+                    };
+
+                    let sprite_size = sprite.size().as_f32();
+                    let position =
+                        Aabb2::point(actor.collider.position.as_f32())
+                            .extend_symmetric(sprite_size / 2.0);
+
+                    self.geng.draw2d().textured_quad(framebuffer, camera, position, sprite, Color::WHITE);
+                    continue;
+                },
+                _ => {}
+            }
+
             let color = match actor.ai {
                 None => self.theme.player,
                 Some(ActorAI::Crawler) => self.theme.enemies.crawler,
