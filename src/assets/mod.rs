@@ -8,6 +8,7 @@ use geng::prelude::*;
 #[derive(geng::asset::Load)]
 pub struct Assets {
     pub sprites: SpriteAssets,
+    pub shaders: ShaderAssets,
 }
 
 #[derive(geng::asset::Load)]
@@ -28,6 +29,11 @@ pub struct SpriteAssets {
     pub projectile_squid_like: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub projectile_wheel_pizza: ugli::Texture,
+}
+
+#[derive(geng::asset::Load)]
+pub struct ShaderAssets {
+    // pub fire: ugli::Program,
 }
 
 /// Use in Assets as `#[asset(postprocess = "looping")]`
