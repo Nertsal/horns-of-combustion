@@ -69,7 +69,10 @@ impl Model {
             let steering = self.config.player.barrel_state.steering;
             delta_angle.clamp_abs(steering * delta_time)
         };
-        player.controller.target_velocity = player.velocity.rotate(delta_angle);
+        player.controller.target_velocity = player
+            .velocity
+            .rotate(delta_angle)
+            .clamp_len(..=self.config.player.barrel_state.speed);
         player.controller.acceleration = r32(100.0);
 
         // Look in the direction of travel
