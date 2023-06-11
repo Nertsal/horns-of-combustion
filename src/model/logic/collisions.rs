@@ -228,6 +228,8 @@ impl Model {
             fraction: &'a Fraction,
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
             damage: &'a Hp,
         }
 
@@ -237,6 +239,8 @@ impl Model {
             fraction: &'a Fraction,
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
             health: &'a mut Health,
         }
 
@@ -255,6 +259,13 @@ impl Model {
                 if proj.collider.clone().check(&actor.collider.clone()) {
                     proj_hits.push(proj_id);
                     actor.health.damage(*proj.damage);
+
+                    let relative_vel = *proj.velocity - *actor.velocity;
+                    // let dot = vec2::dot(relative_vel, collision.normal);
+
+                    // Knockback
+                    *actor.velocity += relative_vel * r32(0.1);
+
                     break;
                 }
             }
