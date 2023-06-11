@@ -12,6 +12,8 @@ use super::*;
 
 impl Model {
     pub fn update(&mut self, delta_time: Time) {
+        self.time += delta_time;
+
         self.update_weapons(delta_time);
         self.update_gas(delta_time);
         self.update_fire(delta_time);

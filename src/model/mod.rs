@@ -29,6 +29,7 @@ pub type Id = ecs::arena::Index;
 pub type Lifetime = Health;
 
 pub struct Model {
+    pub time: Time,
     pub config: Config,
     pub camera: Camera,
     pub enemies_list: HashMap<String, EnemyConfig>,
@@ -45,6 +46,7 @@ impl Model {
     pub fn new(config: Config, enemies: HashMap<String, EnemyConfig>, waves: WavesConfig) -> Self {
         let mut actors = StructOf::new();
         let mut model = Self {
+            time: Time::ZERO,
             camera: Camera::new(config.camera.fov),
             player: Player::init(config.player.clone(), &mut actors),
             actors,
