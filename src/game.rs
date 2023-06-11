@@ -13,7 +13,6 @@ use crate::{
 
 use geng::prelude::*;
 
-#[allow(dead_code)]
 pub struct Game {
     geng: Geng,
     framebuffer_size: vec2<usize>,

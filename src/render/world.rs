@@ -27,8 +27,6 @@ impl WorldRender {
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        ugli::clear(framebuffer, Some(self.theme.background), None, None);
-
         // Draw a circle at the center of the world.
         self.util.draw_shape(
             Shape::Circle { radius: r32(10.0) },
@@ -39,7 +37,7 @@ impl WorldRender {
         );
 
         self.draw_gasoline(model, framebuffer);
-        self.draw_fire(model, framebuffer);
+        // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
         self.draw_health(model, framebuffer);
@@ -59,7 +57,7 @@ impl WorldRender {
         }
     }
 
-    fn draw_fire(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+    pub fn draw_fire(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct FireRef<'a> {
