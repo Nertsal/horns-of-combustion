@@ -6,7 +6,7 @@ mod util;
 
 use geng::prelude::*;
 
-const SCREEN_SIZE: vec2<usize> = vec2(480, 270);
+const SCREEN_SIZE: vec2<usize> = vec2(960, 540);
 
 #[derive(clap::Parser)]
 struct Opts {
