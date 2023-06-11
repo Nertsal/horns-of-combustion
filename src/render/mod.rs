@@ -18,6 +18,7 @@ pub struct GameRender {
     theme: Theme,
     world_texture: ugli::Texture,
     fire_texture: ugli::Texture,
+    fire_shake: vec2<Coord>,
 }
 
 impl GameRender {
@@ -29,10 +30,11 @@ impl GameRender {
             theme,
             fire_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
             world_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
+            fire_shake: vec2::ZERO,
         }
     }
 
-    pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+    pub fn draw(&mut self, model: &Model, delta_time: Time, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
 
         // Update textures' size
@@ -61,16 +63,26 @@ impl GameRender {
         ugli::clear(&mut fire_framebuffer, Some(Rgba::BLACK), None, None);
 
         // Tiled fire texture
+        {
+            let amplitude = r32(1.0);
+            let dir = Angle::from_degrees(r32(thread_rng().gen_range(0.0..360.0)));
+            self.fire_shake += dir.unit_vec() * amplitude * delta_time;
+        }
+        let size = fire_framebuffer.size().as_f32();
         ugli::draw(
             &mut fire_framebuffer,
             &self.assets.shaders.tile_background,
             ugli::DrawMode::TriangleFan,
             &unit_geometry(self.geng.ugli()),
-            ugli::uniforms! {
-                u_texture: &self.world_texture,
-                u_fireTexture: &self.assets.sprites.tex_fire,
-                u_cameraPos: &model.camera.center.as_f32(),
-            },
+            (
+                ugli::uniforms! {
+                    u_texture: &self.world_texture,
+                    u_fireTexture: &self.assets.sprites.tex_fire,
+                    u_camera_pos: &model.camera.center.as_f32(),
+                    u_shake: self.fire_shake.as_f32(),
+                },
+                model.camera.uniforms(size),
+            ),
             ugli::DrawParameters { ..default() },
         );
 

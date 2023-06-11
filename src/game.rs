@@ -16,6 +16,7 @@ use geng::prelude::*;
 pub struct Game {
     geng: Geng,
     framebuffer_size: vec2<usize>,
+    delta_time: Time,
     screen_texture: ugli::Texture,
     controls: Controls,
     render: GameRender,
@@ -35,6 +36,7 @@ impl Game {
         Self {
             geng: geng.clone(),
             framebuffer_size: vec2(1, 1),
+            delta_time: Time::new(1.0),
             screen_texture: {
                 let mut texture =
                     ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| Rgba::BLACK);
@@ -94,7 +96,8 @@ impl geng::State for Game {
             ugli::ColorAttachment::Texture(&mut self.screen_texture),
         );
 
-        self.render.draw(&self.model, &mut screen_framebuffer);
+        self.render
+            .draw(&self.model, self.delta_time, &mut screen_framebuffer);
 
         // Draw texture to actual screen
         let framebuffer_size = framebuffer.size().as_f32();
@@ -121,6 +124,7 @@ impl geng::State for Game {
 
     fn update(&mut self, delta_time: f64) {
         let delta_time = Time::new(delta_time as _);
+        self.delta_time = delta_time;
 
         let window = self.geng.window();
         if is_key_pressed(window, &self.controls.shoot) {
