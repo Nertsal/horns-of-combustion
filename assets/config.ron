@@ -1,6 +1,6 @@
 Config(
-    death_explosion_radius: 5.0,
-    death_explosion_strength: 10.0,
+    death_explosion_radius: 10.0,
+    death_explosion_strength: 30.0,
     camera: (
         fov: 70.0,
         speed: 6.0,
@@ -27,8 +27,9 @@ Config(
                 lifetime: 10.0,
                 distance_period: 1.5,
                 ignite_timer: 0.2,
+                fire_radius: 5.0,
                 explosion_radius: 5.0,
-                explosion_strength: 5.0,
+                explosion_strength: 10.0,
                 shape: Circle( radius: 1.5 ),
                 fire: (
                     duration: 5.0,
