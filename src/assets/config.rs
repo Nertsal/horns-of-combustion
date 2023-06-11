@@ -24,6 +24,8 @@ pub struct PlayerConfig {
     pub barrel_state: BarrelStateConfig,
     /// Increase in speed from a barrel dash.
     pub dash_burst: Coord,
+    /// Damage to deal to enemies upon contact.
+    pub contact_damage: Hp,
     pub speed: Coord,
     pub acceleration: Coord,
     pub hp: Hp,
@@ -91,6 +93,7 @@ pub struct ProjectileConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnemyConfig {
+    pub contact_damage: Hp,
     pub shape: Shape,
     pub speed: Coord,
     pub acceleration: Coord,

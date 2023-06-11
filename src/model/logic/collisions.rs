@@ -2,18 +2,124 @@ use super::*;
 
 impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
-        self.collide_barrel(delta_time);
+        self.collide_player(delta_time);
         self.collide_projectiles(delta_time);
         self.projectile_gas(delta_time);
         self.fire_gas(delta_time);
         self.fire(delta_time);
     }
 
-    fn collide_barrel(&mut self, _delta_time: Time) {
-        if !matches!(self.player.state, PlayerState::Barrel { .. }) {
-            return;
+    fn collide_player(&mut self, delta_time: Time) {
+        match self.player.state {
+            PlayerState::Human => {
+                self.collide_player_human(delta_time);
+            }
+            PlayerState::Barrel { .. } => {
+                self.collide_player_barrel(delta_time);
+            }
+        }
+    }
+
+    fn collide_player_human(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a vec2<Coord>,
+            stats: &'a Stats,
+            stops_barrel: &'a bool,
+            health: &'a Health,
         }
 
+        let query = query_actor_ref!(self.actors);
+        let player = query
+            .get(self.player.actor)
+            .expect("Player actor not found");
+        let player_collider = &player.collider.clone();
+
+        #[derive(Clone)]
+        struct Correction {
+            position: vec2<Coord>,
+            velocity: vec2<Coord>,
+            health: Health,
+        }
+        let mut corrections: HashMap<Id, Correction> = HashMap::new();
+
+        for (actor_id, actor) in &query {
+            if actor_id == self.player.actor {
+                continue;
+            }
+            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
+                let mut player_cor =
+                    corrections
+                        .get(&self.player.actor)
+                        .cloned()
+                        .unwrap_or(Correction {
+                            position: *player.collider.position,
+                            velocity: *player.velocity,
+                            health: player.health.clone(),
+                        });
+                let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+                    position: *actor.collider.position,
+                    velocity: *actor.velocity,
+                    health: actor.health.clone(),
+                });
+
+                let relative_vel = player_cor.velocity - *actor.velocity;
+                let dot = vec2::dot(relative_vel, collision.normal);
+                if dot <= Coord::ZERO {
+                    continue;
+                }
+
+                let coef_player = r32(3.0);
+                let coef_actor = r32(1.0);
+
+                // Move out of collision
+                player_cor.position -= collision.normal * collision.penetration * coef_player
+                    / (coef_player + coef_actor);
+                actor_cor.position += collision.normal * collision.penetration * coef_actor
+                    / (coef_player + coef_actor);
+
+                // Apply impulses
+                let hit_strength = dot.min(r32(10.0));
+                player_cor.velocity -= collision.normal * hit_strength * coef_player;
+                actor_cor.velocity += collision.normal * hit_strength * coef_actor;
+
+                if dot > r32(10.0) {
+                    // Contact damage
+                    let damage_player = self.config.player.contact_damage;
+                    let damage_actor = actor.stats.contact_damage;
+                    player_cor.health.damage(damage_player);
+                    actor_cor.health.damage(damage_actor);
+                }
+
+                corrections.insert(self.player.actor, player_cor);
+                corrections.insert(actor_id, actor_cor);
+            }
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct UpdateRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a mut vec2<Coord>,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+            health: &'a mut Health,
+        }
+
+        let mut query = query_update_ref!(self.actors);
+        for (id, correction) in corrections {
+            let actor = query.get_mut(id).expect("invalid correction");
+            *actor.position = correction.position;
+            *actor.velocity = correction.velocity;
+            *actor.health = correction.health;
+        }
+    }
+
+    fn collide_player_barrel(&mut self, _delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {

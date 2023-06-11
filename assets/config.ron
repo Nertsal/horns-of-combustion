@@ -11,6 +11,7 @@ Config(
         acceleration: 3.0,
         dash_burst: 20.0,
         hp: 1000.0,
+        contact_damage: 5.0,
         human_state: (
             shape: Circle( radius: 1.0 ),
         ),
