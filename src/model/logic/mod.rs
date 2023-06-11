@@ -64,7 +64,12 @@ impl Model {
                 },
             });
             self.fire.insert(Fire {
-                collider: gas.collider,
+                collider: Collider::new(
+                    gas.collider.position,
+                    Shape::Circle {
+                        radius: gas.explosion_radius,
+                    },
+                ),
                 lifetime: Lifetime::new(5.0),
                 config: gas.fire,
             });
