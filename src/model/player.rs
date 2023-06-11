@@ -12,7 +12,7 @@ pub struct Player {
 #[derive(Debug, Clone)]
 pub enum PlayerState {
     Human,
-    Barrel { next_gas: Coord },
+    Barrel { last_gas: vec2<Coord> },
 }
 
 impl Player {

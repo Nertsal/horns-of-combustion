@@ -54,7 +54,7 @@ impl Model {
                         *player.velocity = input_direction * dash_speed;
 
                         PlayerState::Barrel {
-                            next_gas: self.config.player.barrel_state.gasoline.distance_period,
+                            last_gas: *player.position,
                         }
                     }
                     PlayerState::Barrel { .. } => PlayerState::Human,

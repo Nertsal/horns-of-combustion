@@ -4,7 +4,7 @@ impl Model {
     pub(super) fn control_player(&mut self, delta_time: Time) {
         match self.player.state {
             PlayerState::Human => self.human_control(delta_time),
-            PlayerState::Barrel { next_gas } => self.barrel_control(next_gas, delta_time),
+            PlayerState::Barrel { last_gas } => self.barrel_control(last_gas, delta_time),
         };
     }
 
@@ -33,7 +33,7 @@ impl Model {
         player.controller.acceleration = self.config.player.acceleration;
     }
 
-    fn barrel_control(&mut self, mut next_gas: Coord, delta_time: Time) {
+    fn barrel_control(&mut self, mut last_gas: vec2<Coord>, delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct PlayerRef<'a> {
@@ -79,12 +79,17 @@ impl Model {
         *player.rotation = Angle::from_radians(player.velocity.arg());
 
         // Update state
-        next_gas -= player.velocity.len() * delta_time;
-        if next_gas <= Coord::ZERO {
-            let config = &self.config.player.barrel_state.gasoline;
-            next_gas = config.distance_period;
+        let config = &self.config.player.barrel_state.gasoline;
+        let pos = *player.position;
+        let last_delta = last_gas - pos;
+        let last_dir = last_delta.normalize_or_zero();
+        let mut last_dist = last_delta.len();
+        while last_dist >= config.distance_period {
+            let position = last_gas - last_dir * config.distance_period;
+            last_gas = position;
+            last_dist -= config.distance_period;
             self.gasoline.insert(Gasoline {
-                collider: Collider::new(*player.position, config.shape),
+                collider: Collider::new(position, config.shape),
                 lifetime: Lifetime::new(config.lifetime),
                 ignite_timer: config.ignite_timer,
                 explosion_radius: config.explosion_radius,
@@ -92,6 +97,6 @@ impl Model {
                 fire: config.fire,
             });
         }
-        self.player.state = PlayerState::Barrel { next_gas };
+        self.player.state = PlayerState::Barrel { last_gas };
     }
 }
