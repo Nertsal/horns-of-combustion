@@ -5,11 +5,13 @@ mod effect;
 mod health;
 mod logic;
 mod player;
+mod shake;
 mod waves;
 mod weapons;
 
 pub use self::{
-    action::*, camera::*, components::*, effect::*, health::*, player::*, waves::*, weapons::*,
+    action::*, camera::*, components::*, effect::*, health::*, player::*, shake::*, waves::*,
+    weapons::*,
 };
 
 use crate::{
@@ -31,6 +33,7 @@ pub type Lifetime = Health;
 pub struct Model {
     pub time: Time,
     pub config: Config,
+    pub screen_shake: ScreenShake,
     pub camera: Camera,
     pub enemies_list: HashMap<String, EnemyConfig>,
     pub wave_manager: WaveManager,
@@ -47,6 +50,7 @@ impl Model {
         let mut actors = StructOf::new();
         let mut model = Self {
             time: Time::ZERO,
+            screen_shake: ScreenShake::new(),
             camera: Camera::new(config.camera.fov),
             player: Player::init(config.player.clone(), &mut actors),
             actors,

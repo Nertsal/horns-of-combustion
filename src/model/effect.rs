@@ -9,6 +9,7 @@ pub struct QueuedEffect {
 pub enum Effect {
     /// No operation.
     Noop,
+    ScreenShake(ScreenShake),
     Explosion {
         position: vec2<Coord>,
         radius: Coord,
