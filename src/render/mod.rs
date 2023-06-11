@@ -76,6 +76,8 @@ impl GameRender {
         struct ActorRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a vec2<Coord>,
             ai: &'a Option<ActorAI>,
         }
 
@@ -93,12 +95,27 @@ impl GameRender {
                 let position =
                     pixel_perfect_aabb(actor.collider.position.as_f32(), sprite.size(), camera);
 
-                self.geng.draw2d().textured_quad(
+                let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
+                let xoff = circle_radius * (model.time * r32(10.0)).cos();
+                let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
+
+                let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
+                let position = Aabb2 {
+                    min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
+                    max: vec2(
+                        position.center().x + new_size.x / 2.0,
+                        position.min.y + new_size.y,
+                    ),
+                };
+
+                self.geng.draw2d().draw2d_transformed(
                     framebuffer,
                     camera,
-                    position,
-                    sprite,
-                    Color::WHITE,
+                    &draw2d::TexturedQuad::new(position, sprite),
+                    mat3::rotate_around(
+                        position.center(),
+                        actor.collider.rotation.as_radians().as_f32(),
+                    ),
                 );
                 continue;
             }

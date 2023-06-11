@@ -15,6 +15,8 @@ impl Model {
             // #[query(storage = ".body")]
             // velocity: &'a mut vec2<Coord>,
             #[query(storage = ".body.collider")]
+            rotation: &'a mut Angle<Coord>,
+            #[query(storage = ".body.collider")]
             shape: &'a mut Shape,
             controller: &'a mut Controller,
             stats: &'a Stats,
@@ -24,6 +26,9 @@ impl Model {
         let player = query
             .get_mut(self.player.actor)
             .expect("Player actor not found");
+
+        // Reset rotation
+        *player.rotation = Angle::ZERO;
 
         // Update shape
         *player.shape = self.config.player.human_state.shape;

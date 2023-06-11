@@ -1,8 +1,8 @@
-background = "#000"
+background = "#232221"
 player = "#009FB7"
 projectile = "#9FFFCB"
-gasoline = "#FED766"
-fire = "#BF211E"
+gasoline = "#f1be43"
+fire = "#cb2f2c"
 health_bg = "#0008"
 health_fg = "#F308"
 

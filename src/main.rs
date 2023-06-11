@@ -32,6 +32,7 @@ fn main() {
 
     let geng = Geng::new_with(geng::ContextOptions {
         title: "Anlaut Summer Game Jam".to_string(),
+        window_size: Some(SCREEN_SIZE * 2),
         ..geng::ContextOptions::from_args(&opts.geng)
     });
 
