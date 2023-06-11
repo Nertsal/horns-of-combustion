@@ -25,7 +25,7 @@ Config(
             ),
             gasoline: (
                 lifetime: 10.0,
-                distance_period: 1.0,
+                distance_period: 1.5,
                 ignite_timer: 0.05,
                 explosion_radius: 5.0,
                 explosion_strength: 5.0,

@@ -6,6 +6,8 @@ mod util;
 
 use geng::prelude::*;
 
+const SCREEN_SIZE: vec2<usize> = vec2(480, 270);
+
 #[derive(clap::Parser)]
 struct Opts {
     #[clap(long, default_value = "assets/config.ron")]

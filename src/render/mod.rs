@@ -80,24 +80,27 @@ impl GameRender {
         }
 
         let camera = &model.camera;
-        for (_id, actor) in &query_actor_ref!(model.actors) {
-            match actor.ai {
-                None => {
-                    // Draw player sprite.
-                    let sprite = match actor.collider.shape {
-                        Shape::Circle { .. } => &self.assets.sprites.player_human,
-                        Shape::Rectangle { .. } => &self.assets.sprites.player_barrel
-                    };
+        for (id, actor) in &query_actor_ref!(model.actors) {
+            if id == model.player.actor {
+                // Draw player sprite.
+                let sprite = match model.player.state {
+                    PlayerState::Human => &self.assets.sprites.player_human,
+                    PlayerState::Barrel { .. } => &self.assets.sprites.player_barrel,
+                };
 
-                    let sprite_size = sprite.size().as_f32();
-                    let position =
-                        Aabb2::point(actor.collider.position.as_f32())
-                            .extend_symmetric(sprite_size / 2.0);
+                // let position = Aabb2::point(actor.collider.position.as_f32())
+                //     .extend_symmetric(sprite_size / 2.0);
+                let position =
+                    pixel_perfect_aabb(actor.collider.position.as_f32(), sprite.size(), camera);
 
-                    self.geng.draw2d().textured_quad(framebuffer, camera, position, sprite, Color::WHITE);
-                    continue;
-                },
-                _ => {}
+                self.geng.draw2d().textured_quad(
+                    framebuffer,
+                    camera,
+                    position,
+                    sprite,
+                    Color::WHITE,
+                );
+                continue;
             }
 
             let color = match actor.ai {
@@ -222,4 +225,35 @@ impl GameRender {
             framebuffer,
         );
     }
+}
+
+fn pixel_perfect_aabb(
+    pos: vec2<f32>,
+    size: vec2<usize>,
+    camera: &impl geng::AbstractCamera2d,
+    // screen_size: vec2<f32>,
+) -> Aabb2<f32> {
+    // Transform to screen space
+    let screen_size = crate::SCREEN_SIZE.as_f32();
+    let pos = camera_world_to_screen(camera, screen_size, pos);
+    let pos = pos.map(|x| x.floor()) + size.as_f32().map(|x| (x / 2.0).fract());
+    let screen_aabb = Aabb2::point(pos).extend_symmetric(size.as_f32() / 2.0);
+    // Transform back to world
+    screen_aabb.map_bounds(|pos| camera.screen_to_world(screen_size, pos))
+}
+
+fn camera_world_to_screen(
+    camera: &impl geng::AbstractCamera2d,
+    framebuffer_size: vec2<f32>,
+    pos: vec2<f32>,
+) -> vec2<f32> {
+    let pos = (camera.projection_matrix(framebuffer_size) * camera.view_matrix()) * pos.extend(1.0);
+    let pos = pos.xy() / pos.z;
+    // if pos.x.abs() > 1.0 || pos.y.abs() > 1.0 {
+    //     return None;
+    // }
+    vec2(
+        (pos.x + 1.0) / 2.0 * framebuffer_size.x,
+        (pos.y + 1.0) / 2.0 * framebuffer_size.y,
+    )
 }

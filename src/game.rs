@@ -13,8 +13,6 @@ use crate::{
 
 use geng::prelude::*;
 
-const SCREEN_SIZE: vec2<usize> = vec2(480, 270);
-
 #[allow(dead_code)]
 pub struct Game {
     geng: Geng,
@@ -40,7 +38,7 @@ impl Game {
             framebuffer_size: vec2(1, 1),
             screen_texture: {
                 let mut texture =
-                    ugli::Texture::new_with(geng.ugli(), SCREEN_SIZE, |_| Rgba::BLACK);
+                    ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| Rgba::BLACK);
                 texture.set_filter(ugli::Filter::Nearest);
                 texture
             },
@@ -101,7 +99,7 @@ impl geng::State for Game {
 
         // Draw texture to actual screen
         let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = SCREEN_SIZE.as_f32();
+        let texture_size = crate::SCREEN_SIZE.as_f32();
         let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
         let texture_size = texture_size * ratio;
         self.geng.draw2d().textured_quad(
