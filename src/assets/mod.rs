@@ -16,6 +16,18 @@ pub struct SpriteAssets {
     pub player_human: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub player_barrel: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_default: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_orb: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_small_orb: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_square_snowflake: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_squid_like: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub projectile_wheel_pizza: ugli::Texture,
 }
 
 /// Use in Assets as `#[asset(postprocess = "looping")]`

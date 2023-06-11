@@ -158,12 +158,32 @@ impl GameRender {
         struct ProjRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            kind: &'a ProjectileKind,
         }
 
         let camera = &model.camera;
-        let color = self.theme.projectile;
         for (_id, proj) in &query_proj_ref!(model.projectiles) {
-            self.draw_collider(&proj.collider.clone(), color, camera, framebuffer);
+            let sprite = match proj.kind {
+                ProjectileKind::Default => &self.assets.sprites.projectile_default,
+                ProjectileKind::Orb => &self.assets.sprites.projectile_orb,
+                ProjectileKind::SmallOrb => &self.assets.sprites.projectile_small_orb,
+                ProjectileKind::SquareSnowflake => &self.assets.sprites.projectile_square_snowflake,
+                ProjectileKind::SquidLike => &self.assets.sprites.projectile_squid_like,
+                ProjectileKind::WheelPizza => &self.assets.sprites.projectile_wheel_pizza,
+            };
+
+            let position =
+                pixel_perfect_aabb(proj.collider.position.as_f32(), sprite.size(), camera);
+
+            self.geng.draw2d().draw2d_transformed(
+                framebuffer,
+                camera,
+                &draw2d::TexturedQuad::new(position, sprite),
+                mat3::rotate_around(
+                    position.center(),
+                    proj.collider.rotation.as_radians().as_f32(),
+                ),
+            );
         }
     }
 

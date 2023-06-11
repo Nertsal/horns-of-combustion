@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::model::{ActorAI, Coord, Hp, ProjectileAI, Shape, ShotPattern, Time};
+use crate::model::{ActorAI, Coord, Hp, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
@@ -85,6 +85,8 @@ pub struct ProjectileConfig {
     pub shape: Shape,
     #[serde(default)]
     pub ai: ProjectileAI,
+    #[serde(default)]
+    pub kind: ProjectileKind,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

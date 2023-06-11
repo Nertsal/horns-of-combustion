@@ -9,6 +9,8 @@ impl Model {
             fraction: &'a Fraction,
             #[query(storage = ".body.collider")]
             position: &'a vec2<Coord>,
+            #[query(storage = ".body.collider")]
+            rotation: &'a mut Angle<R32>,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             target_pos: &'a Option<vec2<Coord>>,
@@ -29,6 +31,9 @@ impl Model {
                 continue;
             }
 
+            // Update rotation
+            *proj.rotation = Angle::from_radians(proj.velocity.arg());
+
             if let Some(target_pos) = *proj.target_pos {
                 // Target position is specified, so the projectile should stop at the target
                 let target_dir = target_pos - *proj.position;
@@ -45,7 +50,10 @@ impl Model {
                     let angle = Angle::from_degrees(*degrees_per_second * delta_time);
                     *proj.velocity = proj.velocity.rotate(angle.as_radians());
                 }
-                ProjectileAI::CircleBomb { explosive_type, delay } => {
+                ProjectileAI::CircleBomb {
+                    explosive_type,
+                    delay,
+                } => {
                     // Until the delay is over, the projectile flies straight
                     if *delay >= Time::ZERO {
                         *delay -= delta_time;
@@ -55,14 +63,12 @@ impl Model {
 
                         // Create a circle of projectiles
                         for i in 1..18 {
-                            to_be_spawned.push(
-                                Projectile::new(
-                                    *proj.position,
-                                    Angle::from_degrees(r32(i as f32 * 20.0)),
-                                    *proj.fraction,
-                                    *explosive_type.clone()
-                                )
-                            );
+                            to_be_spawned.push(Projectile::new(
+                                *proj.position,
+                                Angle::from_degrees(r32(i as f32 * 20.0)),
+                                *proj.fraction,
+                                *explosive_type.clone(),
+                            ));
                         }
                     }
                 }
