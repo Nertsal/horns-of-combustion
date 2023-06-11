@@ -112,6 +112,11 @@ impl geng::State for Game {
     }
 
     fn handle_event(&mut self, event: geng::Event) {
+        let window = self.geng.window();
+        if is_key_pressed(window, &self.controls.fullscreen) {
+            window.set_fullscreen(!window.is_fullscreen());
+        }
+
         self.update_player(&event);
     }
 
