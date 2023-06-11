@@ -22,6 +22,7 @@ impl Model {
             #[query(storage = ".body")]
             velocity: &'a vec2<Coord>,
             stops_barrel: &'a bool,
+            health: &'a Health,
         }
 
         let query = query_actor_ref!(self.actors);
@@ -35,6 +36,7 @@ impl Model {
             position: vec2<Coord>,
             velocity: vec2<Coord>,
             stun: Option<Time>,
+            health: Health,
         }
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
 
@@ -51,19 +53,14 @@ impl Model {
                             position: *player.collider.position,
                             velocity: *player.velocity,
                             stun: None,
+                            health: player.health.clone(),
                         });
                 let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
                     position: *actor.collider.position,
                     velocity: *actor.velocity,
                     stun: None,
+                    health: actor.health.clone(),
                 });
-
-                // TODO: configurable + better formula
-                actor_cor.stun = if *actor.stops_barrel {
-                    None
-                } else {
-                    Some(r32(3.0))
-                };
 
                 let relative_vel = player_cor.velocity - *actor.velocity;
                 let dot = vec2::dot(relative_vel, collision.normal);
@@ -71,12 +68,26 @@ impl Model {
                     continue;
                 }
 
+                // Apply impulses
                 let hit_barrel = if *actor.stops_barrel {
                     dot
                 } else {
                     dot.min(r32(2.0))
                 };
                 player_cor.velocity -= collision.normal * hit_barrel;
+
+                // TODO: fix double damage (with on collision enter or smth)
+                // Runover damage
+                let damage = self.config.player.barrel_state.runover_damage
+                    + self.config.player.barrel_state.runover_damage_scale * relative_vel.len();
+                actor_cor.health.damage(damage);
+
+                // TODO: configurable + better formula
+                actor_cor.stun = if *actor.stops_barrel {
+                    None
+                } else {
+                    Some(r32(3.0))
+                };
 
                 corrections.insert(self.player.actor, player_cor);
                 corrections.insert(actor_id, actor_cor);
@@ -91,6 +102,7 @@ impl Model {
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             stunned: &'a mut Option<Time>,
+            health: &'a mut Health,
         }
 
         let mut query = query_update_ref!(self.actors);
@@ -99,6 +111,7 @@ impl Model {
             *actor.position = correction.position;
             *actor.velocity = correction.velocity;
             *actor.stunned = std::cmp::max(*actor.stunned, correction.stun);
+            *actor.health = correction.health;
         }
     }
 

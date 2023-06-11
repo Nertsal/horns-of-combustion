@@ -40,6 +40,8 @@ pub struct BarrelStateConfig {
     /// Max possible speed.
     pub speed: Coord,
     pub steering: R32,
+    pub runover_damage: Hp,
+    pub runover_damage_scale: Hp,
     pub shape: Shape,
     pub gasoline: GasolineConfig,
 }
