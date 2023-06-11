@@ -13,10 +13,13 @@ use crate::{
 
 use geng::prelude::*;
 
+const SCREEN_SIZE: vec2<usize> = vec2(480, 270);
+
 #[allow(dead_code)]
 pub struct Game {
     geng: Geng,
     framebuffer_size: vec2<usize>,
+    screen_texture: ugli::Texture,
     controls: Controls,
     render: GameRender,
     model: Model,
@@ -35,6 +38,12 @@ impl Game {
         Self {
             geng: geng.clone(),
             framebuffer_size: vec2(1, 1),
+            screen_texture: {
+                let mut texture =
+                    ugli::Texture::new_with(geng.ugli(), SCREEN_SIZE, |_| Rgba::BLACK);
+                texture.set_filter(ugli::Filter::Nearest);
+                texture
+            },
             controls,
             render: GameRender::new(geng, assets, theme),
             model: Model::new(config, enemies, waves),
@@ -80,8 +89,28 @@ impl Game {
 
 impl geng::State for Game {
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
+        ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
+
         self.framebuffer_size = framebuffer.size();
-        self.render.draw(&self.model, framebuffer);
+        let mut screen_framebuffer = ugli::Framebuffer::new_color(
+            self.geng.ugli(),
+            ugli::ColorAttachment::Texture(&mut self.screen_texture),
+        );
+
+        self.render.draw(&self.model, &mut screen_framebuffer);
+
+        // Draw texture to actual screen
+        let framebuffer_size = framebuffer.size().as_f32();
+        let texture_size = SCREEN_SIZE.as_f32();
+        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
+        let texture_size = texture_size * ratio;
+        self.geng.draw2d().textured_quad(
+            framebuffer,
+            &geng::PixelPerfectCamera,
+            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+            &self.screen_texture,
+            Rgba::WHITE,
+        );
     }
 
     fn handle_event(&mut self, event: geng::Event) {
