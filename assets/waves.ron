@@ -9,6 +9,11 @@
             wait_for_deaths: true,
             enemies: [
                 "crawler",
+                "crawler",
+                "crawler",
+                "crawler",
+                "crawler",
+                "ranger2",
             ],
         ),
         (
@@ -17,7 +22,12 @@
             wait_for_deaths: true,
             enemies: [
                 "crawler",
+                "crawler",
+                "crawler",
                 "tank",
+                "tank",
+                "ranger2",
+                "ranger2",
             ],
         ),
         (
@@ -33,7 +43,11 @@
             spawn_delay: 0.1,
             wait_for_deaths: true,
             enemies: [
+                "crawler",
+                "crawler",
+                "tank",
                 "ranger2",
+                "ranger",
             ],
         ),
     ],
