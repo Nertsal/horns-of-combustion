@@ -10,6 +10,9 @@ impl Model {
     fn handle_effect(&mut self, effect: QueuedEffect, _delta_time: Time) {
         match effect.effect {
             Effect::Noop => {}
+            Effect::ScreenShake(shake) => {
+                self.screen_shake.merge(shake);
+            }
             Effect::Explosion {
                 position,
                 radius,
@@ -26,10 +29,10 @@ impl Model {
                     velocity: &'a mut vec2<Coord>,
                 }
 
-                let actor_query = query_body_ref!(self.actors);
-                let proj_query = query_body_ref!(self.projectiles);
+                let mut actor_query = query_body_ref!(self.actors);
+                let mut proj_query = query_body_ref!(self.projectiles);
 
-                let process = |mut query: Query<BodyRefQuery<'_>, ecs::arena::ArenaFamily>| {
+                let process = |query: &mut Query<BodyRefQuery<'_>, ecs::arena::ArenaFamily>| {
                     let mut iter = query.iter_mut();
                     while let Some((_, body)) = iter.next() {
                         let delta = *body.position - position;
@@ -43,8 +46,21 @@ impl Model {
                     }
                 };
 
-                process(actor_query);
-                process(proj_query);
+                process(&mut actor_query);
+                process(&mut proj_query);
+
+                // TODO: account for distance
+                let player = actor_query
+                    .get(self.player.actor)
+                    .expect("Player actor not found");
+                let player_dist = (*player.position - position).len().max(r32(0.1));
+                let amplitude = (r32(50.0) / player_dist).clamp_range(r32(0.0)..=r32(20.0));
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::ScreenShake(ScreenShake {
+                        duration: Time::ONE,
+                        amplitude,
+                    }),
+                });
             }
         }
     }

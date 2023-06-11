@@ -117,6 +117,10 @@ impl Model {
             // Take min to not overshoot the target
             camera.center += direction * (config.speed * delta_time).min(Coord::ONE);
         }
+
+        // Screen shake
+        self.screen_shake.apply_to_camera(camera, delta_time);
+        self.screen_shake.update(delta_time);
     }
 
     fn update_gas(&mut self, delta_time: Time) {
