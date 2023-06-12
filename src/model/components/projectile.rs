@@ -32,6 +32,7 @@ pub struct Projectile {
     pub target_pos: Option<Position>,
     pub ai: ProjectileAI,
     pub kind: ProjectileKind,
+    pub knockback: Coord,
 }
 
 impl Projectile {
@@ -49,6 +50,7 @@ impl Projectile {
             target_pos: None,
             ai: config.ai,
             kind: config.kind,
+            knockback: config.knockback,
         }
     }
 

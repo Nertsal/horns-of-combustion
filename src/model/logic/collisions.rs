@@ -241,6 +241,7 @@ impl Model {
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             damage: &'a Hp,
+            knockback: &'a Coord,
         }
 
         #[allow(dead_code)]
@@ -278,7 +279,7 @@ impl Model {
                     // let dot = vec2::dot(relative_vel, collision.normal);
 
                     // Knockback
-                    *actor.velocity += relative_vel * r32(0.1);
+                    *actor.velocity += relative_vel * r32(0.1) * *proj.knockback;
 
                     break;
                 }

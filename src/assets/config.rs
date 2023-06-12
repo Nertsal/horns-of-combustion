@@ -92,6 +92,7 @@ pub struct ProjectileConfig {
     pub ai: ProjectileAI,
     #[serde(default)]
     pub kind: ProjectileKind,
+    pub knockback: Coord,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -116,12 +117,18 @@ impl Config {
         path: impl AsRef<std::path::Path>,
     ) -> anyhow::Result<HashMap<String, EnemyConfig>> {
         let path = path.as_ref();
-        let list: Vec<String> = file::load_detect(path.join("_list.ron")).await?;
+        log::debug!("Loading folder {:?}", path);
+        let list_path = path.join("_list.ron");
+        let list: Vec<String> = file::load_detect(&list_path)
+            .await
+            .context(format!("when loading {:?}", list_path))?;
 
         let mut enemies = HashMap::new();
         for name in list {
             let path = path.join(&name).with_extension("ron");
-            let enemy: EnemyConfig = file::load_detect(path).await?;
+            let enemy: EnemyConfig = file::load_detect(&path)
+                .await
+                .context(format!("when loading {:?}", path))?;
             enemies.insert(name, enemy);
         }
         Ok(enemies)
