@@ -83,8 +83,34 @@ impl WorldRender {
 
         let camera = &model.camera;
         for (_, block) in &query_block_ref!(model.blocks) {
+            let collider = block.collider.clone();
+
+            // Outline
+            let outline_color = Color::BLACK;
+            let outline_width = r32(0.25);
+            let outline_shape = match collider.shape {
+                Shape::Circle { radius } => Shape::Circle {
+                    radius: radius + outline_width,
+                },
+                Shape::Rectangle { width, height } => Shape::Rectangle {
+                    width: width + outline_width * r32(2.0),
+                    height: height + outline_width * r32(2.0),
+                },
+            };
             self.draw_collider(
-                &block.collider.clone(),
+                &Collider {
+                    shape: outline_shape,
+                    ..collider
+                },
+                outline_color,
+                camera,
+                model.config.world_size,
+                framebuffer,
+            );
+
+            // Fill
+            self.draw_collider(
+                &collider,
                 *block.color,
                 camera,
                 model.config.world_size,
