@@ -105,6 +105,30 @@ impl WorldRender {
                 mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
             );
         }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ParticleRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            lifetime: &'a Lifetime,
+            kind: &'a ParticleKind,
+        }
+
+        for (_, particle) in &query_particle_ref!(model.particles) {
+            if let ParticleKind::Fire = particle.kind {
+                let alpha = particle.lifetime.ratio().as_f32();
+                let mut color = color;
+                color.a = alpha;
+                self.draw_collider(
+                    &particle.collider.clone(),
+                    color,
+                    camera,
+                    model.config.world_size,
+                    framebuffer,
+                );
+            }
+        }
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {

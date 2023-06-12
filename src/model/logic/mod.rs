@@ -3,6 +3,7 @@ mod actors;
 mod collisions;
 mod effects;
 mod movement;
+mod particles;
 mod player;
 mod projectiles;
 mod waves;
@@ -24,6 +25,7 @@ impl Model {
         self.control_player(delta_time);
         self.control_actors(delta_time);
         self.control_projectiles(delta_time);
+        self.update_particles(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
         self.handle_effects(delta_time);
@@ -201,6 +203,8 @@ impl Model {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a Position,
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
         }
@@ -210,6 +214,19 @@ impl Model {
         while let Some((_, actor)) = iter.next() {
             if let Some(on_fire) = actor.on_fire {
                 actor.health.damage(on_fire.damage_per_second * delta_time);
+
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::Particles {
+                        position: *actor.position,
+                        position_radius: r32(1.0),
+                        velocity: vec2::UNIT_Y,
+                        size: r32(0.1),
+                        lifetime: r32(1.0),
+                        intensity: on_fire.damage_per_second,
+                        kind: ParticleKind::Fire,
+                    },
+                });
+
                 on_fire.duration -= delta_time;
                 if on_fire.duration <= Time::ZERO {
                     *actor.on_fire = None;

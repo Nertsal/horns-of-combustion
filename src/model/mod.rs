@@ -38,6 +38,19 @@ pub struct Explosion {
     pub lifetime: Lifetime,
 }
 
+#[derive(StructOf, Debug)]
+pub struct Particle {
+    #[structof(nested)]
+    pub body: Body,
+    pub lifetime: Lifetime,
+    pub kind: ParticleKind,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ParticleKind {
+    Fire,
+}
+
 pub struct Model {
     pub time: Time,
     pub config: Config,
@@ -51,6 +64,7 @@ pub struct Model {
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
     pub explosions: StructOf<Arena<Explosion>>,
+    pub particles: StructOf<Arena<Particle>>,
     pub queued_effects: VecDeque<QueuedEffect>,
 }
 
@@ -67,6 +81,7 @@ impl Model {
             gasoline: StructOf::new(),
             fire: StructOf::new(),
             explosions: StructOf::new(),
+            particles: StructOf::new(),
             wave_manager: WaveManager::new(waves),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),

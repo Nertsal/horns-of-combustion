@@ -15,4 +15,15 @@ pub enum Effect {
         radius: Coord,
         strength: Coord,
     },
+    Particles {
+        position: Position,
+        /// Variability in the position.
+        position_radius: Coord,
+        velocity: vec2<Coord>,
+        size: Coord,
+        lifetime: Time,
+        /// To dynamically control the amount in the settings.
+        intensity: R32,
+        kind: ParticleKind,
+    },
 }

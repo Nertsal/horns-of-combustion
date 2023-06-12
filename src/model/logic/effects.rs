@@ -72,6 +72,30 @@ impl Model {
                     }),
                 });
             }
+            Effect::Particles {
+                position,
+                position_radius,
+                velocity,
+                size,
+                lifetime,
+                intensity,
+                kind: ai,
+            } => {
+                let amount = intensity.as_f32().max(0.0).ceil() as usize;
+                let mut rng = thread_rng();
+                for _ in 0..amount {
+                    let pos = rng.gen_circle(vec2::ZERO, position_radius);
+                    let pos = position.shifted(pos, self.config.world_size);
+                    self.particles.insert(Particle {
+                        body: Body {
+                            collider: Collider::new(pos, Shape::Circle { radius: size }),
+                            velocity,
+                        },
+                        lifetime: Lifetime::new(lifetime),
+                        kind: ai,
+                    });
+                }
+            }
         }
     }
 }
