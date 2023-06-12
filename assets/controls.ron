@@ -6,4 +6,5 @@
     down: [Key(Down), Key(S)],
     shoot: [Mouse(Left)],
     transform: [Mouse(Right)],
+    gas: [Mouse(Left)],
 )
