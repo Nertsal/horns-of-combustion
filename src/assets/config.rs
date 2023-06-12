@@ -78,6 +78,7 @@ pub struct BarrelStateConfig {
     pub steering: R32,
     pub runover_damage: Hp,
     pub runover_damage_scale: Hp,
+    pub self_explosion_strength: Coord,
     pub shape: Shape,
     pub gasoline: GasolineConfig,
 }

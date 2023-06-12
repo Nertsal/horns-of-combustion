@@ -474,6 +474,8 @@ impl Model {
         struct ActorRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
             on_fire: &'a mut Option<OnFire>,
         }
@@ -482,25 +484,37 @@ impl Model {
 
         let mut actors_query = query_actor_ref!(self.actors);
         let mut actors_iter = actors_query.iter_mut();
-        while let Some((_, actor)) = actors_iter.next() {
-            if actor.stats.fire_immune {
-                continue;
-            }
-
+        while let Some((actor_id, actor)) = actors_iter.next() {
             for (_, fire) in &fire_query {
                 if actor
                     .collider
                     .clone()
                     .check(fire.collider, self.config.world_size)
                 {
-                    let mut on_fire = actor.on_fire.clone().unwrap_or(OnFire {
-                        duration: Time::ZERO,
-                        damage_per_second: Hp::ZERO,
-                    });
-                    on_fire.duration = on_fire.duration.max(fire.config.duration);
-                    on_fire.damage_per_second =
-                        on_fire.damage_per_second.max(fire.config.damage_per_second);
-                    *actor.on_fire = Some(on_fire);
+                    if !actor.stats.fire_immune {
+                        let mut on_fire = actor.on_fire.clone().unwrap_or(OnFire {
+                            duration: Time::ZERO,
+                            damage_per_second: Hp::ZERO,
+                        });
+                        on_fire.duration = on_fire.duration.max(fire.config.duration);
+                        on_fire.damage_per_second =
+                            on_fire.damage_per_second.max(fire.config.damage_per_second);
+                        *actor.on_fire = Some(on_fire);
+                    }
+                    if actor_id == self.player.actor {
+                        if let PlayerState::Barrel { .. } = self.player.state {
+                            // Explode the barrel
+                            // let dir = fire
+                            //     .collider
+                            //     .position
+                            //     .direction(*actor.collider.position, self.config.world_size)
+                            //     .normalize_or_zero();
+                            let dir = actor.velocity.normalize_or_zero();
+                            *actor.velocity +=
+                                dir * self.config.player.barrel_state.self_explosion_strength;
+                            self.player.state = PlayerState::Human;
+                        }
+                    }
                 }
             }
         }

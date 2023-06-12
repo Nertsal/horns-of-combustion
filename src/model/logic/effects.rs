@@ -45,8 +45,10 @@ impl Model {
                             continue;
                         }
 
-                        let t = (dist / radius).max(Coord::ONE);
-                        let strength = strength * t.sqr();
+                        let t = (Coord::ONE
+                            - ((dist - Coord::ONE).max(Coord::ZERO) / radius).sqrt())
+                        .clamp(Coord::ZERO, Coord::ONE);
+                        let strength = strength * t;
                         let dir = delta.normalize_or_zero();
                         *body.velocity += dir * strength;
                     }
