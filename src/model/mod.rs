@@ -2,6 +2,7 @@ mod action;
 mod camera;
 mod components;
 mod effect;
+mod gen;
 mod health;
 mod logic;
 mod player;
@@ -101,15 +102,7 @@ impl Model {
     }
 
     fn init(&mut self) {
-        // TODO: blocks and navmesh
-        self.blocks.insert(Block {
-            collider: Collider::new(
-                Position::from_world(vec2(20.0, 10.0).as_r32(), self.config.world_size),
-                Shape::Rectangle {
-                    width: r32(3.0),
-                    height: r32(4.5),
-                },
-            ),
-        });
+        // TODO: navmesh
+        self.generate_level();
     }
 }

@@ -6,10 +6,26 @@ use crate::model::{ActorAI, Coord, Hp, ProjectileAI, ProjectileKind, Shape, Shot
 pub struct Config {
     /// Size of the world torus.
     pub world_size: vec2<Coord>,
+    pub level: LevelConfig,
     pub death_explosion_radius: Coord,
     pub death_explosion_strength: Coord,
     pub player: PlayerConfig,
     pub camera: CameraConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct LevelConfig {
+    /// Min space between the blocks.
+    pub spacing: Coord,
+    /// The total number of blocks to spawn.
+    pub blocks_number: usize,
+    /// Variants of blocks to spawn.
+    pub blocks: Vec<BlockConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BlockConfig {
+    pub shape: Shape,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

@@ -64,7 +64,6 @@ impl Position {
         self.direction(other, world_size).len()
     }
 
-    #[allow(dead_code)]
     pub fn random(rng: &mut impl Rng, world_size: vec2<Coord>) -> Self {
         Self::from_world(
             vec2(
