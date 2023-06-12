@@ -367,44 +367,41 @@ impl WorldRender {
             }
 
             let aabb = actor.collider.clone().compute_aabb();
-            let pos = camera.project(*actor.collider.position, model.config.world_size);
-            let aabb = aabb.translate(pos - aabb.center());
-            let pos = vec2(aabb.center().x, aabb.min.y + aabb.height() * r32(0.9));
-            let size = vec2(1.3, 0.4).as_r32();
-            let aabb = Aabb2::point(pos).extend_symmetric(size / r32(2.0));
-            self.draw_health_bar(aabb, actor.health, camera, framebuffer);
+            let radius = aabb.height().as_f32() + 0.2;
+            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            self.draw_health_arc(pos, radius, actor.health, camera, framebuffer);
         }
     }
 
-    fn draw_health_bar(
+    fn draw_health_arc(
         &self,
-        aabb: Aabb2<Coord>,
+        center: vec2<f32>,
+        radius: f32,
         health: &Health,
         camera: &Camera,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        let transform = mat3::translate(aabb.center()).as_f32();
+        let transform = mat3::translate(center) * mat3::scale_uniform(radius);
 
-        self.util.draw_shape(
-            Shape::Rectangle {
-                width: aabb.width(),
-                height: aabb.height(),
-            },
-            transform,
-            self.theme.health_bg,
-            camera,
+        ugli::draw(
             framebuffer,
-        );
-
-        self.util.draw_shape(
-            Shape::Rectangle {
-                width: aabb.width() * health.ratio() * r32(0.9),
-                height: aabb.height() * r32(0.9),
+            &self.assets.shaders.health_arc,
+            ugli::DrawMode::TriangleFan,
+            &super::unit_geometry(self.geng.ugli()),
+            (
+                ugli::uniforms! {
+                    u_health: health.ratio().as_f32(),
+                    u_color: self.theme.fire,
+                    u_color_bg: self.theme.health_bg,
+                    u_model_matrix: transform,
+                    u_width: 0.1,
+                },
+                camera.uniforms(framebuffer.size().as_f32()),
+            ),
+            ugli::DrawParameters {
+                blend_mode: Some(ugli::BlendMode::straight_alpha()),
+                ..default()
             },
-            transform,
-            self.theme.health_fg,
-            camera,
-            framebuffer,
         );
     }
 }

@@ -39,6 +39,7 @@ pub struct SpriteAssets {
 pub struct ShaderAssets {
     pub tile_background: ugli::Program,
     pub conv_drunk17: ugli::Program,
+    pub health_arc: ugli::Program,
 }
 
 /// Use in Assets as `#[load(postprocess = "looping")]`
