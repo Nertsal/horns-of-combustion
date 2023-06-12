@@ -1,5 +1,5 @@
 Config(
-    world_size: (400.0, 400.0),
+    world_size: (200.0, 200.0),
     level: (
         spacing: 20.0,
         blocks_number: 50,
@@ -65,7 +65,7 @@ Config(
             recoil: 1.0,
             shot: (
                 projectile: (
-                    lifetime: 5.0,
+                    lifetime: 2.0,
                     speed: 50.0,
                     damage: 10.0,
                     knockback: 1.0,
