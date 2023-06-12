@@ -5,9 +5,7 @@ impl Model {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ParticleRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a mut Position,
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
             kind: &'a ParticleKind,

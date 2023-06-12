@@ -44,6 +44,7 @@ impl WorldRender {
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
+        self.draw_particles(model, framebuffer);
         self.draw_health(model, framebuffer);
     }
 
@@ -126,30 +127,6 @@ impl WorldRender {
                 &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.2, radius, color),
                 mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
             );
-        }
-
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ParticleRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
-            lifetime: &'a Lifetime,
-            kind: &'a ParticleKind,
-        }
-
-        for (_, particle) in &query_particle_ref!(model.particles) {
-            if let ParticleKind::Fire = particle.kind {
-                let alpha = particle.lifetime.ratio().as_f32();
-                let mut color = color;
-                color.a = alpha;
-                self.draw_collider(
-                    &particle.collider.clone(),
-                    color,
-                    camera,
-                    model.config.world_size,
-                    framebuffer,
-                );
-            }
         }
     }
 
@@ -280,6 +257,37 @@ impl WorldRender {
                     position.center(),
                     proj.collider.rotation.as_radians().as_f32(),
                 ),
+            );
+        }
+    }
+
+    fn draw_particles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ParticleRef<'a> {
+            position: &'a Position,
+            size: &'a Coord,
+            lifetime: &'a Lifetime,
+            kind: &'a ParticleKind,
+        }
+
+        let camera = &model.camera;
+        for (_, particle) in &query_particle_ref!(model.particles) {
+            let mut color = match particle.kind {
+                ParticleKind::Fire => self.theme.fire_particles,
+            };
+            let alpha = particle.lifetime.ratio().as_f32();
+            color.a *= alpha;
+
+            let pos = camera.project_f32(*particle.position, model.config.world_size);
+            self.util.draw_shape(
+                Shape::Circle {
+                    radius: *particle.size,
+                },
+                mat3::translate(pos),
+                color,
+                camera,
+                framebuffer,
             );
         }
     }

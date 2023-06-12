@@ -9,6 +9,7 @@ pub struct Theme {
     pub projectile: Color,
     pub gasoline: Color,
     pub fire: Color,
+    pub fire_particles: Color,
     pub health_bg: Color,
     pub health_fg: Color,
     pub enemies: EnemiesTheme,

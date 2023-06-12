@@ -40,8 +40,9 @@ pub struct Explosion {
 
 #[derive(StructOf, Debug)]
 pub struct Particle {
-    #[structof(nested)]
-    pub body: Body,
+    pub position: Position,
+    pub size: Coord,
+    pub velocity: vec2<Coord>,
     pub lifetime: Lifetime,
     pub kind: ParticleKind,
 }
