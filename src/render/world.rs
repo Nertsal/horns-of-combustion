@@ -188,6 +188,8 @@ impl WorldRender {
             }
 
             let aabb = actor.collider.clone().compute_aabb();
+            let pos = camera.project(*actor.collider.position, model.config.world_size);
+            let aabb = aabb.translate(pos - aabb.center());
             let pos = vec2(aabb.center().x, aabb.min.y + aabb.height() * r32(0.9));
             let size = vec2(1.3, 0.4).as_r32();
             let aabb = Aabb2::point(pos).extend_symmetric(size / r32(2.0));

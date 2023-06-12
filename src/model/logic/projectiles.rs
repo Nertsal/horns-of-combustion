@@ -97,7 +97,11 @@ impl Model {
         for proj_id in grounded_projs {
             let proj = self.projectiles.remove(proj_id).unwrap();
             for (gas_id, gas) in &gas_query {
-                if proj.body.collider.check(gas.collider) {
+                if proj
+                    .body
+                    .collider
+                    .check(gas.collider, self.config.world_size)
+                {
                     // Ignite gasoline
                     ignite.push(gas_id);
                 }

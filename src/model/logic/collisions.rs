@@ -266,7 +266,11 @@ impl Model {
                 if proj.fraction == actor.fraction {
                     continue;
                 }
-                if proj.collider.clone().check(&actor.collider.clone()) {
+                if proj
+                    .collider
+                    .clone()
+                    .check(&actor.collider.clone(), self.config.world_size)
+                {
                     proj_hits.push(proj_id);
                     actor.health.damage(*proj.damage);
 
@@ -305,7 +309,11 @@ impl Model {
 
         for (gas_id, gas) in &query_gas_ref!(self.gasoline) {
             for (_proj_id, proj) in &query_proj_ref!(self.projectiles) {
-                if proj.collider.clone().check(gas.collider) {
+                if proj
+                    .collider
+                    .clone()
+                    .check(gas.collider, self.config.world_size)
+                {
                     gas_ignited.push(gas_id);
                     break;
                 }
@@ -339,7 +347,7 @@ impl Model {
 
         while let Some((gas_id, gas)) = gas_iter.next() {
             for (_, fire) in &fire_query {
-                if fire.collider.check(gas.collider) {
+                if fire.collider.check(gas.collider, self.config.world_size) {
                     *gas.ignite_timer -= delta_time;
                     if *gas.ignite_timer <= Time::ZERO {
                         to_ignite.push(gas_id);
@@ -376,7 +384,11 @@ impl Model {
         let mut actors_iter = actors_query.iter_mut();
         while let Some((_, actor)) = actors_iter.next() {
             for (_, fire) in &fire_query {
-                if actor.collider.clone().check(fire.collider) {
+                if actor
+                    .collider
+                    .clone()
+                    .check(fire.collider, self.config.world_size)
+                {
                     let mut on_fire = actor.on_fire.clone().unwrap_or(OnFire {
                         duration: Time::ZERO,
                         damage_per_second: Hp::ZERO,
