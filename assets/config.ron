@@ -43,6 +43,7 @@ Config(
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.1,
+            recoil: 1.0,
             shot: (
                 projectile: (
                     lifetime: 5.0,

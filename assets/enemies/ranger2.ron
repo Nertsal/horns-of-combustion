@@ -11,6 +11,7 @@
         ammo: 2,
         reload_time: 3.0,
         shot_delay: 1.0,
+        recoil: 1.0,
         shot: (
             pattern: Single,
             projectile: (
