@@ -58,6 +58,7 @@ Config(
             ),
             gasoline: (
                 lifetime: 10.0,
+                cost: 5.0,
                 distance_period: 1.5,
                 ignite_timer: 0.2,
                 fire_radius: 5.0,
