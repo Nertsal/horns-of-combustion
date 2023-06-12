@@ -10,10 +10,7 @@ void main() {
 #endif
 
 #ifdef FRAGMENT_SHADER
-#define kernel_length 17*17
 #define kernel_width 17
-
-const float kernel[kernel_length] = float[kernel_length](1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 1.);
 
 uniform sampler2D u_texture;
 uniform vec2 u_resolution;
@@ -22,12 +19,15 @@ void main() {
   vec2 uv = (v_vt + 1.) / 2.;
   vec2 pixelSize = 1. / u_resolution.xy;
 
-  vec4 outColour = vec4(0.);
-  for(int i = 0; i < kernel_length; i++) {
-    vec2 d = vec2(i % kernel_width, i / kernel_width) - vec2(kernel_width / 2);
-    outColour += kernel[i] * texture2D(u_texture, uv + d * pixelSize) * .2;
-  }
+  vec2 _half = vec2(kernel_width / 2);
 
-  gl_FragColor = outColour;
+  vec4 outColour = vec4(0.);
+  outColour += texture2D(u_texture, uv + pixelSize * (vec2(0., 0.) - _half));
+  outColour += texture2D(u_texture, uv + pixelSize * (vec2(16., 0.) - _half));
+  outColour += texture2D(u_texture, uv + pixelSize * (vec2(8., 8.) - _half));
+  outColour += texture2D(u_texture, uv + pixelSize * (vec2(0., 16.) - _half));
+  outColour += texture2D(u_texture, uv + pixelSize * (vec2(16., 16.) - _half));
+
+  gl_FragColor = outColour * .2;
 }
 #endif
