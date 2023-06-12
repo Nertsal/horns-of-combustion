@@ -31,6 +31,13 @@ pub type Coord = R32;
 pub type Id = ecs::arena::Index;
 pub type Lifetime = Health;
 
+#[derive(StructOf, Debug, Clone)]
+pub struct Explosion {
+    pub position: Position,
+    pub max_radius: Coord,
+    pub lifetime: Lifetime,
+}
+
 pub struct Model {
     pub time: Time,
     pub config: Config,
@@ -43,6 +50,7 @@ pub struct Model {
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
+    pub explosions: StructOf<Arena<Explosion>>,
     pub queued_effects: VecDeque<QueuedEffect>,
 }
 
@@ -58,6 +66,7 @@ impl Model {
             projectiles: StructOf::new(),
             gasoline: StructOf::new(),
             fire: StructOf::new(),
+            explosions: StructOf::new(),
             wave_manager: WaveManager::new(waves),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),

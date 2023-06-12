@@ -13,6 +13,7 @@ pub struct Gasoline {
     pub lifetime: Lifetime,
     /// Ignites after being in contact with fire for that time.
     pub ignite_timer: Time,
+    pub fire_radius: Coord,
     pub explosion_radius: Coord,
     pub explosion_strength: Coord,
     pub fire: FireConfig,

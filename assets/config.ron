@@ -30,7 +30,7 @@ Config(
                 distance_period: 1.5,
                 ignite_timer: 0.2,
                 fire_radius: 5.0,
-                explosion_radius: 5.0,
+                explosion_radius: 10.0,
                 explosion_strength: 10.0,
                 shape: Circle( radius: 1.5 ),
                 fire: (

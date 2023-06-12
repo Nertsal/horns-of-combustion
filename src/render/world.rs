@@ -84,6 +84,24 @@ impl WorldRender {
                 framebuffer,
             );
         }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ExplRef<'a> {
+            position: &'a Position,
+            max_radius: &'a Coord,
+            lifetime: &'a Lifetime,
+        }
+
+        for (_, expl) in &query_expl_ref!(model.explosions) {
+            let radius = (1.0 - expl.lifetime.ratio().as_f32()) * expl.max_radius.as_f32();
+            self.geng.draw2d().draw2d_transformed(
+                framebuffer,
+                camera,
+                &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.2, radius, color),
+                mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
+            );
+        }
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {

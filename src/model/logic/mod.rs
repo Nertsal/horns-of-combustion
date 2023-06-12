@@ -17,6 +17,7 @@ impl Model {
         self.update_weapons(delta_time);
         self.update_gas(delta_time);
         self.update_fire(delta_time);
+        self.update_explosions(delta_time);
         self.update_on_fire(delta_time);
         self.update_waves(delta_time);
         self.actors_ai(delta_time);
@@ -28,6 +29,29 @@ impl Model {
         self.handle_effects(delta_time);
         self.check_deaths(delta_time);
         self.update_camera(delta_time);
+    }
+
+    fn update_explosions(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ExplRef<'a> {
+            lifetime: &'a mut Lifetime,
+        }
+
+        let mut query = query_expl_ref!(self.explosions);
+
+        let mut to_remove: Vec<Id> = Vec::new();
+        let mut iter = query.iter_mut();
+        while let Some((id, expl)) = iter.next() {
+            expl.lifetime.damage(delta_time);
+            if expl.lifetime.is_dead() {
+                to_remove.push(id);
+            }
+        }
+
+        for id in to_remove {
+            self.explosions.remove(id);
+        }
     }
 
     fn check_deaths(&mut self, _delta_time: Time) {
@@ -67,7 +91,7 @@ impl Model {
                 collider: Collider::new(
                     gas.collider.position,
                     Shape::Circle {
-                        radius: gas.explosion_radius,
+                        radius: gas.fire_radius,
                     },
                 ),
                 lifetime: Lifetime::new(5.0),

@@ -18,7 +18,11 @@ impl Model {
                 radius,
                 strength,
             } => {
-                // TODO: visual
+                self.explosions.insert(Explosion {
+                    position,
+                    max_radius: radius,
+                    lifetime: Lifetime::new(0.5),
+                });
 
                 #[allow(dead_code)]
                 #[derive(StructQuery)]

@@ -98,6 +98,7 @@ impl Model {
                 collider: Collider::new(position, config.shape),
                 lifetime: Lifetime::new(config.lifetime),
                 ignite_timer: config.ignite_timer,
+                fire_radius: config.fire_radius,
                 explosion_radius: config.explosion_radius,
                 explosion_strength: config.explosion_strength,
                 fire: config.fire,
