@@ -15,6 +15,7 @@ pub struct Controls {
     pub down: Vec<Key>,
     pub shoot: Vec<Key>,
     pub transform: Vec<Key>,
+    pub gas: Vec<Key>,
 }
 
 impl Key {

@@ -5,6 +5,7 @@ pub struct Player {
     pub actor: Id,
     pub aim_at: vec2<Coord>,
     pub input_direction: vec2<Coord>,
+    pub drip_gas: bool,
     pub out_of_view: bool,
     pub state: PlayerState,
 }
@@ -21,6 +22,7 @@ impl Player {
             actor,
             aim_at: vec2::ZERO,
             input_direction: vec2::ZERO,
+            drip_gas: false,
             out_of_view: false,
             state: PlayerState::Human,
         }

@@ -83,27 +83,32 @@ impl Model {
         // Look in the direction of travel
         *player.rotation = Angle::from_radians(player.velocity.arg());
 
-        // Update state
-        let config = &self.config.player.barrel_state.gasoline;
-        let pos = *player.position;
-        let last_delta = pos.direction(last_gas, self.config.world_size);
-        let last_dir = last_delta.normalize_or_zero();
-        let mut last_dist = last_delta.len();
-        while last_dist >= config.distance_period {
-            let position =
-                last_gas.shifted(-last_dir * config.distance_period, self.config.world_size);
-            last_gas = position;
-            last_dist -= config.distance_period;
-            self.gasoline.insert(Gasoline {
-                collider: Collider::new(position, config.shape),
-                lifetime: Lifetime::new(config.lifetime),
-                ignite_timer: config.ignite_timer,
-                fire_radius: config.fire_radius,
-                explosion_radius: config.explosion_radius,
-                explosion_strength: config.explosion_strength,
-                fire: config.fire,
-            });
+        // Drip gasoline
+        if self.player.drip_gas {
+            let config = &self.config.player.barrel_state.gasoline;
+            let pos = *player.position;
+            let last_delta = pos.direction(last_gas, self.config.world_size);
+            let last_dir = last_delta.normalize_or_zero();
+            let mut last_dist = last_delta.len();
+            while last_dist >= config.distance_period {
+                let position =
+                    last_gas.shifted(-last_dir * config.distance_period, self.config.world_size);
+                last_gas = position;
+                last_dist -= config.distance_period;
+                self.gasoline.insert(Gasoline {
+                    collider: Collider::new(position, config.shape),
+                    lifetime: Lifetime::new(config.lifetime),
+                    ignite_timer: config.ignite_timer,
+                    fire_radius: config.fire_radius,
+                    explosion_radius: config.explosion_radius,
+                    explosion_strength: config.explosion_strength,
+                    fire: config.fire,
+                });
+            }
+        } else {
+            last_gas = *player.position;
         }
+
         self.player.state = PlayerState::Barrel { last_gas };
     }
 }
