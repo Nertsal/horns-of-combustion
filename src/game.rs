@@ -44,8 +44,8 @@ impl Game {
                 texture
             },
             controls,
+            model: Model::new(theme.palette.clone(), config, enemies, waves),
             render: GameRender::new(geng, assets, theme),
-            model: Model::new(config, enemies, waves),
         }
     }
 

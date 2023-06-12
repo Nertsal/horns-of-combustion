@@ -17,7 +17,7 @@ pub use self::{
 };
 
 use crate::{
-    assets::{config::*, waves::*},
+    assets::{config::*, theme::Palette, waves::*},
     util::{RealConversions, Vec2RealConversions},
 };
 
@@ -57,9 +57,11 @@ pub enum ParticleKind {
 pub struct Block {
     #[structof(nested)]
     pub collider: Collider,
+    pub color: Color,
 }
 
 pub struct Model {
+    pub pallete: Palette,
     pub time: Time,
     pub config: Config,
     pub screen_shake: ScreenShake,
@@ -78,9 +80,15 @@ pub struct Model {
 }
 
 impl Model {
-    pub fn new(config: Config, enemies: HashMap<String, EnemyConfig>, waves: WavesConfig) -> Self {
+    pub fn new(
+        pallete: Palette,
+        config: Config,
+        enemies: HashMap<String, EnemyConfig>,
+        waves: WavesConfig,
+    ) -> Self {
         let mut actors = StructOf::new();
         let mut model = Self {
+            pallete,
             time: Time::ZERO,
             screen_shake: ScreenShake::new(),
             camera: Camera::new(config.camera.fov),

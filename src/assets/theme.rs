@@ -2,7 +2,7 @@ use super::*;
 
 use crate::model::Color;
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Theme {
     pub background: Color,
     pub player: Color,
@@ -13,7 +13,10 @@ pub struct Theme {
     pub health_bg: Color,
     pub health_fg: Color,
     pub enemies: EnemiesTheme,
+    pub palette: Palette,
 }
+
+pub type Palette = HashMap<String, Color>;
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct EnemiesTheme {

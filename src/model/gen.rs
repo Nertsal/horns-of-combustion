@@ -30,8 +30,15 @@ impl Model {
 
             let rotation = Angle::from_degrees(rng.gen_range(0.0..360.0).as_r32());
 
+            let color = *self
+                .pallete
+                .values()
+                .choose(&mut rng)
+                .expect("no colors in the pallete");
+
             spawns.push(position);
             self.blocks.insert(Block {
+                color,
                 collider: {
                     Collider {
                         position,

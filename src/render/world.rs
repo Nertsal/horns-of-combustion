@@ -78,14 +78,14 @@ impl WorldRender {
         struct BlockRef<'a> {
             #[query(nested)]
             collider: &'a Collider,
+            color: &'a Color,
         }
 
         let camera = &model.camera;
-        let color = Color::GRAY; // TODO
         for (_, block) in &query_block_ref!(model.blocks) {
             self.draw_collider(
                 &block.collider.clone(),
-                color,
+                *block.color,
                 camera,
                 model.config.world_size,
                 framebuffer,

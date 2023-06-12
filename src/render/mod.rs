@@ -26,7 +26,7 @@ impl GameRender {
         Self {
             geng: geng.clone(),
             assets: assets.clone(),
-            world: WorldRender::new(geng, assets, theme),
+            world: WorldRender::new(geng, assets, theme.clone()),
             theme,
             fire_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
             world_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
