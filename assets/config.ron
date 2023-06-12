@@ -33,7 +33,7 @@ Config(
         hp: 1000.0,
         contact_damage: 5.0,
         human_state: (
-            shape: Circle( radius: 1.0 ),
+            shape: Circle( radius: 1.2 ),
         ),
         barrel_state: (
             steering: 1.0,
