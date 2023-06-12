@@ -474,6 +474,7 @@ impl Model {
         struct ActorRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
+            stats: &'a Stats,
             on_fire: &'a mut Option<OnFire>,
         }
 
@@ -482,6 +483,10 @@ impl Model {
         let mut actors_query = query_actor_ref!(self.actors);
         let mut actors_iter = actors_query.iter_mut();
         while let Some((_, actor)) = actors_iter.next() {
+            if actor.stats.fire_immune {
+                continue;
+            }
+
             for (_, fire) in &fire_query {
                 if actor
                     .collider

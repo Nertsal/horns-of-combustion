@@ -34,6 +34,7 @@ impl Player {
                 config.acceleration,
                 Fraction::Player,
                 Stats {
+                    fire_immune: true,
                     contact_damage: config.contact_damage,
                     move_speed: config.speed,
                 },

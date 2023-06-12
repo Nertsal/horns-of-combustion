@@ -8,6 +8,7 @@ pub enum Fraction {
 
 #[derive(Debug, Clone)]
 pub struct Stats {
+    pub fire_immune: bool,
     pub contact_damage: Hp,
     pub move_speed: Coord,
 }
@@ -72,6 +73,7 @@ impl Actor {
             config.acceleration,
             Fraction::Enemy,
             Stats {
+                fire_immune: false,
                 contact_damage: config.contact_damage,
                 move_speed: config.speed,
             },
