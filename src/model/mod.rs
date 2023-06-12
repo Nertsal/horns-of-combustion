@@ -51,6 +51,12 @@ pub enum ParticleKind {
     Fire,
 }
 
+#[derive(StructOf, Debug)]
+pub struct Block {
+    #[structof(nested)]
+    pub collider: Collider,
+}
+
 pub struct Model {
     pub time: Time,
     pub config: Config,
@@ -60,6 +66,7 @@ pub struct Model {
     pub wave_manager: WaveManager,
     pub player: Player,
     pub actors: StructOf<Arena<Actor>>,
+    pub blocks: StructOf<Arena<Block>>,
     pub projectiles: StructOf<Arena<Projectile>>,
     pub gasoline: StructOf<Arena<Gasoline>>,
     pub fire: StructOf<Arena<Fire>>,
@@ -77,6 +84,7 @@ impl Model {
             camera: Camera::new(config.camera.fov),
             player: Player::init(config.player.clone(), &mut actors),
             actors,
+            blocks: StructOf::new(),
             projectiles: StructOf::new(),
             gasoline: StructOf::new(),
             fire: StructOf::new(),
@@ -91,5 +99,16 @@ impl Model {
         model
     }
 
-    fn init(&mut self) {}
+    fn init(&mut self) {
+        // TODO: blocks and navmesh
+        self.blocks.insert(Block {
+            collider: Collider::new(
+                Position::from_world(vec2(20.0, 10.0).as_r32(), self.config.world_size),
+                Shape::Rectangle {
+                    width: r32(3.0),
+                    height: r32(4.5),
+                },
+            ),
+        });
+    }
 }

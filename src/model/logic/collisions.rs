@@ -4,6 +4,7 @@ impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
         self.collide_player(delta_time);
         self.collide_projectiles(delta_time);
+        self.collide_blocks(delta_time);
         self.projectile_gas(delta_time);
         self.fire_gas(delta_time);
         self.fire(delta_time);
@@ -287,6 +288,78 @@ impl Model {
         }
 
         for id in proj_hits {
+            self.projectiles.remove(id);
+        }
+    }
+
+    fn collide_blocks(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct BlockRef<'a> {
+            #[query(nested)]
+            collider: &'a Collider,
+        }
+
+        let block_query = query_block_ref!(self.blocks);
+
+        // Actors
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a mut Collider,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let mut actor_query = query_actor_ref!(self.actors);
+        let mut actor_iter = actor_query.iter_mut();
+        while let Some((_, actor)) = actor_iter.next() {
+            for (_, block) in &block_query {
+                if let Some(collision) = actor
+                    .collider
+                    .clone()
+                    .collide(&block.collider.clone(), self.config.world_size)
+                {
+                    actor.collider.position.shift(
+                        -collision.normal * collision.penetration,
+                        self.config.world_size,
+                    );
+
+                    let dot = vec2::dot(collision.normal, *actor.velocity);
+                    let bounciness = r32(0.5);
+                    *actor.velocity -= collision.normal * dot * (Coord::ONE + bounciness);
+                }
+            }
+        }
+
+        // Projectiles
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ProjRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a mut Collider,
+        }
+
+        let mut proj_query = query_proj_ref!(self.projectiles);
+        let mut proj_iter = proj_query.iter_mut();
+        let mut hit_projs: Vec<Id> = Vec::new();
+        while let Some((proj_id, proj)) = proj_iter.next() {
+            for (_, block) in &block_query {
+                if proj
+                    .collider
+                    .clone()
+                    .check(&block.collider.clone(), self.config.world_size)
+                {
+                    hit_projs.push(proj_id);
+                    break;
+                }
+            }
+        }
+
+        for id in hit_projs {
             self.projectiles.remove(id);
         }
     }

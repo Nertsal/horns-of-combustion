@@ -40,6 +40,7 @@ impl WorldRender {
         );
 
         self.draw_gasoline(model, framebuffer);
+        self.draw_blocks(model, framebuffer);
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
@@ -58,6 +59,27 @@ impl WorldRender {
         for (_, gas) in &query_gas_ref!(model.gasoline) {
             self.draw_collider(
                 &gas.collider.clone(),
+                color,
+                camera,
+                model.config.world_size,
+                framebuffer,
+            );
+        }
+    }
+
+    fn draw_blocks(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct BlockRef<'a> {
+            #[query(nested)]
+            collider: &'a Collider,
+        }
+
+        let camera = &model.camera;
+        let color = Color::GRAY; // TODO
+        for (_, block) in &query_block_ref!(model.blocks) {
+            self.draw_collider(
+                &block.collider.clone(),
                 color,
                 camera,
                 model.config.world_size,
