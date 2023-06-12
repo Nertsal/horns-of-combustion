@@ -3,12 +3,13 @@ use super::*;
 impl Model {
     pub fn shoot(
         &mut self,
-        pos: vec2<Coord>,
-        aimed_towards: vec2<Coord>,
+        pos: Position,
+        aimed_towards: Position,
         fraction: Fraction,
         config: ShotConfig,
     ) {
-        let aim_angle = Angle::from_radians((aimed_towards - pos).arg());
+        let aim_angle =
+            Angle::from_radians((pos.direction(aimed_towards, self.config.world_size)).arg());
 
         let mut shoot_at = |angle: Angle<R32>| {
             self.projectiles.insert(Projectile::new(

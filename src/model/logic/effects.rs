@@ -24,7 +24,7 @@ impl Model {
                 #[derive(StructQuery)]
                 struct BodyRef<'a> {
                     #[query(storage = ".body.collider")]
-                    position: &'a vec2<Coord>,
+                    position: &'a Position,
                     #[query(storage = ".body")]
                     velocity: &'a mut vec2<Coord>,
                 }
@@ -35,7 +35,7 @@ impl Model {
                 let process = |query: &mut Query<BodyRefQuery<'_>, ecs::arena::ArenaFamily>| {
                     let mut iter = query.iter_mut();
                     while let Some((_, body)) = iter.next() {
-                        let delta = *body.position - position;
+                        let delta = position.direction(*body.position, self.config.world_size);
                         let dist = delta.len();
                         if dist > radius {
                             continue;
@@ -55,7 +55,11 @@ impl Model {
                 let player = actor_query
                     .get(self.player.actor)
                     .expect("Player actor not found");
-                let player_dist = (*player.position - position).len().max(r32(0.1));
+                let player_dist = player
+                    .position
+                    .direction(position, self.config.world_size)
+                    .len()
+                    .max(r32(0.1));
                 let amplitude = (r32(100.0) / player_dist).clamp_range(r32(0.0)..=r32(100.0));
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::ScreenShake(ScreenShake {

@@ -28,9 +28,12 @@ impl WorldRender {
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         // Draw a circle at the center of the world.
+        let pos = model
+            .camera
+            .project_f32(Position::ZERO, model.config.world_size);
         self.util.draw_shape(
             Shape::Circle { radius: r32(10.0) },
-            mat3::identity(),
+            mat3::translate(pos),
             Color::opaque(0.0, 0.0, 0.3),
             &model.camera,
             framebuffer,
@@ -53,7 +56,13 @@ impl WorldRender {
         let camera = &model.camera;
         let color = self.theme.gasoline;
         for (_, gas) in &query_gas_ref!(model.gasoline) {
-            self.draw_collider(&gas.collider.clone(), color, camera, framebuffer);
+            self.draw_collider(
+                &gas.collider.clone(),
+                color,
+                camera,
+                model.config.world_size,
+                framebuffer,
+            );
         }
     }
 
@@ -67,7 +76,13 @@ impl WorldRender {
         let camera = &model.camera;
         let color = self.theme.fire;
         for (_, fire) in &query_fire_ref!(model.fire) {
-            self.draw_collider(&fire.collider.clone(), color, camera, framebuffer);
+            self.draw_collider(
+                &fire.collider.clone(),
+                color,
+                camera,
+                model.config.world_size,
+                framebuffer,
+            );
         }
     }
 
@@ -94,7 +109,7 @@ impl WorldRender {
                 // let position = Aabb2::point(actor.collider.position.as_f32())
                 //     .extend_symmetric(sprite_size / 2.0);
                 let position = super::pixel_perfect_aabb(
-                    actor.collider.position.as_f32(),
+                    camera.project_f32(*actor.collider.position, model.config.world_size),
                     sprite.size(),
                     camera,
                 );
@@ -129,7 +144,13 @@ impl WorldRender {
                 Some(ActorAI::Crawler) => self.theme.enemies.crawler,
                 Some(ActorAI::Ranger { .. }) => self.theme.enemies.ranger,
             };
-            self.draw_collider(&actor.collider.clone(), color, camera, framebuffer);
+            self.draw_collider(
+                &actor.collider.clone(),
+                color,
+                camera,
+                model.config.world_size,
+                framebuffer,
+            );
         }
     }
 
@@ -176,8 +197,11 @@ impl WorldRender {
                 ProjectileKind::WheelPizza => &self.assets.sprites.projectile_wheel_pizza,
             };
 
-            let position =
-                super::pixel_perfect_aabb(proj.collider.position.as_f32(), sprite.size(), camera);
+            let position = super::pixel_perfect_aabb(
+                camera.project_f32(*proj.collider.position, model.config.world_size),
+                sprite.size(),
+                camera,
+            );
 
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
@@ -196,9 +220,10 @@ impl WorldRender {
         collider: &Collider,
         color: Color,
         camera: &Camera,
+        world_size: vec2<Coord>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        let transform = collider.transform_mat();
+        let transform = collider.transform_mat(camera, world_size);
         self.util.draw_shape(
             collider.shape,
             transform.as_f32(),

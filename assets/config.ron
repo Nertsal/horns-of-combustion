@@ -1,4 +1,5 @@
 Config(
+    world_size: (400.0, 400.0),
     death_explosion_radius: 10.0,
     death_explosion_strength: 30.0,
     camera: (

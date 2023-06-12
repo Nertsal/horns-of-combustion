@@ -78,7 +78,7 @@ impl GameRender {
                 ugli::uniforms! {
                     u_texture: &self.world_texture,
                     u_fireTexture: &self.assets.sprites.tex_fire,
-                    u_camera_pos: &model.camera.center.as_f32(),
+                    u_camera_pos: &model.camera.center.to_world_f32(),
                     u_shake: self.fire_shake.as_f32(),
                 },
                 model.camera.uniforms(size),

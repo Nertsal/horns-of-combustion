@@ -65,7 +65,7 @@ impl Actor {
         }
     }
 
-    pub fn new_enemy(pos: vec2<Coord>, config: EnemyConfig) -> Self {
+    pub fn new_enemy(pos: Position, config: EnemyConfig) -> Self {
         let mut enemy = Self::new(
             Body::new(pos, config.shape),
             config.hp,

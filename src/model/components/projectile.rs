@@ -29,14 +29,14 @@ pub struct Projectile {
     #[structof(nested)]
     pub body: Body,
     pub damage: Hp,
-    pub target_pos: Option<vec2<Coord>>,
+    pub target_pos: Option<Position>,
     pub ai: ProjectileAI,
     pub kind: ProjectileKind,
 }
 
 impl Projectile {
     pub fn new(
-        pos: vec2<Coord>,
+        pos: Position,
         direction: Angle<R32>,
         fraction: Fraction,
         config: ProjectileConfig,

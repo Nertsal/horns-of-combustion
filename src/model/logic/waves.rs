@@ -23,10 +23,11 @@ impl Model {
                 .get(&enemy_name)
                 .unwrap_or_else(|| panic!("Enemy {:?} not found", enemy_name))
                 .clone();
-            let pos = rng.gen_circle(
-                self.wave_manager.spawn_point,
-                self.wave_manager.config.spawn_circle_radius,
-            );
+            let pos = rng.gen_circle(vec2::ZERO, self.wave_manager.config.spawn_circle_radius);
+            let pos = self
+                .wave_manager
+                .spawn_point
+                .shifted(pos, self.config.world_size);
             let _enemy = self.actors.insert(Actor::new_enemy(pos, enemy_config));
             // self.wave_manager.current_enemies.push(enemy);
             self.wave_manager.spawn_delay = self.wave_manager.current_wave.spawn_delay;
@@ -67,7 +68,7 @@ impl Model {
             #[derive(StructQuery)]
             struct PlayerRef<'a> {
                 #[query(storage = ".body.collider")]
-                position: &'a vec2<Coord>,
+                position: &'a Position,
             }
 
             let query = query_player_ref!(self.actors);
@@ -79,7 +80,8 @@ impl Model {
             let config = &self.wave_manager.config;
             let angle = Angle::from_degrees(r32(rng.gen_range(0.0..=360.0)));
             let distance = rng.gen_range(config.min_spawn_distance..=config.max_spawn_distance);
-            self.wave_manager.spawn_point = player_pos + angle.unit_vec() * distance;
+            self.wave_manager.spawn_point =
+                player_pos.shifted(angle.unit_vec() * distance, self.config.world_size);
 
             self.wave_manager.current_wave = wave;
         }

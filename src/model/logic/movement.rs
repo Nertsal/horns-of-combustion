@@ -12,7 +12,7 @@ impl Model {
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a mut vec2<Coord>,
+            position: &'a mut Position,
             #[query(storage = ".body")]
             velocity: &'a vec2<Coord>,
         }
@@ -21,7 +21,9 @@ impl Model {
         let mut iter = query.iter_mut();
         while let Some((_id, actor)) = iter.next() {
             // Move with constant velocity.
-            *actor.position += *actor.velocity * delta_time;
+            actor
+                .position
+                .shift(*actor.velocity * delta_time, self.config.world_size);
         }
     }
 
@@ -30,7 +32,7 @@ impl Model {
         #[derive(StructQuery)]
         struct ProjRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a mut vec2<Coord>,
+            position: &'a mut Position,
             #[query(storage = ".body")]
             velocity: &'a vec2<Coord>,
         }
@@ -39,7 +41,8 @@ impl Model {
         let mut iter = query.iter_mut();
         while let Some((_id, body)) = iter.next() {
             // Move with constant velocity.
-            *body.position += *body.velocity * delta_time;
+            body.position
+                .shift(*body.velocity * delta_time, self.config.world_size);
         }
     }
 }

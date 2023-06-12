@@ -38,7 +38,7 @@ impl Model {
         player.controller.acceleration = self.config.player.acceleration;
     }
 
-    fn barrel_control(&mut self, mut last_gas: vec2<Coord>, delta_time: Time) {
+    fn barrel_control(&mut self, mut last_gas: Position, delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct PlayerRef<'a> {
@@ -50,7 +50,7 @@ impl Model {
             rotation: &'a mut Angle<Coord>,
             controller: &'a mut Controller,
             #[query(storage = ".body.collider")]
-            position: &'a vec2<Coord>,
+            position: &'a Position,
             stats: &'a Stats,
         }
 
@@ -86,11 +86,12 @@ impl Model {
         // Update state
         let config = &self.config.player.barrel_state.gasoline;
         let pos = *player.position;
-        let last_delta = last_gas - pos;
+        let last_delta = pos.direction(last_gas, self.config.world_size);
         let last_dir = last_delta.normalize_or_zero();
         let mut last_dist = last_delta.len();
         while last_dist >= config.distance_period {
-            let position = last_gas - last_dir * config.distance_period;
+            let position =
+                last_gas.shifted(-last_dir * config.distance_period, self.config.world_size);
             last_gas = position;
             last_dist -= config.distance_period;
             self.gasoline.insert(Gasoline {

@@ -10,7 +10,7 @@ pub struct WaveManager {
     pub spawn_delay: Time,
     // pub current_enemies: Vec<Id>,
     /// The point for spawning the wave's enemies around.
-    pub spawn_point: vec2<Coord>,
+    pub spawn_point: Position,
 }
 
 impl WaveManager {
@@ -26,7 +26,7 @@ impl WaveManager {
                 enemies: VecDeque::new(),
             },
             config,
-            spawn_point: vec2::ZERO,
+            spawn_point: Position::ZERO,
         }
     }
 }

@@ -9,7 +9,7 @@ impl Model {
                     #[derive(StructQuery)]
                     struct PlayerRef<'a> {
                         #[query(storage = ".body.collider")]
-                        position: &'a vec2<Coord>,
+                        position: &'a Position,
                         #[query(optic = "._Some")]
                         gun: &'a mut Gun,
                     }
@@ -34,7 +34,7 @@ impl Model {
                         #[derive(StructQuery)]
                         struct PlayerRef<'a> {
                             #[query(storage = ".body.collider")]
-                            position: &'a vec2<Coord>,
+                            position: &'a Position,
                             #[query(storage = ".body")]
                             velocity: &'a mut vec2<Coord>,
                         }

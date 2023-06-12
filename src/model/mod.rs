@@ -5,13 +5,14 @@ mod effect;
 mod health;
 mod logic;
 mod player;
+mod position;
 mod shake;
 mod waves;
 mod weapons;
 
 pub use self::{
-    action::*, camera::*, components::*, effect::*, health::*, player::*, shake::*, waves::*,
-    weapons::*,
+    action::*, camera::*, components::*, effect::*, health::*, player::*, position::*, shake::*,
+    waves::*, weapons::*,
 };
 
 use crate::{

@@ -8,12 +8,12 @@ impl Model {
             lifetime: &'a mut Lifetime,
             fraction: &'a Fraction,
             #[query(storage = ".body.collider")]
-            position: &'a vec2<Coord>,
+            position: &'a Position,
             #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<R32>,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
-            target_pos: &'a Option<vec2<Coord>>,
+            target_pos: &'a Option<Position>,
             ai: &'a mut ProjectileAI,
         }
 
@@ -36,7 +36,7 @@ impl Model {
 
             if let Some(target_pos) = *proj.target_pos {
                 // Target position is specified, so the projectile should stop at the target
-                let target_dir = target_pos - *proj.position;
+                let target_dir = proj.position.direction(target_pos, self.config.world_size);
                 if vec2::dot(target_dir, *proj.velocity) < Coord::ZERO {
                     // The projectile is travelling away from the target
                     grounded_projs.push(proj_id);

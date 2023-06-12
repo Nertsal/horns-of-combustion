@@ -8,7 +8,7 @@ pub struct Body {
 }
 
 impl Body {
-    pub fn new(pos: vec2<Coord>, shape: Shape) -> Self {
+    pub fn new(pos: Position, shape: Shape) -> Self {
         Self {
             collider: Collider::new(pos, shape),
             velocity: vec2::ZERO,

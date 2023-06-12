@@ -6,7 +6,7 @@ use super::*;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Collision {
-    pub point: vec2<Coord>,
+    pub point: Position,
     /// Normal vector pointing away from the body.
     pub normal: vec2<Coord>,
     pub penetration: Coord,
@@ -14,13 +14,13 @@ pub struct Collision {
 
 #[derive(StructOf, Debug, Clone, Serialize, Deserialize)]
 pub struct Collider {
-    pub position: vec2<Coord>,
+    pub position: Position,
     pub rotation: Angle<Coord>,
     pub shape: Shape,
 }
 
 impl Collider {
-    pub fn new(position: vec2<Coord>, shape: Shape) -> Self {
+    pub fn new(position: Position, shape: Shape) -> Self {
         Self {
             position,
             rotation: Angle::ZERO,
@@ -28,8 +28,8 @@ impl Collider {
         }
     }
 
-    pub fn transform_mat(&self) -> mat3<Coord> {
-        let position = self.position;
+    pub fn transform_mat(&self, camera: &Camera, world_size: vec2<Coord>) -> mat3<Coord> {
+        let position = camera.project(self.position, world_size);
         let rotation = self.rotation.as_radians();
         mat3::translate(position) * mat3::rotate(rotation)
     }
@@ -44,7 +44,7 @@ impl Collider {
     }
 
     fn get_iso(&self) -> parry2d::math::Isometry<f32> {
-        let vec2(x, y) = self.position.as_f32();
+        let vec2(x, y) = self.position.to_world_f32();
         let angle = self.rotation.as_radians().as_f32();
         parry2d::math::Isometry::new(parry2d::na::Vector2::new(x, y), angle)
     }
@@ -62,7 +62,7 @@ impl Collider {
     }
 
     /// Return the collision info if the two colliders are intersecting.
-    pub fn collide(&self, other: &Self) -> Option<Collision> {
+    pub fn collide(&self, other: &Self, world_size: vec2<Coord>) -> Option<Collision> {
         let (self_iso, self_shape) = self.to_parry();
         let (other_iso, other_shape) = other.to_parry();
         let prediction = 0.0;
@@ -78,7 +78,7 @@ impl Collider {
             let normal = contact.normal1.into_inner();
             let point = contact.point1;
             Collision {
-                point: vec2(point.x, point.y).map(Coord::new),
+                point: Position::from_world(vec2(point.x, point.y).map(Coord::new), world_size),
                 normal: vec2(normal.x, normal.y).map(Coord::new),
                 penetration: Coord::new(-contact.dist),
             }

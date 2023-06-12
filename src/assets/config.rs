@@ -4,6 +4,8 @@ use crate::model::{ActorAI, Coord, Hp, ProjectileAI, ProjectileKind, Shape, Shot
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
+    /// Size of the world torus.
+    pub world_size: vec2<Coord>,
     pub death_explosion_radius: Coord,
     pub death_explosion_strength: Coord,
     pub player: PlayerConfig,

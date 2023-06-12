@@ -135,7 +135,7 @@ impl geng::State for Game {
                 .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
                 .as_r32();
             self.model.player_action(PlayerAction::Shoot {
-                target_pos: world_pos,
+                target_pos: Position::from_world(world_pos, self.model.config.world_size),
             });
         }
 

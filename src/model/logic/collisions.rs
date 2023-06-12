@@ -41,7 +41,7 @@ impl Model {
 
         #[derive(Clone)]
         struct Correction {
-            position: vec2<Coord>,
+            position: Position,
             velocity: vec2<Coord>,
             health: Health,
         }
@@ -51,7 +51,9 @@ impl Model {
             if actor_id == self.player.actor {
                 continue;
             }
-            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
+            if let Some(collision) =
+                player_collider.collide(&actor.collider.clone(), self.config.world_size)
+            {
                 let mut player_cor =
                     corrections
                         .get(&self.player.actor)
@@ -77,10 +79,16 @@ impl Model {
                 let coef_actor = r32(1.0);
 
                 // Move out of collision
-                player_cor.position -= collision.normal * collision.penetration * coef_player
-                    / (coef_player + coef_actor);
-                actor_cor.position += collision.normal * collision.penetration * coef_actor
-                    / (coef_player + coef_actor);
+                player_cor.position.shift(
+                    -collision.normal * collision.penetration * coef_player
+                        / (coef_player + coef_actor),
+                    self.config.world_size,
+                );
+                actor_cor.position.shift(
+                    collision.normal * collision.penetration * coef_actor
+                        / (coef_player + coef_actor),
+                    self.config.world_size,
+                );
 
                 // Apply impulses
                 let hit_strength = dot.min(r32(10.0));
@@ -104,7 +112,7 @@ impl Model {
         #[derive(StructQuery)]
         struct UpdateRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a mut vec2<Coord>,
+            position: &'a mut Position,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             health: &'a mut Health,
@@ -139,7 +147,7 @@ impl Model {
 
         #[derive(Clone)]
         struct Correction {
-            position: vec2<Coord>,
+            position: Position,
             velocity: vec2<Coord>,
             stun: Option<Time>,
             health: Health,
@@ -150,7 +158,9 @@ impl Model {
             if actor_id == self.player.actor {
                 continue;
             }
-            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
+            if let Some(collision) =
+                player_collider.collide(&actor.collider.clone(), self.config.world_size)
+            {
                 let mut player_cor =
                     corrections
                         .get(&self.player.actor)
@@ -204,7 +214,7 @@ impl Model {
         #[derive(StructQuery)]
         struct UpdateRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a mut vec2<Coord>,
+            position: &'a mut Position,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             stunned: &'a mut Option<Time>,

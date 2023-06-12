@@ -81,7 +81,7 @@ impl Model {
         #[derive(StructQuery)]
         struct PlayerRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a vec2<Coord>,
+            position: &'a Position,
         }
 
         let query = query_player_ref!(self.actors);
@@ -97,7 +97,9 @@ impl Model {
         // camera.fov = TODO: interpolate fov to player speed.
 
         // Do not follow player if it is inside the bounds of the camera.
-        let direction = *player.position - camera.center.as_r32();
+        let direction = camera
+            .center
+            .direction(*player.position, self.config.world_size);
         let distance = direction.len();
         if distance > camera.fov / r32(3.0) {
             self.player.out_of_view = true;
@@ -115,11 +117,15 @@ impl Model {
 
             // Interpolate camera position to the target
             // Take min to not overshoot the target
-            camera.center += direction * (config.speed * delta_time).min(Coord::ONE);
+            camera.center.shift(
+                direction * (config.speed * delta_time).min(Coord::ONE),
+                self.config.world_size,
+            );
         }
 
         // Screen shake
-        self.screen_shake.apply_to_camera(camera, delta_time);
+        self.screen_shake
+            .apply_to_camera(camera, self.config.world_size, delta_time);
         self.screen_shake.update(delta_time);
     }
 

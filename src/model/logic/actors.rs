@@ -6,7 +6,7 @@ impl Model {
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a vec2<Coord>,
+            position: &'a Position,
             stats: &'a Stats,
             controller: &'a mut Controller,
             #[query(optic = "._Some")]
@@ -30,7 +30,9 @@ impl Model {
                 continue;
             }
 
-            let player_dir = player.body.collider.position - *actor.position;
+            let player_dir = actor
+                .position
+                .direction(player.body.collider.position, self.config.world_size);
             // let player_dist = player_dir.len();
             let player_dir = player_dir.normalize_or_zero();
 
@@ -39,8 +41,15 @@ impl Model {
                     actor.controller.target_velocity = player_dir * actor.stats.move_speed;
                 }
                 ActorAI::Ranger { preferred_distance } => {
-                    let target = player.body.collider.position - player_dir * *preferred_distance;
-                    let target_dir = (target - *actor.position).normalize_or_zero();
+                    let target = player
+                        .body
+                        .collider
+                        .position
+                        .shifted(-player_dir * *preferred_distance, self.config.world_size);
+                    let target_dir = actor
+                        .position
+                        .direction(target, self.config.world_size)
+                        .normalize_or_zero();
                     actor.controller.target_velocity = target_dir * actor.stats.move_speed;
 
                     if let Some(gun) = actor.gun {

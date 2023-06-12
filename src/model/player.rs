@@ -12,7 +12,7 @@ pub struct Player {
 #[derive(Debug, Clone)]
 pub enum PlayerState {
     Human,
-    Barrel { last_gas: vec2<Coord> },
+    Barrel { last_gas: Position },
 }
 
 impl Player {
@@ -29,7 +29,7 @@ impl Player {
     pub fn init(config: PlayerConfig, actors: &mut StructOf<Arena<Actor>>) -> Self {
         let actor = actors.insert(
             Actor::new(
-                Body::new(vec2::ZERO, Shape::Circle { radius: r32(1.0) }),
+                Body::new(Position::ZERO, Shape::Circle { radius: r32(1.0) }),
                 config.hp,
                 config.acceleration,
                 Fraction::Player,

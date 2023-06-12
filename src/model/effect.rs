@@ -11,7 +11,7 @@ pub enum Effect {
     Noop,
     ScreenShake(ScreenShake),
     Explosion {
-        position: vec2<Coord>,
+        position: Position,
         radius: Coord,
         strength: Coord,
     },
