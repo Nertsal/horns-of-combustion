@@ -3,11 +3,16 @@ use super::*;
 #[derive(Debug)]
 pub struct Player {
     pub actor: Id,
-    pub aim_at: vec2<Coord>,
-    pub input_direction: vec2<Coord>,
-    pub drip_gas: bool,
+    pub input: PlayerInput,
     pub out_of_view: bool,
     pub state: PlayerState,
+}
+
+#[derive(Debug)]
+pub struct PlayerInput {
+    pub aim_at: vec2<Coord>,
+    pub direction: vec2<Coord>,
+    pub drip_gas: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -20,9 +25,11 @@ impl Player {
     pub fn new(actor: Id) -> Self {
         Self {
             actor,
-            aim_at: vec2::ZERO,
-            input_direction: vec2::ZERO,
-            drip_gas: false,
+            input: PlayerInput {
+                aim_at: vec2::ZERO,
+                direction: vec2::ZERO,
+                drip_gas: false,
+            },
             out_of_view: false,
             state: PlayerState::Human,
         }

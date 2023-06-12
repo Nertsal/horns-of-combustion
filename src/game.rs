@@ -69,7 +69,7 @@ impl Game {
         }
 
         // Assign normalized
-        player.input_direction = player_direction.normalize_or_zero().as_r32();
+        player.input.direction = player_direction.normalize_or_zero().as_r32();
 
         // Aim
         let cursor_pos = window.cursor_position().as_f32();
@@ -77,10 +77,10 @@ impl Game {
             .model
             .camera
             .screen_to_world(self.framebuffer_size.as_f32(), cursor_pos);
-        player.aim_at = aim_position.as_r32();
+        player.input.aim_at = aim_position.as_r32();
 
         // Drip gasoline
-        player.drip_gas = is_key_pressed(window, &self.controls.gas);
+        player.input.drip_gas = is_key_pressed(window, &self.controls.gas);
 
         // Transform state
         if is_event_down(event, &self.controls.transform) {

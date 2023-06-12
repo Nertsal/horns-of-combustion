@@ -34,7 +34,7 @@ impl Model {
         *player.shape = self.config.player.human_state.shape;
 
         // Controller
-        player.controller.target_velocity = self.player.input_direction * player.stats.move_speed;
+        player.controller.target_velocity = self.player.input.direction * player.stats.move_speed;
         player.controller.acceleration = self.config.player.acceleration;
     }
 
@@ -64,7 +64,7 @@ impl Model {
 
         // Controller
         // let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
-        let input_direction = self.player.input_direction;
+        let input_direction = self.player.input.direction;
         let delta_angle = if input_direction == vec2::ZERO {
             Coord::ZERO
         } else {
@@ -84,7 +84,7 @@ impl Model {
         *player.rotation = Angle::from_radians(player.velocity.arg());
 
         // Drip gasoline
-        if self.player.drip_gas {
+        if self.player.input.drip_gas {
             let config = &self.config.player.barrel_state.gasoline;
             let pos = *player.position;
             let last_delta = pos.direction(last_gas, self.config.world_size);

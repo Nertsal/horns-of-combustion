@@ -50,7 +50,7 @@ impl Model {
 
                         // let input_direction =
                         //     (self.player.aim_at - *player.position).normalize_or_zero();
-                        let input_direction = self.player.input_direction;
+                        let input_direction = self.player.input.direction;
                         let dash_speed = (vec2::dot(*player.velocity, input_direction)
                             .max(Coord::ZERO)
                             + self.config.player.dash_burst)
