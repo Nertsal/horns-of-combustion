@@ -71,16 +71,19 @@ impl WorldRender {
         #[derive(StructQuery)]
         struct FireRef<'a> {
             collider: &'a Collider,
+            lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
         let color = self.theme.fire;
         for (_, fire) in &query_fire_ref!(model.fire) {
-            self.draw_collider(
+            let scale = ((fire.lifetime.max_hp - fire.lifetime.hp).as_f32() / 0.3).clamp(0.0, 1.0);
+            self.draw_collider_transformed(
                 &fire.collider.clone(),
                 color,
                 camera,
                 model.config.world_size,
+                mat3::scale_uniform(scale),
                 framebuffer,
             );
         }
@@ -243,7 +246,26 @@ impl WorldRender {
         world_size: vec2<Coord>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        let transform = collider.transform_mat(camera, world_size);
+        self.draw_collider_transformed(
+            collider,
+            color,
+            camera,
+            world_size,
+            mat3::identity(),
+            framebuffer,
+        )
+    }
+
+    fn draw_collider_transformed(
+        &self,
+        collider: &Collider,
+        color: Color,
+        camera: &Camera,
+        world_size: vec2<Coord>,
+        transform: mat3<f32>,
+        framebuffer: &mut ugli::Framebuffer,
+    ) {
+        let transform = collider.transform_mat(camera, world_size).as_f32() * transform;
         self.util.draw_shape(
             collider.shape,
             transform.as_f32(),

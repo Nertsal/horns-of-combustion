@@ -21,7 +21,7 @@ impl Model {
                 self.explosions.insert(Explosion {
                     position,
                     max_radius: radius,
-                    lifetime: Lifetime::new(0.5),
+                    lifetime: Lifetime::new(0.2),
                 });
 
                 #[allow(dead_code)]
