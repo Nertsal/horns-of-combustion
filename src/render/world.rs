@@ -175,7 +175,7 @@ impl WorldRender {
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
-                &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.2, radius, color),
+                &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.5, radius, color),
                 mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
             );
         }
