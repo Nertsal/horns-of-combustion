@@ -341,7 +341,7 @@ impl WorldRender {
             let angle = delta.arg();
             let pos = camera.center.to_world_f32() + vec2(x, y);
             let pos = super::pixel_perfect_aabb(pos, texture.size(), camera);
-            let color = Color::new(1.0, 1.0, 1.0, 0.5);
+            let color = Color::WHITE;
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
