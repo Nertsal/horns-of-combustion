@@ -1,5 +1,24 @@
 Config(
     world_size: (400.0, 400.0),
+    level: (
+        spacing: 20.0,
+        blocks_number: 50,
+        blocks: [
+            (
+                shape: Rectangle(
+                    width: 5.0,
+                    height: 7.5,
+                ),
+            ),
+            ( shape: Circle( radius: 4.0 ), ),
+            (
+                shape: Rectangle(
+                    width: 6.0,
+                    height: 6.0,
+                ),
+            ),
+        ],
+    ),
     death_explosion_radius: 10.0,
     death_explosion_strength: 30.0,
     camera: (
