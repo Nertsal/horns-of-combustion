@@ -4,6 +4,7 @@ use super::*;
 
 #[derive(Debug)]
 pub struct WaveManager {
+    pub difficulty: R32,
     pub config: WavesConfig,
     pub current_wave: WaveConfig,
     pub wave_delay: Time,
@@ -16,6 +17,7 @@ pub struct WaveManager {
 impl WaveManager {
     pub fn new(config: WavesConfig) -> Self {
         Self {
+            difficulty: R32::ZERO,
             wave_delay: Time::ZERO,
             spawn_delay: Time::ZERO,
             // current_enemies: Vec::new(),

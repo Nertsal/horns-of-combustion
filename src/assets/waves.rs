@@ -12,7 +12,27 @@ pub struct WavesConfig {
     pub max_spawn_distance: Coord,
     /// The radius for the spawn circle, in which the all enemies from a wave will spawn.
     pub spawn_circle_radius: Coord,
+    pub infinite_wave: InfiniteWaveConfig,
     pub waves: VecDeque<WaveConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InfiniteWaveConfig {
+    /// How fast the difficulty scales over time.
+    pub difficulty_time_scaling: R32,
+    /// How much the difficulty scales every wave.
+    pub difficulty_wave_scaling: R32,
+    /// The delay between each enemy spawn.
+    pub spawn_delay: Time,
+    /// Delay the first enemy spawn.
+    pub wave_delay: Time,
+    /// List of enemy names.
+    pub enemies: HashMap<String, InfiniteEnemyConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct InfiniteEnemyConfig {
+    pub cost: R32,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
