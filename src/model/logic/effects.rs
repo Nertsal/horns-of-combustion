@@ -45,8 +45,8 @@ impl Model {
                             continue;
                         }
 
-                        let t = dist.max(Coord::ONE);
-                        let strength = strength / t.sqr();
+                        let t = (dist / radius).max(Coord::ONE);
+                        let strength = strength * t.sqr();
                         let dir = delta.normalize_or_zero();
                         *body.velocity += dir * strength;
                     }
@@ -64,7 +64,7 @@ impl Model {
                     .direction(position, self.config.world_size)
                     .len()
                     .max(r32(0.1));
-                let amplitude = (r32(100.0) / player_dist).clamp_range(r32(0.0)..=r32(100.0));
+                let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(100.0));
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::ScreenShake(ScreenShake {
                         duration: Time::ONE,

@@ -5,13 +5,24 @@ Config(
         blocks_number: 50,
         blocks: [
             (
+                weight: 2.0,
+                health: Some(50.0),
+                kind: Barrel,
+                shape: Circle( radius: 2.0 ),
+            ),
+            (
+                weight: 10.0,
                 shape: Rectangle(
                     width: 5.0,
                     height: 7.5,
                 ),
             ),
-            ( shape: Circle( radius: 4.0 ), ),
             (
+                weight: 10.0,
+                shape: Circle( radius: 4.0 ),
+            ),
+            (
+                weight: 10.0,
                 shape: Rectangle(
                     width: 6.0,
                     height: 6.0,
@@ -19,8 +30,8 @@ Config(
             ),
         ],
     ),
-    death_explosion_radius: 10.0,
-    death_explosion_strength: 30.0,
+    death_explosion_radius: 5.0,
+    death_explosion_strength: 10.0,
     camera: (
         fov: 70.0,
         speed: 6.0,

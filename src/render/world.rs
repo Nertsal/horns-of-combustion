@@ -79,43 +79,64 @@ impl WorldRender {
             #[query(nested)]
             collider: &'a Collider,
             color: &'a Color,
+            kind: &'a BlockKind,
         }
 
         let camera = &model.camera;
         for (_, block) in &query_block_ref!(model.blocks) {
             let collider = block.collider.clone();
 
-            // Outline
-            let outline_color = Color::BLACK;
-            let outline_width = r32(0.25);
-            let outline_shape = match collider.shape {
-                Shape::Circle { radius } => Shape::Circle {
-                    radius: radius + outline_width,
-                },
-                Shape::Rectangle { width, height } => Shape::Rectangle {
-                    width: width + outline_width * r32(2.0),
-                    height: height + outline_width * r32(2.0),
-                },
-            };
-            self.draw_collider(
-                &Collider {
-                    shape: outline_shape,
-                    ..collider
-                },
-                outline_color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+            match block.kind {
+                BlockKind::Obstacle => {
+                    // Outline
+                    let outline_color = Color::BLACK;
+                    let outline_width = r32(0.25);
+                    let outline_shape = match collider.shape {
+                        Shape::Circle { radius } => Shape::Circle {
+                            radius: radius + outline_width,
+                        },
+                        Shape::Rectangle { width, height } => Shape::Rectangle {
+                            width: width + outline_width * r32(2.0),
+                            height: height + outline_width * r32(2.0),
+                        },
+                    };
+                    self.draw_collider(
+                        &Collider {
+                            shape: outline_shape,
+                            ..collider
+                        },
+                        outline_color,
+                        camera,
+                        model.config.world_size,
+                        framebuffer,
+                    );
 
-            // Fill
-            self.draw_collider(
-                &collider,
-                *block.color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+                    // Fill
+                    self.draw_collider(
+                        &collider,
+                        *block.color,
+                        camera,
+                        model.config.world_size,
+                        framebuffer,
+                    );
+                }
+                BlockKind::Barrel => {
+                    let sprite = &self.assets.sprites.barrel;
+
+                    let pos = camera.project_f32(*block.collider.position, model.config.world_size);
+                    let position = super::pixel_perfect_aabb(pos, sprite.size(), camera);
+
+                    self.geng.draw2d().draw2d_transformed(
+                        framebuffer,
+                        camera,
+                        &draw2d::TexturedQuad::new(position, sprite),
+                        mat3::rotate_around(
+                            position.center(),
+                            block.collider.rotation.as_radians().as_f32(),
+                        ),
+                    );
+                }
+            }
         }
     }
 
@@ -393,7 +414,27 @@ impl WorldRender {
             }
 
             let aabb = actor.collider.clone().compute_aabb();
-            let radius = aabb.height().as_f32() + 0.2;
+            let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
+            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            self.draw_health_arc(pos, radius, actor.health, camera, framebuffer);
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct BlockRef<'a> {
+            #[query(nested)]
+            collider: &'a Collider,
+            #[query(optic = "._Some")]
+            health: &'a Health,
+        }
+
+        for (_id, actor) in &query_block_ref!(model.blocks) {
+            if actor.health.ratio().as_f32() == 1.0 {
+                continue;
+            }
+
+            let aabb = actor.collider.clone().compute_aabb();
+            let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
             let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
             self.draw_health_arc(pos, radius, actor.health, camera, framebuffer);
         }

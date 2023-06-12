@@ -1,6 +1,8 @@
 use super::*;
 
-use crate::model::{ActorAI, Coord, Hp, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time};
+use crate::model::{
+    ActorAI, BlockKind, Coord, Hp, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time,
+};
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
@@ -25,7 +27,21 @@ pub struct LevelConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BlockConfig {
+    #[serde(default)]
+    pub health: Option<Hp>,
+    #[serde(default = "default_weight")]
+    pub weight: R32,
+    #[serde(default = "default_block")]
+    pub kind: BlockKind,
     pub shape: Shape,
+}
+
+fn default_weight() -> R32 {
+    R32::ONE
+}
+
+fn default_block() -> BlockKind {
+    BlockKind::Obstacle
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

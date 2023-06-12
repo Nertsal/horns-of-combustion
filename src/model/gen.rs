@@ -25,20 +25,26 @@ impl Model {
 
             let block = config
                 .blocks
-                .choose(&mut rng)
+                .choose_weighted(&mut rng, |config| config.weight.as_f32())
                 .expect("no block variants found to generate");
 
-            let rotation = Angle::from_degrees(rng.gen_range(0.0..360.0).as_r32());
-
-            let color = *self
-                .pallete
-                .values()
-                .choose(&mut rng)
-                .expect("no colors in the pallete");
+            let (color, rotation) = match block.kind {
+                BlockKind::Obstacle => (
+                    *self
+                        .pallete
+                        .values()
+                        .choose(&mut rng)
+                        .expect("no colors in the pallete"),
+                    Angle::from_degrees(rng.gen_range(0.0..360.0).as_r32()),
+                ),
+                BlockKind::Barrel => (Color::WHITE, Angle::ZERO),
+            };
 
             spawns.push(position);
             self.blocks.insert(Block {
                 color,
+                health: block.health.map(Health::new),
+                kind: block.kind,
                 collider: {
                     Collider {
                         position,

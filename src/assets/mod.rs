@@ -14,6 +14,8 @@ pub struct Assets {
 #[derive(geng::asset::Load)]
 pub struct SpriteAssets {
     #[load(postprocess = "pixel")]
+    pub barrel: ugli::Texture,
+    #[load(postprocess = "pixel")]
     pub player_human: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub arrow: ugli::Texture,

@@ -57,7 +57,15 @@ pub enum ParticleKind {
 pub struct Block {
     #[structof(nested)]
     pub collider: Collider,
+    pub health: Option<Health>,
     pub color: Color,
+    pub kind: BlockKind,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum BlockKind {
+    Obstacle,
+    Barrel,
 }
 
 pub struct Model {

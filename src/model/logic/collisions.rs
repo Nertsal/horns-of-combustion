@@ -298,9 +298,10 @@ impl Model {
         struct BlockRef<'a> {
             #[query(nested)]
             collider: &'a Collider,
+            health: &'a mut Option<Health>,
         }
 
-        let block_query = query_block_ref!(self.blocks);
+        let mut block_query = query_block_ref!(self.blocks);
 
         // Actors
 
@@ -341,19 +342,30 @@ impl Model {
         struct ProjRef<'a> {
             #[query(nested, storage = ".body")]
             collider: &'a mut Collider,
+            damage: &'a Hp,
         }
+
+        let mut hit_projs: Vec<Id> = Vec::new();
+        let mut dead_blocks: Vec<Id> = Vec::new();
 
         let mut proj_query = query_proj_ref!(self.projectiles);
         let mut proj_iter = proj_query.iter_mut();
-        let mut hit_projs: Vec<Id> = Vec::new();
+
         while let Some((proj_id, proj)) = proj_iter.next() {
-            for (_, block) in &block_query {
+            let mut block_iter = block_query.iter_mut();
+            while let Some((block_id, block)) = block_iter.next() {
                 if proj
                     .collider
                     .clone()
                     .check(&block.collider.clone(), self.config.world_size)
                 {
                     hit_projs.push(proj_id);
+                    if let Some(health) = block.health {
+                        health.damage(*proj.damage);
+                        if health.is_dead() {
+                            dead_blocks.push(block_id);
+                        }
+                    }
                     break;
                 }
             }
@@ -361,6 +373,19 @@ impl Model {
 
         for id in hit_projs {
             self.projectiles.remove(id);
+        }
+        for id in dead_blocks {
+            let block = self.blocks.remove(id).unwrap();
+            // TODO: config
+            if let BlockKind::Barrel = block.kind {
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::Explosion {
+                        position: block.collider.position,
+                        radius: r32(30.0),
+                        strength: r32(50.0),
+                    },
+                });
+            }
         }
     }
 
