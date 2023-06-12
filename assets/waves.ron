@@ -1,7 +1,7 @@
 (
-    min_spawn_distance: 10.0,
-    max_spawn_distance: 15.0,
-    spawn_circle_radius: 5.0,
+    min_spawn_distance: 100.0,
+    max_spawn_distance: 150.0,
+    spawn_circle_radius: 10.0,
     waves: [
         (
             wave_delay: 1.0,
