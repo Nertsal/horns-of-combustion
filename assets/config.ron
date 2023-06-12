@@ -29,7 +29,7 @@ Config(
     player: (
         speed: 20.0,
         acceleration: 3.0,
-        dash_burst: 20.0,
+        dash_burst: 30.0,
         hp: 1000.0,
         contact_damage: 5.0,
         human_state: (
