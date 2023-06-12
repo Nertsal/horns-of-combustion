@@ -48,6 +48,7 @@ impl WorldRender {
     }
 
     pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        self.draw_gasoline_tank(model, framebuffer);
         self.draw_health(model, framebuffer);
         self.draw_enemy_arrows(model, framebuffer);
     }
@@ -396,6 +397,26 @@ impl WorldRender {
                 mat3::rotate_around(pos.center(), angle),
             );
         }
+    }
+
+    fn draw_gasoline_tank(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        // let screen = framebuffer.size().as_f32();
+        let camera = &geng::PixelPerfectCamera;
+        let size = vec2(20.0, 30.0);
+        let aabb = Aabb2::point(vec2::splat(20.0)).extend_positive(size);
+        self.geng
+            .draw2d()
+            .draw2d(framebuffer, camera, &draw2d::Quad::new(aabb, Rgba::BLACK));
+
+        let t = model.player.gasoline.ratio().as_f32();
+        let aabb = Aabb2::point(aabb.bottom_left())
+            .extend_positive(vec2(aabb.width(), aabb.height() * t))
+            .extend_uniform(-1.0);
+        self.geng.draw2d().draw2d(
+            framebuffer,
+            camera,
+            &draw2d::Quad::new(aabb, self.theme.gasoline),
+        );
     }
 
     fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {

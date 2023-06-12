@@ -6,6 +6,7 @@ pub struct Player {
     pub input: PlayerInput,
     pub out_of_view: bool,
     pub state: PlayerState,
+    pub gasoline: Health,
 }
 
 #[derive(Debug)]
@@ -32,6 +33,10 @@ impl Player {
             },
             out_of_view: false,
             state: PlayerState::Human,
+            gasoline: Health {
+                hp: r32(0.0),
+                max_hp: r32(100.0),
+            },
         }
     }
 

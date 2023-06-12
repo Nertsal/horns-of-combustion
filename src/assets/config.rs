@@ -87,6 +87,7 @@ pub struct BarrelStateConfig {
 pub struct GasolineConfig {
     pub lifetime: Time,
     pub distance_period: Coord,
+    pub cost: R32,
     pub ignite_timer: Time,
     pub fire_radius: Coord,
     pub explosion_radius: Coord,

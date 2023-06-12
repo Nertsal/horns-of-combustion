@@ -70,6 +70,11 @@ impl Model {
             .collect();
         for id in dead_actors {
             let actor = self.actors.remove(id).unwrap();
+
+            // TODO: drop gasoline tank
+            self.player.gasoline.heal(r32(20.0));
+
+            // Explode
             self.queued_effects.push_back(QueuedEffect {
                 effect: Effect::Explosion {
                     position: actor.body.collider.position,

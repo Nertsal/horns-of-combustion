@@ -95,6 +95,11 @@ impl Model {
                     last_gas.shifted(-last_dir * config.distance_period, self.config.world_size);
                 last_gas = position;
                 last_dist -= config.distance_period;
+
+                if self.player.gasoline.hp < config.cost {
+                    break;
+                }
+                self.player.gasoline.damage(config.cost);
                 self.gasoline.insert(Gasoline {
                     collider: Collider::new(position, config.shape),
                     lifetime: Lifetime::new(config.lifetime),
