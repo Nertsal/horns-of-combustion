@@ -14,6 +14,11 @@ void main() {
 
 uniform sampler2D u_texture;
 uniform vec2 u_resolution;
+uniform float u_time;
+
+float rand(vec2 co) {
+  return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main() {
   vec2 uv = (v_vt + 1.) / 2.;
@@ -28,6 +33,10 @@ void main() {
   outColour += texture2D(u_texture, uv + pixelSize * (vec2(0., 16.) - _half));
   outColour += texture2D(u_texture, uv + pixelSize * (vec2(16., 16.) - _half));
 
-  gl_FragColor = outColour * .2;
+  if(rand(uv + u_time) < (outColour * .2).a - 0.01) {
+    gl_FragColor = outColour * .25;
+  } else {
+    gl_FragColor = vec4(0.);
+  }
 }
 #endif
