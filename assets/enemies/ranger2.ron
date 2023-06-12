@@ -17,9 +17,10 @@
                 lifetime: 5.0,
                 speed: 20.0,
                 damage: 5.0,
+                knockback: 1.0,
                 shape: Circle( radius: 0.2 ),
                 ai: ConstantTurn ( degrees_per_second: 90.0 ),
-                kind: SquidLike
+                kind: SquidLike,
             ),
         ),
     )),
