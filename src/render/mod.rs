@@ -111,6 +111,9 @@ impl GameRender {
                 ..default()
             },
         );
+
+        // UI
+        self.world.draw_ui(model, framebuffer);
     }
 }
 

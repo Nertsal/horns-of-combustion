@@ -45,7 +45,11 @@ impl WorldRender {
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
         self.draw_particles(model, framebuffer);
+    }
+
+    pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         self.draw_health(model, framebuffer);
+        self.draw_enemy_arrows(model, framebuffer);
     }
 
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
@@ -198,31 +202,6 @@ impl WorldRender {
         }
     }
 
-    fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
-            health: &'a Health,
-        }
-
-        let camera = &model.camera;
-        for (_id, actor) in &query_actor_ref!(model.actors) {
-            if actor.health.ratio().as_f32() == 1.0 {
-                continue;
-            }
-
-            let aabb = actor.collider.clone().compute_aabb();
-            let pos = camera.project(*actor.collider.position, model.config.world_size);
-            let aabb = aabb.translate(pos - aabb.center());
-            let pos = vec2(aabb.center().x, aabb.min.y + aabb.height() * r32(0.9));
-            let size = vec2(1.3, 0.4).as_r32();
-            let aabb = Aabb2::point(pos).extend_symmetric(size / r32(2.0));
-            self.draw_health_bar(aabb, actor.health, camera, framebuffer);
-        }
-    }
-
     fn draw_projectiles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
@@ -327,6 +306,74 @@ impl WorldRender {
             camera,
             framebuffer,
         )
+    }
+
+    fn draw_enemy_arrows(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a Position,
+        }
+
+        let camera = &model.camera;
+        let camera_view = vec2(
+            framebuffer.size().as_f32().aspect() * camera.fov.as_f32(),
+            camera.fov.as_f32(),
+        ) / 2.0;
+
+        for (_id, actor) in &query_actor_ref!(model.actors) {
+            let delta = camera
+                .center
+                .direction(*actor.position, model.config.world_size)
+                .as_f32();
+            if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
+                // In view
+                continue;
+            }
+
+            let camera_view = camera_view - vec2::splat(2.0); // Margin
+            let x = delta.x.clamp_abs(camera_view.x);
+            let y = delta.y.clamp_abs(camera_view.y);
+
+            let texture = &self.assets.sprites.arrow;
+
+            let angle = delta.arg();
+            let pos = camera.center.to_world_f32() + vec2(x, y);
+            let pos = super::pixel_perfect_aabb(pos, texture.size(), camera);
+            let color = Color::new(1.0, 1.0, 1.0, 0.5);
+            self.geng.draw2d().draw2d_transformed(
+                framebuffer,
+                camera,
+                &draw2d::TexturedQuad::colored(pos, texture, color),
+                mat3::rotate_around(pos.center(), angle),
+            );
+        }
+    }
+
+    fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            health: &'a Health,
+        }
+
+        let camera = &model.camera;
+        for (_id, actor) in &query_actor_ref!(model.actors) {
+            if actor.health.ratio().as_f32() == 1.0 {
+                continue;
+            }
+
+            let aabb = actor.collider.clone().compute_aabb();
+            let pos = camera.project(*actor.collider.position, model.config.world_size);
+            let aabb = aabb.translate(pos - aabb.center());
+            let pos = vec2(aabb.center().x, aabb.min.y + aabb.height() * r32(0.9));
+            let size = vec2(1.3, 0.4).as_r32();
+            let aabb = Aabb2::point(pos).extend_symmetric(size / r32(2.0));
+            self.draw_health_bar(aabb, actor.health, camera, framebuffer);
+        }
     }
 
     fn draw_health_bar(

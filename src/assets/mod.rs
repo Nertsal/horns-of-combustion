@@ -16,6 +16,8 @@ pub struct SpriteAssets {
     #[load(postprocess = "pixel")]
     pub player_human: ugli::Texture,
     #[load(postprocess = "pixel")]
+    pub arrow: ugli::Texture,
+    #[load(postprocess = "pixel")]
     pub player_barrel: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub projectile_default: ugli::Texture,
@@ -39,12 +41,13 @@ pub struct ShaderAssets {
     pub conv_drunk17: ugli::Program,
 }
 
-/// Use in Assets as `#[asset(postprocess = "looping")]`
+/// Use in Assets as `#[load(postprocess = "looping")]`
+#[allow(dead_code)]
 fn looping(sfx: &mut geng::Sound) {
     sfx.set_looped(true)
 }
 
-/// Use in Assets as `#[asset(postprocess = "pixel")]`
+/// Use in Assets as `#[load(postprocess = "pixel")]`
 fn pixel(texture: &mut ugli::Texture) {
     texture.set_filter(ugli::Filter::Nearest);
 }
