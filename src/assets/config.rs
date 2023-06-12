@@ -73,6 +73,7 @@ pub struct GunConfig {
     /// Delay between shots.
     pub shot_delay: Time,
     pub shot: ShotConfig,
+    pub recoil: Coord,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

@@ -10,6 +10,8 @@ impl Model {
                     struct PlayerRef<'a> {
                         #[query(storage = ".body.collider")]
                         position: &'a Position,
+                        #[query(storage = ".body")]
+                        velocity: &'a mut vec2<Coord>,
                         #[query(optic = "._Some")]
                         gun: &'a mut Gun,
                     }
@@ -23,6 +25,8 @@ impl Model {
                         let pos = *player.position;
                         player.gun.shot_delay = player.gun.config.shot_delay;
                         let config = player.gun.config.shot.clone();
+                        let dir = pos.direction(target_pos, self.config.world_size);
+                        *player.velocity -= dir.normalize_or_zero() * player.gun.config.recoil;
                         self.shoot(pos, target_pos, Fraction::Player, config);
                     }
                 }

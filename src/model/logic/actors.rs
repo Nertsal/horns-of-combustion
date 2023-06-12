@@ -7,6 +7,8 @@ impl Model {
         struct ActorRef<'a> {
             #[query(storage = ".body.collider")]
             position: &'a Position,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
             controller: &'a mut Controller,
             #[query(optic = "._Some")]
@@ -55,9 +57,12 @@ impl Model {
                     if let Some(gun) = actor.gun {
                         if gun.shot_delay <= Time::ZERO {
                             gun.shot_delay = gun.config.shot_delay;
+                            let target_pos = player.body.collider.position;
+                            let dir = actor.position.direction(target_pos, self.config.world_size);
+                            *actor.velocity -= dir.normalize_or_zero() * gun.config.recoil;
                             shots.push((
                                 *actor.position,
-                                player.body.collider.position,
+                                target_pos,
                                 Fraction::Enemy,
                                 gun.config.shot.clone(),
                             ));
