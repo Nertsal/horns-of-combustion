@@ -53,6 +53,7 @@ fn generate_blocks(
         result.insert(Block {
             color,
             health: block.health.map(Health::new),
+            on_fire: None,
             kind: block.kind,
             collider: {
                 Collider {

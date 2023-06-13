@@ -37,6 +37,15 @@ impl Model {
                     dir * strength
                 };
 
+                let calculate_damage = |body_position: Position| -> Hp {
+                    let delta = position.direction(body_position, self.config.world_size);
+                    let dist = delta.len();
+                    let t = (Coord::ONE
+                        - ((dist - Coord::ONE).max(Coord::ZERO) / config.radius).sqrt())
+                    .clamp(Coord::ZERO, Coord::ONE);
+                    config.damage * t
+                };
+
                 // Update actors
                 #[allow(dead_code)]
                 #[derive(StructQuery)]
@@ -57,21 +66,36 @@ impl Model {
                         continue;
                     }
                     *actor.velocity += apply_velocity(*actor.position);
-
-                    // Damage
-                    let delta = position.direction(*actor.position, self.config.world_size);
-                    let dist = delta.len();
-                    let t = (Coord::ONE
-                        - ((dist - Coord::ONE).max(Coord::ZERO) / config.radius).sqrt())
-                    .clamp(Coord::ZERO, Coord::ONE);
-                    let damage = config.damage * t;
-                    actor.health.damage(damage);
-
+                    actor.health.damage(calculate_damage(*actor.position));
                     // Ignite
                     if let Some(fire) = config.ignite.clone() {
                         if !actor.stats.fire_immune {
                             *actor.on_fire = Some(update_on_fire(actor.on_fire.clone(), fire));
                         }
+                    }
+                }
+
+                // Update blocks
+                #[allow(dead_code)]
+                #[derive(StructQuery)]
+                struct BlockRef<'a> {
+                    #[query(storage = ".collider")]
+                    position: &'a Position,
+                    #[query(optic = "._Some")]
+                    health: &'a mut Health,
+                    on_fire: &'a mut Option<OnFire>,
+                }
+
+                let mut block_query = query_block_ref!(self.blocks);
+                let mut block_iter = block_query.iter_mut();
+                while let Some((_, block)) = block_iter.next() {
+                    if !check(*block.position) {
+                        continue;
+                    }
+                    block.health.damage(calculate_damage(*block.position));
+                    // Ignite
+                    if let Some(fire) = config.ignite.clone() {
+                        *block.on_fire = Some(update_on_fire(block.on_fire.clone(), fire));
                     }
                 }
 
@@ -94,7 +118,6 @@ impl Model {
                     *proj.velocity += apply_velocity(*proj.position);
                 }
 
-                // TODO: account for distance
                 let player = actor_query
                     .get(self.player.actor)
                     .expect("Player actor not found");
