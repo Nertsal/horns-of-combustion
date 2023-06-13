@@ -38,6 +38,7 @@ Config(
         dead_zone: 0.5,
     ),
     player: (
+        fire_immune: false,
         speed: 20.0,
         acceleration: 3.0,
         dash_burst: 30.0,
@@ -57,8 +58,9 @@ Config(
                 height: 2.5,
             ),
             gasoline: (
+                can_control: false,
+                cost: 0.0,
                 lifetime: 10.0,
-                cost: 5.0,
                 distance_period: 1.5,
                 ignite_timer: 0.2,
                 fire_radius: 5.0,
