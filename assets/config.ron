@@ -10,6 +10,13 @@ Config(
         )),
     )),
     death_drop_heal_chance: 0.1,
+    pickups: PickupConfig(
+        size: 0.5,
+        heal_amount: 100.0,
+        attract_radius: 10.0,
+        attract_strength: 5.0,
+        max_speed: 5.0,
+    ),
     camera: CameraConfig(
         fov: 70.0,
         speed: 6.0,
