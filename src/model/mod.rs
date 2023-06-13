@@ -58,6 +58,7 @@ pub struct Block {
     #[structof(nested)]
     pub collider: Collider,
     pub health: Option<Health>,
+    pub on_fire: Option<OnFire>,
     pub color: Color,
     pub kind: BlockKind,
     pub explosion: Option<ExplosionConfig>,

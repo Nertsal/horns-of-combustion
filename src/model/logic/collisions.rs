@@ -346,14 +346,13 @@ impl Model {
         }
 
         let mut hit_projs: Vec<Id> = Vec::new();
-        let mut dead_blocks: Vec<Id> = Vec::new();
 
         let mut proj_query = query_proj_ref!(self.projectiles);
         let mut proj_iter = proj_query.iter_mut();
 
         while let Some((proj_id, proj)) = proj_iter.next() {
             let mut block_iter = block_query.iter_mut();
-            while let Some((block_id, block)) = block_iter.next() {
+            while let Some((_, block)) = block_iter.next() {
                 if proj
                     .collider
                     .clone()
@@ -362,9 +361,6 @@ impl Model {
                     hit_projs.push(proj_id);
                     if let Some(health) = block.health {
                         health.damage(*proj.damage);
-                        if health.is_dead() {
-                            dead_blocks.push(block_id);
-                        }
                     }
                     break;
                 }
@@ -373,20 +369,6 @@ impl Model {
 
         for id in hit_projs {
             self.projectiles.remove(id);
-        }
-        for id in dead_blocks {
-            let block = self.blocks.remove(id).unwrap();
-            // TODO: config
-            if let BlockKind::Barrel = block.kind {
-                if let Some(config) = block.explosion {
-                    self.queued_effects.push_back(QueuedEffect {
-                        effect: Effect::Explosion {
-                            position: block.collider.position,
-                            config,
-                        },
-                    });
-                }
-            }
         }
     }
 

@@ -57,6 +57,7 @@ impl Model {
     }
 
     fn check_deaths(&mut self, _delta_time: Time) {
+        // Actors
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ActorRef<'a> {
@@ -82,6 +83,33 @@ impl Model {
                         config,
                     },
                 });
+            }
+        }
+
+        // Blocks
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct BlockRef<'a> {
+            #[query(optic = "._Some")]
+            health: &'a mut Health,
+        }
+
+        let dead_blocks: Vec<Id> = query_block_ref!(self.blocks)
+            .iter()
+            .filter(|(_, block)| block.health.is_dead())
+            .map(|(id, _)| id)
+            .collect();
+        for id in dead_blocks {
+            let block = self.blocks.remove(id).unwrap();
+            if let BlockKind::Barrel = block.kind {
+                if let Some(config) = block.explosion {
+                    self.queued_effects.push_back(QueuedEffect {
+                        effect: Effect::Explosion {
+                            position: block.collider.position,
+                            config,
+                        },
+                    });
+                }
             }
         }
     }
@@ -235,6 +263,41 @@ impl Model {
                 on_fire.duration -= delta_time;
                 if on_fire.duration <= Time::ZERO {
                     *actor.on_fire = None;
+                }
+            }
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct BlockRef<'a> {
+            #[query(storage = ".collider")]
+            position: &'a Position,
+            #[query(optic = "._Some")]
+            health: &'a mut Health,
+            on_fire: &'a mut Option<OnFire>,
+        }
+
+        let mut query = query_block_ref!(self.blocks);
+        let mut iter = query.iter_mut();
+        while let Some((_, block)) = iter.next() {
+            if let Some(on_fire) = block.on_fire {
+                block.health.damage(on_fire.damage_per_second * delta_time);
+
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::Particles {
+                        position: *block.position,
+                        position_radius: r32(1.0),
+                        velocity: vec2::UNIT_Y,
+                        size: r32(0.1),
+                        lifetime: r32(1.0),
+                        intensity: on_fire.damage_per_second,
+                        kind: ParticleKind::Fire,
+                    },
+                });
+
+                on_fire.duration -= delta_time;
+                if on_fire.duration <= Time::ZERO {
+                    *block.on_fire = None;
                 }
             }
         }
