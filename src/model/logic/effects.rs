@@ -103,7 +103,7 @@ impl Model {
                     .direction(position, self.config.world_size)
                     .len()
                     .max(r32(0.1));
-                let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(100.0));
+                let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(30.0));
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::ScreenShake(ScreenShake {
                         duration: Time::ONE,
