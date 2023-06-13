@@ -92,6 +92,7 @@ impl Model {
     pub fn new(
         pallete: Palette,
         config: Config,
+        level: LevelConfig,
         enemies: HashMap<String, EnemyConfig>,
         waves: WavesConfig,
     ) -> Self {
@@ -114,12 +115,12 @@ impl Model {
             queued_effects: VecDeque::new(),
             config,
         };
-        model.init();
+        model.init(level);
         model
     }
 
-    fn init(&mut self) {
+    fn init(&mut self, level: LevelConfig) {
         // TODO: navmesh
-        self.generate_level();
+        self.generate_level(level);
     }
 }

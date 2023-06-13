@@ -1,6 +1,6 @@
 use crate::{
     assets::{
-        config::{Config, EnemyConfig},
+        config::{Config, EnemyConfig, LevelConfig},
         controls::Controls,
         theme::Theme,
         waves::WavesConfig,
@@ -24,10 +24,12 @@ pub struct Game {
 }
 
 impl Game {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         geng: &Geng,
         assets: &Rc<Assets>,
         config: Config,
+        level: LevelConfig,
         theme: Theme,
         controls: Controls,
         enemies: HashMap<String, EnemyConfig>,
@@ -44,7 +46,7 @@ impl Game {
                 texture
             },
             controls,
-            model: Model::new(theme.palette.clone(), config, enemies, waves),
+            model: Model::new(theme.palette.clone(), config, level, enemies, waves),
             render: GameRender::new(geng, assets, theme),
         }
     }

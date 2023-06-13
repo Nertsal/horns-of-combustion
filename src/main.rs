@@ -12,6 +12,8 @@ const SCREEN_SIZE: vec2<usize> = vec2(960, 540);
 struct Opts {
     #[clap(long, default_value = "assets/config.ron")]
     config: std::path::PathBuf,
+    #[clap(long, default_value = "assets/level.ron")]
+    level: std::path::PathBuf,
     #[clap(long, default_value = "assets/enemies/")]
     enemies: std::path::PathBuf,
     #[clap(long, default_value = "assets/waves.ron")]
@@ -42,6 +44,7 @@ fn main() {
             let manager = geng.asset_manager();
             let assets = assets::Assets::load(manager).await.unwrap();
             let config = assets::config::Config::load(&opts.config).await.unwrap();
+            let level: assets::config::LevelConfig = file::load_detect(&opts.level).await.unwrap();
             let enemies = assets::config::Config::load_enemies(&opts.enemies)
                 .await
                 .unwrap();
@@ -54,6 +57,7 @@ fn main() {
                 &geng,
                 &Rc::new(assets),
                 config,
+                level,
                 theme,
                 controls,
                 enemies,

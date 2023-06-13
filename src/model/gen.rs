@@ -1,9 +1,7 @@
 use super::*;
 
 impl Model {
-    pub(super) fn generate_level(&mut self) {
-        let config = &self.config.level;
-
+    pub(super) fn generate_level(&mut self, config: LevelConfig) {
         let mut rng = thread_rng();
         let mut spawns: Vec<Position> = Vec::new();
 

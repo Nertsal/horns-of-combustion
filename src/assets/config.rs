@@ -8,7 +8,6 @@ use crate::model::{
 pub struct Config {
     /// Size of the world torus.
     pub world_size: vec2<Coord>,
-    pub level: LevelConfig,
     pub death_explosion: Option<ExplosionConfig>,
     pub player: PlayerConfig,
     pub camera: CameraConfig,
