@@ -15,6 +15,12 @@ pub struct Config {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct LevelConfig {
+    pub foreground: ProcGenConfig,
+    pub background: ProcGenConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ProcGenConfig {
     /// Min space between the blocks.
     pub spacing: Coord,
     /// The total number of blocks to spawn.
