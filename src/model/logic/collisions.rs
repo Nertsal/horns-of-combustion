@@ -276,6 +276,11 @@ impl Model {
                     proj_hits.push(proj_id);
                     actor.health.damage(*proj.damage);
 
+                    // If player is hit, switch back to human state
+                    if *actor.fraction == Fraction::Player {
+                        self.player.state = PlayerState::Human;
+                    }
+
                     let relative_vel = *proj.velocity - *actor.velocity;
                     // let dot = vec2::dot(relative_vel, collision.normal);
 
