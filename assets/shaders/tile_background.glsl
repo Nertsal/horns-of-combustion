@@ -30,10 +30,11 @@ void main() {
   vec4 tiledTexture = texture2D(u_fireTexture, rpos + translation);
 
   // Add fire
-  vec4 fireColour = vec4(.796, .184, .173, 1.);
-  vec3 diff = inTex.xyz - fireColour.xyz;
+  // vec4 fireColour = vec4(.796, .184, .173, 1.);
+  // vec3 diff = inTex.xyz - fireColour.xyz;
 
-  if(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z < .01) {
+  // if(diff.x * diff.x + diff.y * diff.y + diff.z * diff.z < .01) {
+  if(inTex.r > 0.5) {
     gl_FragColor = tiledTexture;
   } else {
     gl_FragColor = vec4(0.);

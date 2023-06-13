@@ -223,9 +223,9 @@ impl Model {
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Particles {
                         position: *actor.position,
-                        position_radius: r32(1.0),
+                        position_radius: r32(2.0),
                         velocity: vec2::UNIT_Y,
-                        size: r32(0.1),
+                        size: r32(0.2),
                         lifetime: r32(1.0),
                         intensity: on_fire.damage_per_second,
                         kind: ParticleKind::Fire,

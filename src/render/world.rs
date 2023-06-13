@@ -46,7 +46,6 @@ impl WorldRender {
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
-        self.draw_particles(model, framebuffer);
     }
 
     pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
@@ -192,6 +191,8 @@ impl WorldRender {
                 mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
             );
         }
+
+        self.draw_particles(model, framebuffer);
 
         // Remove fire around the player.
         let player_index = model.player.actor;
