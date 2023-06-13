@@ -8,6 +8,11 @@ LevelConfig(
                 health: Some(50.0),
                 kind: Barrel,
                 shape: Circle( radius: 2.0 ),
+                vulnerability: VulnerabilityStats(
+                    physical: 0.5,
+                    fire: 2.0,
+                    explosive: 3.0,
+                ),
                 explosion: Some(ExplosionConfig(
                     radius: 30.0,
                     knockback: 50.0,
