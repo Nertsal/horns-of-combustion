@@ -4,4 +4,5 @@ use super::*;
 pub enum PlayerAction {
     Shoot { target_pos: Position },
     SwitchState,
+    BarrelDash,
 }

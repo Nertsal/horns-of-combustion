@@ -64,6 +64,40 @@ impl Model {
                     PlayerState::Barrel { .. } => PlayerState::Human,
                 };
             }
+            PlayerAction::BarrelDash => {
+                if let PlayerState::Barrel { last_gas } = self.player.state {
+                    self.player.state = PlayerState::Human;
+
+                    #[allow(dead_code)]
+                    #[derive(StructQuery)]
+                    struct PlayerRef<'a> {
+                        #[query(storage = ".body.collider")]
+                        position: &'a Position,
+                        #[query(storage = ".body")]
+                        velocity: &'a mut vec2<Coord>,
+                    }
+
+                    let mut query = query_player_ref!(self.actors);
+                    let player = query
+                        .get_mut(self.player.actor)
+                        .expect("Player actor not found");
+
+                    // let dir = player.velocity.normalize_or_zero();
+                    let dir = self.player.input.direction;
+                    *player.velocity = dir * self.config.player.barrel_state.dash_speed;
+
+                    // Explode trail
+                    self.queued_effects.push_front(QueuedEffect {
+                        effect: Effect::Explosion {
+                            position: last_gas,
+                            config: ExplosionConfig {
+                                ignite_gasoline: true,
+                                ..self.config.player.barrel_state.dash_explosion.clone()
+                            },
+                        },
+                    });
+                }
+            }
         }
     }
 }

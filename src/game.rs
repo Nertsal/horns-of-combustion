@@ -8,7 +8,7 @@ use crate::{
     },
     model::*,
     render::GameRender,
-    util::{is_event_down, is_key_pressed, Vec2RealConversions},
+    util::{is_event_down, is_event_up, is_key_pressed, Vec2RealConversions},
 };
 
 use geng::prelude::*;
@@ -19,6 +19,7 @@ pub struct Game {
     delta_time: Time,
     screen_texture: ugli::Texture,
     controls: Controls,
+    can_shoot: bool,
     render: GameRender,
     model: Model,
 }
@@ -46,6 +47,7 @@ impl Game {
                 texture
             },
             controls,
+            can_shoot: true,
             model: Model::new(theme.clone(), config, level, enemies, waves),
             render: GameRender::new(geng, assets, theme),
         }
@@ -88,6 +90,16 @@ impl Game {
         if is_event_down(event, &self.controls.transform) {
             self.model.player_action(PlayerAction::SwitchState);
         }
+
+        // Barrel dash
+        if let PlayerState::Barrel { .. } = self.model.player.state {
+            if is_event_down(event, &self.controls.barrel_dash) {
+                self.model.player_action(PlayerAction::BarrelDash);
+                self.can_shoot = false;
+            }
+        } else if is_event_up(event, &self.controls.barrel_dash) {
+            self.can_shoot = true;
+        };
     }
 }
 
@@ -132,7 +144,7 @@ impl geng::State for Game {
         self.delta_time = delta_time;
 
         let window = self.geng.window();
-        if is_key_pressed(window, &self.controls.shoot) {
+        if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
             let position = window.cursor_position();
             let world_pos = self
                 .model

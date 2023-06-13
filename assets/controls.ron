@@ -6,5 +6,6 @@
     down: [Key(Down), Key(S)],
     shoot: [Mouse(Left)],
     transform: [Mouse(Right)],
+    barrel_dash: [Mouse(Left)],
     gas: [Mouse(Left)],
 )
