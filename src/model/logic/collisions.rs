@@ -378,13 +378,14 @@ impl Model {
             let block = self.blocks.remove(id).unwrap();
             // TODO: config
             if let BlockKind::Barrel = block.kind {
-                self.queued_effects.push_back(QueuedEffect {
-                    effect: Effect::Explosion {
-                        position: block.collider.position,
-                        radius: r32(30.0),
-                        strength: r32(50.0),
-                    },
-                });
+                if let Some(config) = block.explosion {
+                    self.queued_effects.push_back(QueuedEffect {
+                        effect: Effect::Explosion {
+                            position: block.collider.position,
+                            config,
+                        },
+                    });
+                }
             }
         }
     }
@@ -492,14 +493,13 @@ impl Model {
                     .check(fire.collider, self.config.world_size)
                 {
                     if !actor.stats.fire_immune {
-                        let mut on_fire = actor.on_fire.clone().unwrap_or(OnFire {
-                            duration: Time::ZERO,
-                            damage_per_second: Hp::ZERO,
-                        });
-                        on_fire.duration = on_fire.duration.max(fire.config.duration);
-                        on_fire.damage_per_second =
-                            on_fire.damage_per_second.max(fire.config.damage_per_second);
-                        *actor.on_fire = Some(on_fire);
+                        *actor.on_fire = Some(update_on_fire(
+                            actor.on_fire.clone(),
+                            OnFire {
+                                duration: fire.config.duration,
+                                damage_per_second: fire.config.damage_per_second,
+                            },
+                        ));
                     }
                     if actor_id == self.player.actor {
                         if let PlayerState::Barrel { .. } = self.player.state {

@@ -60,6 +60,7 @@ pub struct Block {
     pub health: Option<Health>,
     pub color: Color,
     pub kind: BlockKind,
+    pub explosion: Option<ExplosionConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]

@@ -75,13 +75,14 @@ impl Model {
             self.player.gasoline.heal(r32(20.0));
 
             // Explode
-            self.queued_effects.push_back(QueuedEffect {
-                effect: Effect::Explosion {
-                    position: actor.body.collider.position,
-                    radius: self.config.death_explosion_radius,
-                    strength: self.config.death_explosion_strength,
-                },
-            });
+            if let Some(config) = self.config.death_explosion.clone() {
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::Explosion {
+                        position: actor.body.collider.position,
+                        config,
+                    },
+                });
+            }
         }
     }
 
@@ -90,8 +91,7 @@ impl Model {
             self.queued_effects.push_back(QueuedEffect {
                 effect: Effect::Explosion {
                     position: gas.collider.position,
-                    radius: gas.explosion_radius,
-                    strength: gas.explosion_strength,
+                    config: gas.explosion,
                 },
             });
             self.fire.insert(Fire {
@@ -239,4 +239,14 @@ impl Model {
             }
         }
     }
+}
+
+fn update_on_fire(status: Option<OnFire>, update: OnFire) -> OnFire {
+    let mut on_fire = status.unwrap_or(OnFire {
+        duration: Time::ZERO,
+        damage_per_second: Hp::ZERO,
+    });
+    on_fire.duration = on_fire.duration.max(update.duration);
+    on_fire.damage_per_second = on_fire.damage_per_second.max(update.damage_per_second);
+    on_fire
 }

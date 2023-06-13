@@ -1,7 +1,7 @@
 use super::*;
 
 use crate::model::{
-    ActorAI, BlockKind, Coord, Hp, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time,
+    ActorAI, BlockKind, Coord, Hp, OnFire, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -9,8 +9,7 @@ pub struct Config {
     /// Size of the world torus.
     pub world_size: vec2<Coord>,
     pub level: LevelConfig,
-    pub death_explosion_radius: Coord,
-    pub death_explosion_strength: Coord,
+    pub death_explosion: Option<ExplosionConfig>,
     pub player: PlayerConfig,
     pub camera: CameraConfig,
 }
@@ -27,13 +26,13 @@ pub struct LevelConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BlockConfig {
-    #[serde(default)]
     pub health: Option<Hp>,
     #[serde(default = "default_weight")]
     pub weight: R32,
     #[serde(default = "default_block")]
     pub kind: BlockKind,
     pub shape: Shape,
+    pub explosion: Option<ExplosionConfig>,
 }
 
 fn default_weight() -> R32 {
@@ -44,7 +43,7 @@ fn default_block() -> BlockKind {
     BlockKind::Obstacle
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct CameraConfig {
     pub fov: Coord,
     pub speed: Coord,
@@ -67,12 +66,12 @@ pub struct PlayerConfig {
     pub gun: GunConfig,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HumanStateConfig {
     pub shape: Shape,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BarrelStateConfig {
     /// Max possible speed.
     pub speed: Coord,
@@ -84,7 +83,7 @@ pub struct BarrelStateConfig {
     pub gasoline: GasolineConfig,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct GasolineConfig {
     /// Whether gasoline dripping can be controlled (turned on/off).
     pub can_control: bool,
@@ -93,13 +92,20 @@ pub struct GasolineConfig {
     pub distance_period: Coord,
     pub ignite_timer: Time,
     pub fire_radius: Coord,
-    pub explosion_radius: Coord,
-    pub explosion_strength: Coord,
+    pub explosion: ExplosionConfig,
     pub shape: Shape,
     pub fire: FireConfig,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ExplosionConfig {
+    pub radius: Coord,
+    pub knockback: Coord,
+    pub damage: Hp,
+    pub ignite: Option<OnFire>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct FireConfig {
     pub duration: Time,
     pub damage_per_second: Hp,

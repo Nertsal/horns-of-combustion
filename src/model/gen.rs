@@ -52,6 +52,7 @@ impl Model {
                         shape: block.shape,
                     }
                 },
+                explosion: block.explosion.clone(),
             });
         }
     }

@@ -1,6 +1,6 @@
 Config(
     world_size: (200.0, 200.0),
-    level: (
+    level: LevelConfig(
         spacing: 20.0,
         blocks_number: 50,
         blocks: [
@@ -9,6 +9,15 @@ Config(
                 health: Some(50.0),
                 kind: Barrel,
                 shape: Circle( radius: 2.0 ),
+                explosion: Some(ExplosionConfig(
+                    radius: 30.0,
+                    knockback: 50.0,
+                    damage: 50.0,
+                    ignite: Some(OnFire(
+                        duration: 5.0,
+                        damage_per_second: 20.0,
+                    )),
+                )),
             ),
             (
                 weight: 10.0,
@@ -30,24 +39,31 @@ Config(
             ),
         ],
     ),
-    death_explosion_radius: 5.0,
-    death_explosion_strength: 10.0,
-    camera: (
+    death_explosion: Some(ExplosionConfig(
+        radius: 5.0,
+        knockback: 10.0,
+        damage: 10.0,
+        ignite: Some((
+            duration: 1.0,
+            damage_per_second: 10.0,
+        )),
+    )),
+    camera: CameraConfig(
         fov: 70.0,
         speed: 6.0,
         dead_zone: 0.5,
     ),
-    player: (
-        fire_immune: false,
+    player: PlayerConfig(
+        fire_immune: true,
         speed: 20.0,
         acceleration: 3.0,
         dash_burst: 30.0,
-        hp: 1000.0,
+        hp: 500.0,
         contact_damage: 5.0,
-        human_state: (
+        human_state: HumanStateConfig(
             shape: Circle( radius: 1.2 ),
         ),
-        barrel_state: (
+        barrel_state: BarrelStateConfig(
             steering: 1.0,
             speed: 40.0,
             runover_damage: 0.0,
@@ -64,22 +80,29 @@ Config(
                 distance_period: 1.5,
                 ignite_timer: 0.2,
                 fire_radius: 5.0,
-                explosion_radius: 10.0,
-                explosion_strength: 10.0,
+                explosion: ExplosionConfig(
+                    radius: 15.0,
+                    knockback: 10.0,
+                    damage: 10.0,
+                    ignite: Some(OnFire(
+                        duration: 10.0,
+                        damage_per_second: 10.0,
+                    )),
+                ),
                 shape: Circle( radius: 1.5 ),
-                fire: (
+                fire: FireConfig(
                     duration: 5.0,
                     damage_per_second: 10.0,
                 ),
             ),
         ),
-        gun: (
+        gun: GunConfig(
             ammo: 6,
             reload_time: 3.0,
             shot_delay: 0.1,
             recoil: 1.0,
-            shot: (
-                projectile: (
+            shot: ShotConfig(
+                projectile: ProjectileConfig(
                     lifetime: 2.0,
                     speed: 50.0,
                     damage: 10.0,

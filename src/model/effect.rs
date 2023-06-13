@@ -7,13 +7,12 @@ pub struct QueuedEffect {
 
 #[derive(Debug, Clone)]
 pub enum Effect {
-    /// No operation.
-    Noop,
+    // /// No operation.
+    // Noop,
     ScreenShake(ScreenShake),
     Explosion {
         position: Position,
-        radius: Coord,
-        strength: Coord,
+        config: ExplosionConfig,
     },
     Particles {
         position: Position,

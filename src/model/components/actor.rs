@@ -25,7 +25,7 @@ pub enum ActorAI {
     Ranger { preferred_distance: Coord },
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OnFire {
     pub duration: Time,
     pub damage_per_second: Hp,
