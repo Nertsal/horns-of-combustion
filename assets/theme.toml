@@ -1,32 +1,32 @@
-background = "#232221"
+background = "#1b1b1b"
+gasoline = "#edab50"
+
+health_fg = "#c42430"
+health_bg = "#0e071b"
+
+outline_color = "#0e071b"
+
+# UNUSED ???
+fire = "#c42430"
+fire_particles = "#c42430"
 player = "#009FB7"
 projectile = "#9FFFCB"
-gasoline = "#f1be43"
-fire = "#cb2f2c"
-fire_particles = "#ff5502"
-health_bg = "#0008"
-health_fg = "#F308"
 
-[enemies]
+[enemies] # UNUSED ???
 crawler = "#6D545D"
 ranger = "#6D545D"
 
 [pickups]
-heal = "#1e993f"
+heal = "#99e65f"
 
 [palette]
-red = "#cb2f2c"
-dimmed_red = "#7c2d2b"
-dark_red = "#491a1a"
-yellow = "#f1be43"
-dimmed_yellow = "#65582c"
-dark_yellow = "#493913"
-blue = "#1b96ba"
-dimmed_blue = "#214a56"
-dark_blue = "#0e2b33"
-dimmed_green = "#214a2c"
-dark_green = "#112f19"
+fg_blue = "#0069aa"
+fg_red = "#7c2d2b"
+fg_green = "#33984b"
+
+bg_gray = "#272727"
+bg_light_gray = "#3d3d3d"
 
 [level]
-foreground = ["dimmed_red", "dimmed_yellow", "dimmed_blue", "dimmed_green"]
-background = ["dark_red", "dark_yellow", "dark_blue", "dark_green"]
+foreground = ["fg_blue", "fg_red", "fg_green"]
+background = ["bg_gray", "bg_gray", "bg_light_gray"]
