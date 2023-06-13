@@ -15,6 +15,7 @@ pub struct Controls {
     pub down: Vec<Key>,
     pub shoot: Vec<Key>,
     pub transform: Vec<Key>,
+    pub barrel_dash: Vec<Key>,
     pub gas: Vec<Key>,
 }
 
@@ -32,6 +33,14 @@ impl Key {
             (Key::Mouse(self_button), geng::Event::MouseDown { button, .. }) => {
                 self_button == button
             }
+            _ => false,
+        }
+    }
+
+    pub fn is_event_up(self, event: &geng::Event) -> bool {
+        match (&self, event) {
+            (Key::Key(self_key), geng::Event::KeyUp { key }) => self_key == key,
+            (Key::Mouse(self_button), geng::Event::MouseUp { button, .. }) => self_button == button,
             _ => false,
         }
     }

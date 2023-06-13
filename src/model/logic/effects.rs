@@ -75,6 +75,23 @@ impl Model {
                     }
                 }
 
+                // Screen shake
+                let player = actor_query
+                    .get(self.player.actor)
+                    .expect("Player actor not found");
+                let player_dist = player
+                    .position
+                    .direction(position, self.config.world_size)
+                    .len()
+                    .max(r32(0.1));
+                let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(30.0));
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::ScreenShake(ScreenShake {
+                        duration: Time::ONE,
+                        amplitude,
+                    }),
+                });
+
                 // Update blocks
                 #[allow(dead_code)]
                 #[derive(StructQuery)]
@@ -118,21 +135,24 @@ impl Model {
                     *proj.velocity += apply_velocity(*proj.position);
                 }
 
-                let player = actor_query
-                    .get(self.player.actor)
-                    .expect("Player actor not found");
-                let player_dist = player
-                    .position
-                    .direction(position, self.config.world_size)
-                    .len()
-                    .max(r32(0.1));
-                let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(30.0));
-                self.queued_effects.push_back(QueuedEffect {
-                    effect: Effect::ScreenShake(ScreenShake {
-                        duration: Time::ONE,
-                        amplitude,
-                    }),
-                });
+                if config.ignite_gasoline {
+                    // Ignite gasoline
+                    #[allow(dead_code)]
+                    #[derive(StructQuery)]
+                    struct GasRef<'a> {
+                        #[query(optic = ".collider._get", component = "Collider")]
+                        position: &'a Position,
+                    }
+
+                    let to_ignite: Vec<Id> = query_gas_ref!(self.gasoline)
+                        .iter()
+                        .filter(|(_, gas)| check(*gas.position))
+                        .map(|(id, _)| id)
+                        .collect();
+                    for id in to_ignite {
+                        self.ignite_gasoline(id);
+                    }
+                }
             }
             Effect::Particles {
                 position,

@@ -27,6 +27,16 @@ Config(
         barrel_state: BarrelStateConfig(
             steering: 1.0,
             speed: 40.0,
+            dash_speed: 40.0,
+            dash_explosion: ExplosionConfig(
+                radius: 5.0,
+                knockback: 5.0,
+                damage: 5.0,
+                ignite: Some(OnFire(
+                    duration: 1.0,
+                    damage_per_second: 10.0,
+                )),
+            ),
             runover_damage: 0.0,
             runover_damage_scale: 0.2,
             self_explosion_strength: 50.0,

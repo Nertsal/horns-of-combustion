@@ -80,6 +80,8 @@ pub struct HumanStateConfig {
 pub struct BarrelStateConfig {
     /// Max possible speed.
     pub speed: Coord,
+    pub dash_speed: Coord,
+    pub dash_explosion: ExplosionConfig,
     pub steering: R32,
     pub runover_damage: Hp,
     pub runover_damage_scale: Hp,
@@ -107,6 +109,8 @@ pub struct ExplosionConfig {
     pub radius: Coord,
     pub knockback: Coord,
     pub damage: Hp,
+    #[serde(skip, default)]
+    pub ignite_gasoline: bool,
     pub ignite: Option<OnFire>,
 }
 
