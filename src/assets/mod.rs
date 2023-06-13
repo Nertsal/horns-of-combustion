@@ -21,6 +21,8 @@ pub struct SpriteAssets {
     pub arrow: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub player_barrel: ugli::Texture,
+
+    // Projectiles
     #[load(postprocess = "pixel")]
     pub projectile_default: ugli::Texture,
     #[load(postprocess = "pixel")]

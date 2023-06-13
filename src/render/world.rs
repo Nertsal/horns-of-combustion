@@ -192,6 +192,26 @@ impl WorldRender {
                 mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
             );
         }
+
+        // Remove fire around the player.
+        let player_index = model.player.actor;
+        if let Some(player_actor) = model.actors.get(player_index) {
+            let player_body = player_actor.body;
+            let player_position = player_body.collider.position;
+
+            let aabb = player_body.collider.clone().compute_aabb();
+            let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
+
+            self.geng.draw2d().draw2d(
+                framebuffer,
+                camera,
+                &draw2d::Ellipse::circle(
+                    camera.project_f32(*player_position, model.config.world_size),
+                    radius,
+                    Color::BLACK,
+                ),
+            );
+        }
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
