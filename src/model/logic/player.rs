@@ -84,8 +84,8 @@ impl Model {
         *player.rotation = Angle::from_radians(player.velocity.arg());
 
         // Drip gasoline
-        if self.player.input.drip_gas {
-            let config = &self.config.player.barrel_state.gasoline;
+        let config = &self.config.player.barrel_state.gasoline;
+        if !config.can_control || self.player.input.drip_gas {
             let pos = *player.position;
             let last_delta = pos.direction(last_gas, self.config.world_size);
             let last_dir = last_delta.normalize_or_zero();

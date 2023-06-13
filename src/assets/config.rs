@@ -56,6 +56,7 @@ pub struct CameraConfig {
 pub struct PlayerConfig {
     pub human_state: HumanStateConfig,
     pub barrel_state: BarrelStateConfig,
+    pub fire_immune: bool,
     /// Increase in speed from a barrel dash.
     pub dash_burst: Coord,
     /// Damage to deal to enemies upon contact.
@@ -85,9 +86,11 @@ pub struct BarrelStateConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct GasolineConfig {
+    /// Whether gasoline dripping can be controlled (turned on/off).
+    pub can_control: bool,
+    pub cost: R32,
     pub lifetime: Time,
     pub distance_period: Coord,
-    pub cost: R32,
     pub ignite_timer: Time,
     pub fire_radius: Coord,
     pub explosion_radius: Coord,

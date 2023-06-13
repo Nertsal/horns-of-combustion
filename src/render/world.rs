@@ -48,7 +48,9 @@ impl WorldRender {
     }
 
     pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        self.draw_gasoline_tank(model, framebuffer);
+        if model.config.player.barrel_state.gasoline.cost > R32::ZERO {
+            self.draw_gasoline_tank(model, framebuffer);
+        }
         self.draw_health(model, framebuffer);
         self.draw_enemy_arrows(model, framebuffer);
     }
