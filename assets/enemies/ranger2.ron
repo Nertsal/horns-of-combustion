@@ -1,5 +1,5 @@
 (
-    shape: Circle( radius: 1.0 ),
+    shape: Circle( radius: 2.5 ),
     contact_damage: 10.0,
     speed: 20.0,
     acceleration: 0.5,
@@ -7,6 +7,7 @@
     ai: Ranger(
         preferred_distance: 25.0,
     ),
+    kind: EnemyDeathStar,
     gun: Some((
         ammo: 2,
         reload_time: 3.0,

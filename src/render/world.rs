@@ -224,61 +224,66 @@ impl WorldRender {
             #[query(storage = ".body")]
             velocity: &'a vec2<Coord>,
             ai: &'a Option<ActorAI>,
+            kind: &'a ActorKind,
         }
 
         let camera = &model.camera;
-        for (id, actor) in &query_actor_ref!(model.actors) {
-            if id == model.player.actor {
-                // Draw player sprite.
-                let sprite = match model.player.state {
+        for (_, actor) in &query_actor_ref!(model.actors) {
+            // Draw player sprite.
+            let sprite = match actor.kind {
+                ActorKind::Player => match model.player.state {
                     PlayerState::Human => &self.assets.sprites.player_human,
                     PlayerState::Barrel { .. } => &self.assets.sprites.player_barrel,
-                };
-
-                // let position = Aabb2::point(actor.collider.position.as_f32())
-                //     .extend_symmetric(sprite_size / 2.0);
-                let position = super::pixel_perfect_aabb(
-                    camera.project_f32(*actor.collider.position, model.config.world_size),
-                    sprite.size(),
-                    camera,
-                );
-
-                let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
-                let xoff = circle_radius * (model.time * r32(10.0)).cos();
-                let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
-
-                let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
-                let position = Aabb2 {
-                    min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
-                    max: vec2(
-                        position.center().x + new_size.x / 2.0,
-                        position.min.y + new_size.y,
-                    ),
-                };
-
-                self.geng.draw2d().draw2d_transformed(
-                    framebuffer,
-                    camera,
-                    &draw2d::TexturedQuad::new(position, sprite),
-                    mat3::rotate_around(
-                        position.center(),
-                        actor.collider.rotation.as_radians().as_f32(),
-                    ),
-                );
-                continue;
-            }
-
-            let color = match actor.ai {
-                None => self.theme.player,
-                Some(ActorAI::Crawler) => self.theme.enemies.crawler,
-                Some(ActorAI::Ranger { .. }) => self.theme.enemies.ranger,
+                },
+                ActorKind::EnemyClown => &self.assets.sprites.enemy_clown,
+                ActorKind::EnemyDeathStar => &self.assets.sprites.enemy_death_star,
+                ActorKind::EnemyDice => &self.assets.sprites.enemy_dice,
+                ActorKind::EnemyHuge => &self.assets.sprites.enemy_huge,
             };
-            self.draw_collider(
-                &actor.collider.clone(),
-                color,
+
+            // let position = Aabb2::point(actor.collider.position.as_f32())
+            //     .extend_symmetric(sprite_size / 2.0);
+            let position = super::pixel_perfect_aabb(
+                camera.project_f32(*actor.collider.position, model.config.world_size),
+                sprite.size(),
                 camera,
-                model.config.world_size,
+            );
+
+            let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
+            let xoff = circle_radius * (model.time * r32(10.0)).cos();
+            let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
+
+            let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
+            let position = Aabb2 {
+                min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
+                max: vec2(
+                    position.center().x + new_size.x / 2.0,
+                    position.min.y + new_size.y,
+                ),
+            };
+
+            // let color = match actor.ai {
+            //     None => self.theme.player,
+            //     Some(ActorAI::Crawler) => self.theme.enemies.crawler,
+            //     Some(ActorAI::Ranger { .. }) => self.theme.enemies.ranger,
+            // };
+            // self.draw_collider(
+            //     &actor.collider.clone(),
+            //     color,
+            //     camera,
+            //     model.config.world_size,
+            //     framebuffer,
+            // );
+
+            let blend_colour = Color::new(1.0, 1.0, 1.0, 1.0);
+            self.geng.draw2d().draw2d_transformed(
                 framebuffer,
+                camera,
+                &draw2d::TexturedQuad::colored(position, sprite, blend_colour),
+                mat3::rotate_around(
+                    position.center(),
+                    actor.collider.rotation.as_radians().as_f32(),
+                ),
             );
         }
     }

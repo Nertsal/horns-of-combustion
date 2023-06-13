@@ -26,6 +26,15 @@ pub enum ActorAI {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum ActorKind {
+    Player,
+    EnemyClown,
+    EnemyDeathStar,
+    EnemyDice,
+    EnemyHuge,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OnFire {
     pub duration: Time,
     pub damage_per_second: Hp,
@@ -42,13 +51,21 @@ pub struct Actor {
     pub stats: Stats,
     pub controller: Controller,
     pub ai: Option<ActorAI>,
+    pub kind: ActorKind,
     pub stops_barrel: bool,
     pub stunned: Option<Time>,
     pub on_fire: Option<OnFire>,
 }
 
 impl Actor {
-    pub fn new(body: Body, hp: Hp, acceleration: Coord, fraction: Fraction, stats: Stats) -> Self {
+    pub fn new(
+        body: Body,
+        hp: Hp,
+        acceleration: Coord,
+        fraction: Fraction,
+        stats: Stats,
+        kind: ActorKind,
+    ) -> Self {
         Self {
             fraction,
             body,
@@ -60,6 +77,7 @@ impl Actor {
                 acceleration,
             },
             ai: None,
+            kind,
             stops_barrel: false,
             stunned: None,
             on_fire: None,
@@ -77,6 +95,7 @@ impl Actor {
                 contact_damage: config.contact_damage,
                 move_speed: config.speed,
             },
+            config.kind,
         )
         .with_ai(config.ai)
         .stop_barrel(config.stops_barrel);

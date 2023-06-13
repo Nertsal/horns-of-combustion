@@ -1,7 +1,8 @@
 use super::*;
 
 use crate::model::{
-    ActorAI, BlockKind, Coord, Hp, OnFire, ProjectileAI, ProjectileKind, Shape, ShotPattern, Time,
+    ActorAI, ActorKind, BlockKind, Coord, Hp, OnFire, ProjectileAI, ProjectileKind, Shape,
+    ShotPattern, Time,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -152,6 +153,7 @@ pub struct EnemyConfig {
     pub acceleration: Coord,
     pub hp: Hp,
     pub ai: ActorAI,
+    pub kind: ActorKind,
     pub gun: Option<GunConfig>,
     #[serde(default)]
     pub stops_barrel: bool,

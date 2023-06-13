@@ -52,6 +52,7 @@ impl Player {
                     contact_damage: config.contact_damage,
                     move_speed: config.speed,
                 },
+                ActorKind::Player,
             )
             .with_gun(config.gun),
         );
