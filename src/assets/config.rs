@@ -9,6 +9,7 @@ use crate::model::{
 pub struct Config {
     /// Size of the world torus.
     pub world_size: vec2<Coord>,
+    pub explosions_affect_projectiles: bool,
     pub death_explosion: Option<ExplosionConfig>,
     pub death_drop_heal_chance: R32,
     pub pickups: PickupConfig,

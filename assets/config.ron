@@ -1,5 +1,6 @@
 Config(
     world_size: (200.0, 200.0),
+    explosions_affect_projectiles: false,
     death_explosion: Some(ExplosionConfig(
         radius: 5.0,
         knockback: 10.0,
