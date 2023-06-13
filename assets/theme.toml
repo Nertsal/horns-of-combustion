@@ -11,6 +11,9 @@ health_fg = "#F308"
 crawler = "#6D545D"
 ranger = "#6D545D"
 
+[pickups]
+heal = "#1e993f"
+
 [palette]
 red = "#cb2f2c"
 dimmed_red = "#7c2d2b"

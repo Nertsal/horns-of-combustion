@@ -46,6 +46,7 @@ impl WorldRender {
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
+        self.draw_pickups(model, framebuffer);
     }
 
     pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
@@ -352,6 +353,30 @@ impl WorldRender {
                 mat3::translate(pos),
                 color,
                 camera,
+                framebuffer,
+            );
+        }
+    }
+
+    fn draw_pickups(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PickupRef<'a> {
+            #[query(nested)]
+            collider: &'a Collider,
+            kind: &'a PickUpKind,
+        }
+
+        let camera = &model.camera;
+        for (_, pickup) in &query_pickup_ref!(model.pickups) {
+            let color = match pickup.kind {
+                PickUpKind::Heal { .. } => self.theme.pickups.heal,
+            };
+            self.draw_collider(
+                &pickup.collider.clone(),
+                color,
+                camera,
+                model.config.world_size,
                 framebuffer,
             );
         }

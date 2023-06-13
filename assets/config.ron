@@ -9,6 +9,7 @@ Config(
             damage_per_second: 10.0,
         )),
     )),
+    death_drop_heal_chance: 0.1,
     camera: CameraConfig(
         fov: 70.0,
         speed: 6.0,

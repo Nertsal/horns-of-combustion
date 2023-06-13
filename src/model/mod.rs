@@ -70,6 +70,18 @@ pub enum BlockKind {
     Barrel,
 }
 
+#[derive(StructOf, Debug)]
+pub struct PickUp {
+    #[structof(nested)]
+    pub collider: Collider,
+    pub kind: PickUpKind,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub enum PickUpKind {
+    Heal { hp: Hp },
+}
+
 pub struct Model {
     pub theme: Theme,
     pub time: Time,
@@ -87,6 +99,7 @@ pub struct Model {
     pub fire: StructOf<Arena<Fire>>,
     pub explosions: StructOf<Arena<Explosion>>,
     pub particles: StructOf<Arena<Particle>>,
+    pub pickups: StructOf<Arena<PickUp>>,
     pub queued_effects: VecDeque<QueuedEffect>,
 }
 
@@ -113,6 +126,7 @@ impl Model {
             fire: StructOf::new(),
             explosions: StructOf::new(),
             particles: StructOf::new(),
+            pickups: StructOf::new(),
             wave_manager: WaveManager::new(waves),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),

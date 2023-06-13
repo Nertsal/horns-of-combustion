@@ -15,6 +15,7 @@ pub struct Theme {
     pub health_bg: Color,
     pub health_fg: Color,
     pub enemies: EnemiesTheme,
+    pub pickups: PickUpsTheme,
 }
 
 pub type Palette = HashMap<String, Color>;
@@ -23,6 +24,11 @@ pub type Palette = HashMap<String, Color>;
 pub struct EnemiesTheme {
     pub crawler: Color,
     pub ranger: Color,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
+pub struct PickUpsTheme {
+    pub heal: Color,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
