@@ -2,7 +2,7 @@ use super::*;
 
 use crate::model::{
     ActorAI, ActorKind, BlockKind, Coord, Hp, OnFire, ProjectileAI, ProjectileKind, Shape,
-    ShotPattern, Time,
+    ShotPattern, Stats, Time, VulnerabilityStats,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -50,6 +50,8 @@ pub struct BlockConfig {
     #[serde(default = "default_block")]
     pub kind: BlockKind,
     pub shape: Shape,
+    #[serde(default)]
+    pub vulnerability: VulnerabilityStats,
     pub explosion: Option<ExplosionConfig>,
 }
 
@@ -73,12 +75,9 @@ pub struct CameraConfig {
 pub struct PlayerConfig {
     pub human_state: HumanStateConfig,
     pub barrel_state: BarrelStateConfig,
-    pub fire_immune: bool,
     /// Increase in speed from a barrel dash.
     pub dash_burst: Coord,
-    /// Damage to deal to enemies upon contact.
-    pub contact_damage: Hp,
-    pub speed: Coord,
+    pub stats: Stats,
     pub acceleration: Coord,
     pub hp: Hp,
     pub gun: GunConfig,
@@ -163,9 +162,8 @@ pub struct ProjectileConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnemyConfig {
-    pub contact_damage: Hp,
     pub shape: Shape,
-    pub speed: Coord,
+    pub stats: Stats,
     pub acceleration: Coord,
     pub hp: Hp,
     pub ai: ActorAI,

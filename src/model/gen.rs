@@ -39,7 +39,8 @@ fn generate_blocks(
         let block = config
             .blocks
             .choose_weighted(&mut rng, |config| config.weight.as_f32())
-            .expect("no block variants found to generate");
+            .expect("no block variants found to generate")
+            .clone();
 
         let (color, rotation) = match block.kind {
             BlockKind::Obstacle => (
@@ -54,6 +55,7 @@ fn generate_blocks(
             color,
             health: block.health.map(Health::new),
             on_fire: None,
+            vulnerability: block.vulnerability,
             kind: block.kind,
             collider: {
                 Collider {
@@ -62,7 +64,7 @@ fn generate_blocks(
                     shape: block.shape,
                 }
             },
-            explosion: block.explosion.clone(),
+            explosion: block.explosion,
         });
     }
 

@@ -6,11 +6,31 @@ pub enum Fraction {
     Enemy,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Stats {
-    pub fire_immune: bool,
     pub contact_damage: Hp,
     pub move_speed: Coord,
+    pub vulnerability: VulnerabilityStats,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct VulnerabilityStats {
+    /// Resistance from contact damage and bullets.
+    pub physical: R32,
+    /// Resistance from fire damage.
+    pub fire: R32,
+    /// Resistance from explosions.
+    pub explosive: R32,
+}
+
+impl Default for VulnerabilityStats {
+    fn default() -> Self {
+        Self {
+            physical: R32::ONE,
+            fire: R32::ONE,
+            explosive: R32::ONE,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -90,11 +110,7 @@ impl Actor {
             config.hp,
             config.acceleration,
             Fraction::Enemy,
-            Stats {
-                fire_immune: false,
-                contact_damage: config.contact_damage,
-                move_speed: config.speed,
-            },
+            config.stats,
             config.kind,
         )
         .with_ai(config.ai)

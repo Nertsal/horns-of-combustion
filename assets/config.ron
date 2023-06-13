@@ -24,12 +24,18 @@ Config(
         dead_zone: 0.5,
     ),
     player: PlayerConfig(
-        fire_immune: true,
-        speed: 20.0,
+        stats: Stats(
+            move_speed: 20.0,
+            contact_damage: 5.0,
+            vulnerability: VulnerabilityStats(
+                physical: 1.0,
+                fire: 0.0,
+                explosive: 0.0,
+            ),
+        ),
         acceleration: 3.0,
         dash_burst: 30.0,
         hp: 500.0,
-        contact_damage: 5.0,
         human_state: HumanStateConfig(
             shape: Circle( radius: 1.2 ),
         ),

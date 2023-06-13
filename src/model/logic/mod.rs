@@ -261,13 +261,16 @@ impl Model {
             position: &'a Position,
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
+            stats: &'a Stats,
         }
 
         let mut query = query_actor_ref!(self.actors);
         let mut iter = query.iter_mut();
         while let Some((_, actor)) = iter.next() {
             if let Some(on_fire) = actor.on_fire {
-                actor.health.damage(on_fire.damage_per_second * delta_time);
+                actor.health.damage(
+                    on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
+                );
 
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Particles {
@@ -296,13 +299,16 @@ impl Model {
             #[query(optic = "._Some")]
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
+            vulnerability: &'a VulnerabilityStats,
         }
 
         let mut query = query_block_ref!(self.blocks);
         let mut iter = query.iter_mut();
         while let Some((_, block)) = iter.next() {
             if let Some(on_fire) = block.on_fire {
-                block.health.damage(on_fire.damage_per_second * delta_time);
+                block
+                    .health
+                    .damage(on_fire.damage_per_second * block.vulnerability.fire * delta_time);
 
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Particles {

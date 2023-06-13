@@ -47,11 +47,7 @@ impl Player {
                 config.hp,
                 config.acceleration,
                 Fraction::Player,
-                Stats {
-                    fire_immune: config.fire_immune,
-                    contact_damage: config.contact_damage,
-                    move_speed: config.speed,
-                },
+                config.stats,
                 ActorKind::Player,
             )
             .with_gun(config.gun),

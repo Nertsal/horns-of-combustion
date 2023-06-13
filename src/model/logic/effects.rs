@@ -37,13 +37,13 @@ impl Model {
                     dir * strength
                 };
 
-                let calculate_damage = |body_position: Position| -> Hp {
+                let calculate_damage = |body_position: Position, vulnerability: R32| -> Hp {
                     let delta = position.direction(body_position, self.config.world_size);
                     let dist = delta.len();
                     let t = (Coord::ONE
                         - ((dist - Coord::ONE).max(Coord::ZERO) / config.radius).sqrt())
                     .clamp(Coord::ZERO, Coord::ONE);
-                    config.damage * t
+                    config.damage * t * vulnerability
                 };
 
                 {
@@ -67,10 +67,14 @@ impl Model {
                             continue;
                         }
                         *actor.velocity += apply_velocity(*actor.position);
-                        actor.health.damage(calculate_damage(*actor.position));
+                        actor.health.damage(calculate_damage(
+                            *actor.position,
+                            actor.stats.vulnerability.explosive,
+                        ));
                         // Ignite
-                        if let Some(fire) = config.ignite.clone() {
-                            if !actor.stats.fire_immune {
+                        if let Some(mut fire) = config.ignite.clone() {
+                            if actor.stats.vulnerability.fire > R32::ZERO {
+                                fire.damage_per_second *= actor.stats.vulnerability.fire;
                                 *actor.on_fire = Some(update_on_fire(actor.on_fire.clone(), fire));
                             }
                         }
@@ -104,6 +108,7 @@ impl Model {
                         #[query(optic = "._Some")]
                         health: &'a mut Health,
                         on_fire: &'a mut Option<OnFire>,
+                        vulnerability: &'a VulnerabilityStats,
                     }
 
                     let mut block_query = query_block_ref!(self.blocks);
@@ -112,7 +117,10 @@ impl Model {
                         if !check(*block.position) {
                             continue;
                         }
-                        block.health.damage(calculate_damage(*block.position));
+                        block.health.damage(calculate_damage(
+                            *block.position,
+                            block.vulnerability.explosive,
+                        ));
                         // Ignite
                         if let Some(fire) = config.ignite.clone() {
                             *block.on_fire = Some(update_on_fire(block.on_fire.clone(), fire));

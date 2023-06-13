@@ -52,6 +52,7 @@ pub struct Block {
     pub collider: Collider,
     pub health: Option<Health>,
     pub on_fire: Option<OnFire>,
+    pub vulnerability: VulnerabilityStats,
     pub color: Color,
     pub kind: BlockKind,
     pub explosion: Option<ExplosionConfig>,

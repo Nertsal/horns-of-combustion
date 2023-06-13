@@ -139,8 +139,10 @@ impl Model {
 
                 if dot > r32(10.0) {
                     // Contact damage
-                    let damage_player = self.config.player.contact_damage;
-                    let damage_actor = actor.stats.contact_damage;
+                    let damage_player = self.config.player.stats.contact_damage
+                        * actor.stats.vulnerability.physical;
+                    let damage_actor = actor.stats.contact_damage
+                        * self.config.player.stats.vulnerability.physical;
                     player_cor.health.damage(damage_player);
                     actor_cor.health.damage(damage_actor);
                 }
@@ -177,6 +179,7 @@ impl Model {
             collider: &'a Collider,
             #[query(storage = ".body")]
             velocity: &'a vec2<Coord>,
+            stats: &'a Stats,
             stops_barrel: &'a bool,
             health: &'a Health,
         }
@@ -238,7 +241,9 @@ impl Model {
                 // Runover damage
                 let damage = self.config.player.barrel_state.runover_damage
                     + self.config.player.barrel_state.runover_damage_scale * relative_vel.len();
-                actor_cor.health.damage(damage);
+                actor_cor
+                    .health
+                    .damage(damage * actor.stats.vulnerability.physical);
 
                 // TODO: configurable + better formula
                 actor_cor.stun = if *actor.stops_barrel {
@@ -295,6 +300,7 @@ impl Model {
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             health: &'a mut Health,
+            stats: &'a Stats,
         }
 
         let mut proj_hits: Vec<Id> = Vec::new();
@@ -315,7 +321,9 @@ impl Model {
                     .check(&actor.collider.clone(), self.config.world_size)
                 {
                     proj_hits.push(proj_id);
-                    actor.health.damage(*proj.damage);
+                    actor
+                        .health
+                        .damage(*proj.damage * actor.stats.vulnerability.physical);
 
                     // If player is hit, switch back to human state
                     if *actor.fraction == Fraction::Player {
@@ -345,6 +353,7 @@ impl Model {
             #[query(nested)]
             collider: &'a Collider,
             health: &'a mut Option<Health>,
+            vulnerability: &'a VulnerabilityStats,
         }
 
         let mut block_query = query_block_ref!(self.blocks);
@@ -406,7 +415,7 @@ impl Model {
                 {
                     hit_projs.push(proj_id);
                     if let Some(health) = block.health {
-                        health.damage(*proj.damage);
+                        health.damage(*proj.damage * block.vulnerability.physical);
                     }
                     break;
                 }
@@ -520,7 +529,7 @@ impl Model {
                     .clone()
                     .check(fire.collider, self.config.world_size)
                 {
-                    if !actor.stats.fire_immune {
+                    if actor.stats.vulnerability.fire > R32::ZERO {
                         *actor.on_fire = Some(update_on_fire(
                             actor.on_fire.clone(),
                             OnFire {
