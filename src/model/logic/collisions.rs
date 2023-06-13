@@ -19,6 +19,47 @@ impl Model {
                 self.collide_player_barrel(delta_time);
             }
         }
+
+        self.collide_player_pickup(delta_time);
+    }
+
+    fn collide_player_pickup(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PlayerRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a Collider,
+            health: &'a mut Health,
+        }
+
+        let mut query = query_player_ref!(self.actors);
+        if let Some(player) = query.get_mut(self.player.actor) {
+            let player_collider = player.collider.clone();
+
+            #[allow(dead_code)]
+            #[derive(StructQuery)]
+            struct PickupRef<'a> {
+                #[query(nested)]
+                collider: &'a Collider,
+            }
+
+            let mut picked_up: Vec<Id> = Vec::new();
+            for (pickup_id, pickup) in &query_pickup_ref!(self.pickups) {
+                if player_collider.check(&pickup.collider.clone(), self.config.world_size) {
+                    picked_up.push(pickup_id);
+                }
+            }
+
+            for id in picked_up {
+                let pickup = self.pickups.remove(id).unwrap();
+                // TODO: as effect
+                match pickup.kind {
+                    PickUpKind::Heal { hp } => {
+                        player.health.heal(hp);
+                    }
+                }
+            }
+        }
     }
 
     fn collide_player_human(&mut self, _delta_time: Time) {

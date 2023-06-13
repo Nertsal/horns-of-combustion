@@ -21,13 +21,16 @@ impl Model {
         self.update_explosions(delta_time);
         self.update_on_fire(delta_time);
         self.update_waves(delta_time);
+
         self.actors_ai(delta_time);
         self.control_player(delta_time);
         self.control_actors(delta_time);
         self.control_projectiles(delta_time);
+
         self.update_particles(delta_time);
         self.movement(delta_time);
         self.collisions(delta_time);
+
         self.handle_effects(delta_time);
         self.check_deaths(delta_time);
         self.update_camera(delta_time);
@@ -64,6 +67,8 @@ impl Model {
             health: &'a Health,
         }
 
+        let mut rng = thread_rng();
+
         let dead_actors: Vec<Id> = query_actor_ref!(self.actors)
             .iter()
             .filter(|(_, actor)| actor.health.is_dead())
@@ -82,6 +87,16 @@ impl Model {
                         position: actor.body.collider.position,
                         config,
                     },
+                });
+            }
+
+            if rng.gen_bool(self.config.death_drop_heal_chance.as_f32().into()) {
+                self.pickups.insert(PickUp {
+                    collider: Collider::new(
+                        actor.body.collider.position,
+                        Shape::Circle { radius: r32(0.5) },
+                    ),
+                    kind: PickUpKind::Heal { hp: r32(25.0) },
                 });
             }
         }
