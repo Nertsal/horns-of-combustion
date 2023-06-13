@@ -32,56 +32,6 @@ pub type Coord = R32;
 pub type Id = ecs::arena::Index;
 pub type Lifetime = Health;
 
-#[derive(StructOf, Debug, Clone)]
-pub struct Explosion {
-    pub position: Position,
-    pub max_radius: Coord,
-    pub lifetime: Lifetime,
-}
-
-#[derive(StructOf, Debug)]
-pub struct Particle {
-    pub position: Position,
-    pub size: Coord,
-    pub velocity: vec2<Coord>,
-    pub lifetime: Lifetime,
-    pub kind: ParticleKind,
-}
-
-#[derive(Debug, Clone, Copy)]
-pub enum ParticleKind {
-    Fire,
-}
-
-#[derive(StructOf, Debug)]
-pub struct Block {
-    #[structof(nested)]
-    pub collider: Collider,
-    pub health: Option<Health>,
-    pub on_fire: Option<OnFire>,
-    pub color: Color,
-    pub kind: BlockKind,
-    pub explosion: Option<ExplosionConfig>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub enum BlockKind {
-    Obstacle,
-    Barrel,
-}
-
-#[derive(StructOf, Debug)]
-pub struct PickUp {
-    #[structof(nested)]
-    pub collider: Collider,
-    pub kind: PickUpKind,
-}
-
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub enum PickUpKind {
-    Heal { hp: Hp },
-}
-
 pub struct Model {
     pub theme: Theme,
     pub time: Time,

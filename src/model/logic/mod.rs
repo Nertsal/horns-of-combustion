@@ -26,6 +26,7 @@ impl Model {
         self.control_player(delta_time);
         self.control_actors(delta_time);
         self.control_projectiles(delta_time);
+        self.attract_pickups(delta_time);
 
         self.update_particles(delta_time);
         self.movement(delta_time);
@@ -91,12 +92,17 @@ impl Model {
             }
 
             if rng.gen_bool(self.config.death_drop_heal_chance.as_f32().into()) {
+                let config = &self.config.pickups;
                 self.pickups.insert(PickUp {
-                    collider: Collider::new(
+                    body: Body::new(
                         actor.body.collider.position,
-                        Shape::Circle { radius: r32(0.5) },
+                        Shape::Circle {
+                            radius: config.size,
+                        },
                     ),
-                    kind: PickUpKind::Heal { hp: r32(25.0) },
+                    kind: PickUpKind::Heal {
+                        hp: config.heal_amount,
+                    },
                 });
             }
         }
@@ -314,6 +320,47 @@ impl Model {
                 if on_fire.duration <= Time::ZERO {
                     *block.on_fire = None;
                 }
+            }
+        }
+    }
+
+    fn attract_pickups(&mut self, delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PlayerRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a Position,
+        }
+
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct PickupRef<'a> {
+            #[query(storage = ".body.collider")]
+            position: &'a Position,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        let player_query = query_player_ref!(self.actors);
+        let Some(player) = player_query.get(self.player.actor) else {
+            return;
+        };
+
+        let mut pickup_query = query_pickup_ref!(self.pickups);
+        let mut pickup_iter = pickup_query.iter_mut();
+
+        let config = &self.config.pickups;
+        while let Some((_, pickup)) = pickup_iter.next() {
+            let delta = pickup
+                .position
+                .direction(*player.position, self.config.world_size);
+            let dist = delta.len();
+            if dist <= config.attract_radius {
+                let dir = delta.normalize_or_zero();
+                let target_vel = dir * config.max_speed;
+                *pickup.velocity += (target_vel - *pickup.velocity).normalize_or_zero()
+                    * config.attract_strength
+                    * delta_time;
             }
         }
     }

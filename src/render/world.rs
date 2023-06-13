@@ -365,7 +365,7 @@ impl WorldRender {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct PickupRef<'a> {
-            #[query(nested)]
+            #[query(nested, storage = ".body")]
             collider: &'a Collider,
             kind: &'a PickUpKind,
         }

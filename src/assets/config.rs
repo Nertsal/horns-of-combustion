@@ -11,6 +11,7 @@ pub struct Config {
     pub world_size: vec2<Coord>,
     pub death_explosion: Option<ExplosionConfig>,
     pub death_drop_heal_chance: R32,
+    pub pickups: PickupConfig,
     pub player: PlayerConfig,
     pub camera: CameraConfig,
 }
@@ -19,6 +20,15 @@ pub struct Config {
 pub struct LevelConfig {
     pub foreground: ProcGenConfig,
     pub background: ProcGenConfig,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct PickupConfig {
+    pub size: Coord,
+    pub heal_amount: Hp,
+    pub attract_radius: Coord,
+    pub attract_strength: Coord,
+    pub max_speed: Coord,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
