@@ -8,6 +8,7 @@ pub struct Theme {
     pub level: LevelTheme,
     pub background: Color,
     pub player: Color,
+    pub outline_color: Color,
     pub projectile: Color,
     pub gasoline: Color,
     pub fire: Color,

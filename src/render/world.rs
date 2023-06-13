@@ -39,10 +39,10 @@ impl WorldRender {
             framebuffer,
         );
 
-        self.draw_blocks(model, &model.background_blocks, 0.7, framebuffer);
+        self.draw_blocks(model, &model.background_blocks, 1.0, false, framebuffer);
 
         self.draw_gasoline(model, framebuffer);
-        self.draw_blocks(model, &model.blocks, 1.0, framebuffer);
+        self.draw_blocks(model, &model.blocks, 1.0, true, framebuffer);
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
@@ -82,6 +82,7 @@ impl WorldRender {
         model: &Model,
         blocks: &StructOf<Arena<Block>>,
         alpha: f32,
+        with_outline: bool,
         framebuffer: &mut ugli::Framebuffer,
     ) {
         #[allow(dead_code)]
@@ -99,28 +100,30 @@ impl WorldRender {
 
             match block.kind {
                 BlockKind::Obstacle => {
-                    // Outline
-                    let outline_color = Color::BLACK;
-                    let outline_width = r32(0.25);
-                    let outline_shape = match collider.shape {
-                        Shape::Circle { radius } => Shape::Circle {
-                            radius: radius + outline_width,
-                        },
-                        Shape::Rectangle { width, height } => Shape::Rectangle {
-                            width: width + outline_width * r32(2.0),
-                            height: height + outline_width * r32(2.0),
-                        },
-                    };
-                    self.draw_collider(
-                        &Collider {
-                            shape: outline_shape,
-                            ..collider
-                        },
-                        outline_color,
-                        camera,
-                        model.config.world_size,
-                        framebuffer,
-                    );
+                    if with_outline {
+                        // Outline
+                        let outline_color = self.theme.outline_color;
+                        let outline_width = r32(0.25);
+                        let outline_shape = match collider.shape {
+                            Shape::Circle { radius } => Shape::Circle {
+                                radius: radius + outline_width,
+                            },
+                            Shape::Rectangle { width, height } => Shape::Rectangle {
+                                width: width + outline_width * r32(2.0),
+                                height: height + outline_width * r32(2.0),
+                            },
+                        };
+                        self.draw_collider(
+                            &Collider {
+                                shape: outline_shape,
+                                ..collider
+                            },
+                            outline_color,
+                            camera,
+                            model.config.world_size,
+                            framebuffer,
+                        );
+                    }
 
                     // Fill
                     let mut color = *block.color;
@@ -542,7 +545,7 @@ impl WorldRender {
             (
                 ugli::uniforms! {
                     u_health: health.ratio().as_f32(),
-                    u_color: self.theme.fire,
+                    u_color: self.theme.health_fg,
                     u_color_bg: self.theme.health_bg,
                     u_model_matrix: transform,
                     u_width: 0.1,
