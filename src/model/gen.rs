@@ -2,13 +2,18 @@ use super::*;
 
 impl Model {
     pub(super) fn generate_level(&mut self, config: LevelConfig) {
-        self.blocks = generate_blocks(&config.foreground, &self.pallete, self.config.world_size);
+        let palette = self.theme.get_palette(&self.theme.level.foreground);
+        self.blocks = generate_blocks(&config.foreground, &palette, self.config.world_size);
+
+        // let palette = self.theme.get_palette(&self.theme.level.background);
+        // self.background_blocks =
+        //     generate_blocks(&config.background, &palette, self.config.world_size);
     }
 }
 
 fn generate_blocks(
     config: &ProcGenConfig,
-    palette: &Palette,
+    palette: &[Color],
     world_size: vec2<Coord>,
 ) -> StructOf<Arena<Block>> {
     let mut rng = thread_rng();
@@ -38,10 +43,7 @@ fn generate_blocks(
 
         let (color, rotation) = match block.kind {
             BlockKind::Obstacle => (
-                *palette
-                    .values()
-                    .choose(&mut rng)
-                    .expect("no colors in the pallete"),
+                *palette.choose(&mut rng).expect("no colors in the pallete"),
                 Angle::from_degrees(rng.gen_range(0.0..360.0).as_r32()),
             ),
             BlockKind::Barrel => (Color::WHITE, Angle::ZERO),

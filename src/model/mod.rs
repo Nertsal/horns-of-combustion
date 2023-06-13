@@ -17,7 +17,7 @@ pub use self::{
 };
 
 use crate::{
-    assets::{config::*, theme::Palette, waves::*},
+    assets::{config::*, theme::Theme, waves::*},
     util::{RealConversions, Vec2RealConversions},
 };
 
@@ -70,7 +70,7 @@ pub enum BlockKind {
 }
 
 pub struct Model {
-    pub pallete: Palette,
+    pub theme: Theme,
     pub time: Time,
     pub config: Config,
     pub screen_shake: ScreenShake,
@@ -90,7 +90,7 @@ pub struct Model {
 
 impl Model {
     pub fn new(
-        pallete: Palette,
+        theme: Theme,
         config: Config,
         level: LevelConfig,
         enemies: HashMap<String, EnemyConfig>,
@@ -98,7 +98,7 @@ impl Model {
     ) -> Self {
         let mut actors = StructOf::new();
         let mut model = Self {
-            pallete,
+            theme,
             time: Time::ZERO,
             screen_shake: ScreenShake::new(),
             camera: Camera::new(config.camera.fov),
