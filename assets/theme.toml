@@ -13,9 +13,17 @@ ranger = "#6D545D"
 
 [palette]
 red = "#cb2f2c"
-dimmed_red = "#214a2c"
+dimmed_red = "#7c2d2b"
+dark_red = "#491a1a"
 yellow = "#f1be43"
 dimmed_yellow = "#65582c"
+dark_yellow = "#493913"
 blue = "#1b96ba"
 dimmed_blue = "#214a56"
+dark_blue = "#0e2b33"
 dimmed_green = "#214a2c"
+dark_green = "#112f19"
+
+[level]
+foreground = ["dimmed_red", "dimmed_yellow", "dimmed_blue", "dimmed_green"]
+background = ["dark_red", "dark_yellow", "dark_blue", "dark_green"]
