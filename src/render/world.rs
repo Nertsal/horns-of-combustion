@@ -6,7 +6,7 @@ use crate::{
     util::{Mat3RealConversions, Vec2RealConversions},
 };
 
-use ecs::prelude::*;
+use ecs::{arena::Arena, prelude::*};
 use geng::prelude::*;
 
 pub struct WorldRender {
@@ -39,8 +39,10 @@ impl WorldRender {
             framebuffer,
         );
 
+        self.draw_blocks(model, &model.background_blocks, 0.7, framebuffer);
+
         self.draw_gasoline(model, framebuffer);
-        self.draw_blocks(model, framebuffer);
+        self.draw_blocks(model, &model.blocks, 1.0, framebuffer);
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
         self.draw_projectiles(model, framebuffer);
@@ -75,7 +77,13 @@ impl WorldRender {
         }
     }
 
-    fn draw_blocks(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+    fn draw_blocks(
+        &self,
+        model: &Model,
+        blocks: &StructOf<Arena<Block>>,
+        alpha: f32,
+        framebuffer: &mut ugli::Framebuffer,
+    ) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct BlockRef<'a> {
@@ -86,7 +94,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, block) in &query_block_ref!(model.blocks) {
+        for (_, block) in &query_block_ref!(blocks) {
             let collider = block.collider.clone();
 
             match block.kind {
@@ -115,9 +123,11 @@ impl WorldRender {
                     );
 
                     // Fill
+                    let mut color = *block.color;
+                    color.a *= alpha;
                     self.draw_collider(
                         &collider,
-                        *block.color,
+                        color,
                         camera,
                         model.config.world_size,
                         framebuffer,

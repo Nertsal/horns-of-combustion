@@ -5,9 +5,9 @@ impl Model {
         let palette = self.theme.get_palette(&self.theme.level.foreground);
         self.blocks = generate_blocks(&config.foreground, &palette, self.config.world_size);
 
-        // let palette = self.theme.get_palette(&self.theme.level.background);
-        // self.background_blocks =
-        //     generate_blocks(&config.background, &palette, self.config.world_size);
+        let palette = self.theme.get_palette(&self.theme.level.background);
+        self.background_blocks =
+            generate_blocks(&config.background, &palette, self.config.world_size);
     }
 }
 
