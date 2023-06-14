@@ -3,6 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn collisions(&mut self, delta_time: Time) {
         self.collide_player(delta_time);
+        self.collide_actors(delta_time);
         self.collide_projectiles(delta_time);
         self.collide_blocks(delta_time);
         self.projectile_gas(delta_time);
@@ -275,6 +276,76 @@ impl Model {
             *actor.velocity = correction.velocity;
             *actor.stunned = std::cmp::max(*actor.stunned, correction.stun);
             *actor.health = correction.health;
+        }
+    }
+
+    fn collide_actors(&mut self, _delta_time: Time) {
+        #[allow(dead_code)]
+        #[derive(StructQuery)]
+        struct ActorRef<'a> {
+            #[query(nested, storage = ".body")]
+            collider: &'a mut Collider,
+            #[query(storage = ".body")]
+            velocity: &'a mut vec2<Coord>,
+        }
+
+        #[derive(Clone)]
+        struct Correction {
+            position: Position,
+            velocity: vec2<Coord>,
+        }
+
+        let mut corrections: HashMap<Id, Correction> = HashMap::new();
+
+        let mut query = query_actor_ref!(self.actors);
+        for (actor_id, actor) in &query {
+            if actor_id == self.player.actor {
+                continue;
+            }
+
+            let mut actor_collider = actor.collider.clone();
+            let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+                position: *actor.collider.position,
+                velocity: *actor.velocity,
+            });
+
+            for (other_id, other) in &query {
+                if other_id == self.player.actor || other_id <= actor_id {
+                    continue;
+                }
+
+                let mut other_collider = other.collider.clone();
+                let mut other_cor = corrections.get(&other_id).cloned().unwrap_or(Correction {
+                    position: *other.collider.position,
+                    velocity: *other.velocity,
+                });
+
+                actor_collider.position = actor_cor.position;
+                other_collider.position = other_cor.position;
+
+                if let Some(collision) =
+                    actor_collider.collide(&other.collider.clone(), self.config.world_size)
+                {
+                    actor_cor.position.shift(
+                        -collision.normal * collision.penetration / r32(2.0),
+                        self.config.world_size,
+                    );
+                    other_cor.position.shift(
+                        collision.normal * collision.penetration / r32(2.0),
+                        self.config.world_size,
+                    );
+
+                    corrections.insert(other_id, other_cor);
+                }
+            }
+
+            corrections.insert(actor_id, actor_cor);
+        }
+
+        for (actor, correction) in corrections {
+            let actor = query.get_mut(actor).unwrap();
+            *actor.collider.position = correction.position;
+            *actor.velocity = correction.velocity;
         }
     }
 
