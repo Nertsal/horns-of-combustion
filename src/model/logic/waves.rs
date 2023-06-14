@@ -205,15 +205,19 @@ impl Model {
                     acceleration: r32(0.0),
                     hp: Hp::new(500.0),
                     ai: ActorAI::BossFoot { position },
-                    kind: ActorKind::BossFoot,
+                    kind: ActorKind::BossFoot {
+                        leg_offset: vec2(0.0, pos.y + 7.0).as_r32(),
+                    },
                     gun: None,
                     stops_barrel: true,
                 },
             ));
         };
 
-        place_foot(vec2(-31.0, -7.0));
+        place_foot(vec2(-28.0, 5.0));
+        place_foot(vec2(29.0, 7.0));
         place_foot(vec2(31.0, -5.0));
+        place_foot(vec2(-31.0, -7.0));
 
         // Body
         self.actors.insert(Actor::new_enemy(
