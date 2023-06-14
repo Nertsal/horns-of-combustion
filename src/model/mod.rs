@@ -100,6 +100,11 @@ impl Model {
         self.generate_level();
     }
 
+    /// Revive the player.
+    pub fn revive(&mut self) {
+        self.player = Player::init(self.config.player.clone(), &mut self.actors);
+    }
+
     /// Restart the whole game.
     pub fn reset(&mut self) {
         *self = Self::new(

@@ -159,6 +159,9 @@ impl geng::State for StartMenu {
 
         self.delta_time = Time::new(delta_time);
         self.model.update(self.delta_time);
+        if self.model.time - self.model.time_alive > Time::new(5.0) {
+            self.model.revive();
+        }
     }
 
     fn handle_event(&mut self, event: geng::Event) {
