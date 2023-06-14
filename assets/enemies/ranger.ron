@@ -16,10 +16,8 @@
     ),
     kind: EnemyClown,
     gun: Some((
-        ammo: 2,
-        reload_time: 3.0,
-        shot_delay: 3.0,
-        recoil: 10.0,
+        shot_delay: 2.0,
+        recoil: 20.0,
         shot: (
             pattern: Single,
             projectile: (
