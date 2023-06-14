@@ -368,13 +368,15 @@ impl WorldRender {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
             kind: &'a PickUpKind,
+            lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
         for (_, pickup) in &query_pickup_ref!(model.pickups) {
-            let color = match pickup.kind {
+            let mut color = match pickup.kind {
                 PickUpKind::Heal { .. } => self.theme.pickups.heal,
             };
+            color.a *= (2.0 * pickup.lifetime.ratio().as_f32()).clamp(0.0, 1.0);
             self.draw_collider(
                 &pickup.collider.clone(),
                 color,

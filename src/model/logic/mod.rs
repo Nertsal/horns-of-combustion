@@ -106,6 +106,7 @@ impl Model {
                     kind: PickUpKind::Heal {
                         hp: config.heal_amount,
                     },
+                    lifetime: Lifetime::new(20.0),
                 });
             }
         }
@@ -363,6 +364,7 @@ impl Model {
             position: &'a Position,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
+            lifetime: &'a mut Lifetime,
         }
 
         let player_query = query_player_ref!(self.actors);
@@ -373,8 +375,17 @@ impl Model {
         let mut pickup_query = query_pickup_ref!(self.pickups);
         let mut pickup_iter = pickup_query.iter_mut();
 
+        let mut dead_pickups = Vec::new();
+
         let config = &self.config.pickups;
-        while let Some((_, pickup)) = pickup_iter.next() {
+        while let Some((pickup_id, pickup)) = pickup_iter.next() {
+            pickup.lifetime.damage(delta_time);
+
+            if pickup.lifetime.is_dead() {
+                dead_pickups.push(pickup_id);
+                continue;
+            }
+
             let delta = pickup
                 .position
                 .direction(*player.position, self.config.world_size);
@@ -386,6 +397,11 @@ impl Model {
                     * config.attract_strength
                     * delta_time;
             }
+        }
+
+        // Delete dead pickups
+        for pickup_id in dead_pickups {
+            self.pickups.remove(pickup_id);
         }
     }
 }

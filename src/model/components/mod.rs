@@ -69,6 +69,7 @@ pub struct PickUp {
     #[structof(nested)]
     pub body: Body,
     pub kind: PickUpKind,
+    pub lifetime: Lifetime,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
