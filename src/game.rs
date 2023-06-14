@@ -131,7 +131,7 @@ impl Game {
     fn handle_game_event(&mut self, event: GameEvent) {
         match event {
             GameEvent::PlaySound { sound, volume } => {
-                let volume = volume.as_f32() * self.master_volume * 0.5;
+                let volume = volume.as_f32() * self.master_volume * 0.3;
                 let (sound, volume_mult) = match sound {
                     Sound::Shoot => (&self.assets.sounds.shoot, 1.0),
                     Sound::Explosion => {
@@ -139,7 +139,7 @@ impl Game {
                             return;
                         }
                         self.explosion_timeout = 0.2;
-                        (&self.assets.sounds.explosion, 0.5)
+                        (&self.assets.sounds.explosion, 0.7)
                     }
                 };
                 let mut sound = sound.play();
