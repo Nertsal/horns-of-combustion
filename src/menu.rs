@@ -1,4 +1,14 @@
-use crate::{assets::Assets, util::Vec2RealConversions};
+use crate::{
+    assets::{
+        config::{Config, EnemyConfig, LevelConfig},
+        theme::Theme,
+        waves::WavesConfig,
+        Assets,
+    },
+    model::{Model, Time},
+    render::GameRender,
+    util::Vec2RealConversions,
+};
 
 use geng::prelude::*;
 
@@ -24,6 +34,10 @@ pub struct StartMenu {
     transition: Option<geng::state::Transition>,
     camera: Camera2d,
     framebuffer_size: vec2<usize>,
+    render: GameRender,
+    model: Model,
+    game_texture: ugli::Texture,
+    delta_time: Time,
     cursor_pos: vec2<f32>,
     play_button: Aabb2<f32>,
     exit_button: Aabb2<f32>,
@@ -33,7 +47,17 @@ pub struct StartMenu {
 }
 
 impl StartMenu {
-    pub fn new(geng: &Geng, opts: crate::Opts, assets: &Rc<Assets>) -> Self {
+    #[allow(clippy::too_many_arguments)]
+    pub fn new(
+        geng: &Geng,
+        opts: crate::Opts,
+        assets: &Rc<Assets>,
+        config: Config,
+        level: LevelConfig,
+        theme: Theme,
+        enemies: HashMap<String, EnemyConfig>,
+        waves: WavesConfig,
+    ) -> Self {
         Self {
             geng: geng.clone(),
             assets: assets.clone(),
@@ -46,14 +70,32 @@ impl StartMenu {
             },
             framebuffer_size: vec2(1, 1),
             cursor_pos: vec2::ZERO,
+            render: GameRender::new(geng, assets, theme.clone()),
+            model: Model::new(
+                theme,
+                config,
+                level,
+                enemies,
+                WavesConfig {
+                    infinite_waves_until_boss: usize::MAX,
+                    ..waves
+                },
+            ),
             play_button: Aabb2::point(vec2(0.0, 0.0)).extend_symmetric(BUTTON_SIZE / 2.0),
             exit_button: Aabb2::point(vec2(0.0, -5.0)).extend_symmetric(BUTTON_SIZE / 2.0),
-            screen_texture: {
+            game_texture: {
                 let mut texture =
-                    ugli::Texture::new_with(geng.ugli(), vec2(1080, 720), |_| Rgba::BLACK);
+                    ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| Rgba::BLACK);
                 texture.set_filter(ugli::Filter::Nearest);
                 texture
             },
+            screen_texture: {
+                let mut texture =
+                    ugli::Texture::new_with(geng.ugli(), vec2(1280, 720), |_| Rgba::BLACK);
+                texture.set_filter(ugli::Filter::Nearest);
+                texture
+            },
+            delta_time: Time::ONE,
             animation_frame: 0,
             next_frame: assets.sprites.game_logo.first().unwrap().1,
         }
@@ -114,6 +156,9 @@ impl geng::State for StartMenu {
                 .map(|(_, delay)| *delay)
                 .unwrap_or(0.0);
         }
+
+        self.delta_time = Time::new(delta_time);
+        self.model.update(self.delta_time);
     }
 
     fn handle_event(&mut self, event: geng::Event) {
@@ -145,13 +190,41 @@ impl geng::State for StartMenu {
 
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
-
         self.framebuffer_size = framebuffer.size();
+
+        let mut game_framebuffer = ugli::Framebuffer::new_color(
+            self.geng.ugli(),
+            ugli::ColorAttachment::Texture(&mut self.game_texture),
+        );
+        ugli::clear(&mut game_framebuffer, Some(Rgba::BLACK), None, None);
+
+        // Game in the background
+        self.render
+            .draw(&self.model, self.delta_time, &mut game_framebuffer);
+
+        // Draw game to screen
+        let framebuffer_size = framebuffer.size().as_f32();
+        let texture_size = self.game_texture.size().as_f32();
+        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
+        let texture_size = texture_size * ratio;
+        self.geng.draw2d().textured_quad(
+            framebuffer,
+            &geng::PixelPerfectCamera,
+            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+            &self.game_texture,
+            Rgba::WHITE,
+        );
+
         let mut screen_framebuffer = ugli::Framebuffer::new_color(
             self.geng.ugli(),
             ugli::ColorAttachment::Texture(&mut self.screen_texture),
         );
-        ugli::clear(&mut screen_framebuffer, Some(Rgba::BLACK), None, None);
+        ugli::clear(
+            &mut screen_framebuffer,
+            Some(Rgba::new(0.0, 0.0, 0.0, 0.7)),
+            None,
+            None,
+        );
 
         // let aspect = framebuffer_size.aspect();
         // let target = if aspect > 16.0 / 9.0 {
@@ -167,7 +240,7 @@ impl geng::State for StartMenu {
         let texture = &animation.get(self.animation_frame).unwrap().0;
 
         let framebuffer_size = screen_framebuffer.size().as_f32();
-        let size = framebuffer_size.x * 0.9;
+        let size = framebuffer_size.x * 0.8;
         let size = vec2(size, size / texture.size().as_f32().aspect());
         let position = Aabb2::point(framebuffer_size * vec2(0.5, 1.0))
             .extend_symmetric(vec2(size.x / 2.0, 0.0))
@@ -182,7 +255,7 @@ impl geng::State for StartMenu {
 
         // Draw texture to actual screen
         let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = crate::SCREEN_SIZE.as_f32();
+        let texture_size = self.screen_texture.size().as_f32();
         let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
         let texture_size = texture_size * ratio;
         self.geng.draw2d().textured_quad(
@@ -204,7 +277,21 @@ pub fn run(geng: &Geng, opts: crate::Opts) -> impl geng::State {
         async move {
             let manager = geng.asset_manager();
             let assets = Assets::load(manager).await.unwrap();
-            StartMenu::new(&geng, opts, &Rc::new(assets))
+            let config = Config::load(&opts.config).await.unwrap();
+            let level: LevelConfig = file::load_detect(&opts.level).await.unwrap();
+            let enemies = Config::load_enemies(&opts.enemies).await.unwrap();
+            let waves = WavesConfig::load(&opts.waves).await.unwrap();
+            let theme = Theme::load(&opts.theme).await.unwrap();
+            StartMenu::new(
+                &geng,
+                opts,
+                &Rc::new(assets),
+                config,
+                level,
+                theme,
+                enemies,
+                waves,
+            )
         }
     };
     geng::LoadingScreen::new(geng, geng::EmptyLoadingScreen::new(geng), future)
