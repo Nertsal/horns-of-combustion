@@ -91,6 +91,24 @@ impl Model {
                         position.shifted(point.rotate(rotation), self.config.world_size);
                     // *actor.position = Position::from_world(point, self.config.world_size);
                     *actor.rotation = Angle::from_radians(rotation);
+
+                    if actor.rotation.as_radians().abs() > r32(0.8) {
+                        let target_pos = player.body.collider.position;
+                        shots.push((
+                            *actor.position,
+                            target_pos,
+                            Fraction::Enemy,
+                            ShotConfig { ShotPattern::Multiple { spread_degrees: 270, bullets: 9 }, ProjectileConfig {
+                                lifetime: 5.0,
+                                speed: 25.0,
+                                damage: 15.0,
+                                knockback: 1.0,
+                                shape: Circle( radius: 0.2 ),
+                                ai: ConstantTurn ( degrees_per_second: 90.0 ),
+                                kind: SquidLike,
+                            } },
+                        ))
+                    }
                 }
                 ActorAI::BossBody => {
                     *actor.velocity = vec2::ZERO;
