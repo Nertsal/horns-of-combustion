@@ -13,6 +13,16 @@ use crate::{
 
 use geng::prelude::*;
 
+#[derive(Debug)]
+pub enum GameEvent {
+    PlaySound { sound: Sound, volume: f32 },
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Sound {
+    Shoot,
+}
+
 pub struct Game {
     geng: Geng,
     assets: Rc<Assets>,
@@ -23,6 +33,8 @@ pub struct Game {
     can_shoot: bool,
     render: GameRender,
     model: Model,
+    master_volume: f32,
+    // music_volume: f32,
 }
 
 impl Game {
@@ -54,6 +66,8 @@ impl Game {
             can_shoot: true,
             model: Model::new(theme.clone(), config, level, enemies, waves),
             render: GameRender::new(geng, assets, theme),
+            master_volume: 0.5,
+            // music_volume: 1.0,
         }
     }
 
@@ -109,6 +123,19 @@ impl Game {
     /// Restart the game
     fn reset(&mut self) {
         self.model.reset();
+    }
+
+    fn handle_game_event(&mut self, event: GameEvent) {
+        match event {
+            GameEvent::PlaySound { sound, volume } => {
+                let volume = volume * self.master_volume * 0.5;
+                let sound = match sound {
+                    Sound::Shoot => &self.assets.sounds.shoot,
+                };
+                let mut sound = sound.play();
+                sound.set_volume(volume.into());
+            }
+        }
     }
 }
 
@@ -195,7 +222,9 @@ impl geng::State for Game {
             });
         }
 
-        self.model.update(delta_time);
+        for event in self.model.update(delta_time) {
+            self.handle_game_event(event);
+        }
     }
 }
 

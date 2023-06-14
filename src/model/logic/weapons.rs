@@ -3,17 +3,17 @@ use super::*;
 impl Model {
     pub fn shoot(
         &mut self,
-        pos: Position,
+        position: Position,
         aimed_towards: Position,
         fraction: Fraction,
         config: ShotConfig,
     ) {
         let aim_angle =
-            Angle::from_radians((pos.direction(aimed_towards, self.config.world_size)).arg());
+            Angle::from_radians((position.direction(aimed_towards, self.config.world_size)).arg());
 
         let mut shoot_at = |angle: Angle<R32>| {
             self.projectiles.insert(Projectile::new(
-                pos,
+                position,
                 angle,
                 fraction,
                 config.projectile.clone(),
@@ -32,6 +32,12 @@ impl Model {
                 }
             }
         }
+
+        // Play sound
+        self.game_events.push(GameEvent::PlaySound {
+            sound: Sound::Shoot,
+            volume: self.get_volume_from(position).as_f32(),
+        })
     }
 
     pub fn update_weapons(&mut self, delta_time: Time) {

@@ -9,8 +9,14 @@ use geng::prelude::*;
 pub struct Assets {
     pub sprites: SpriteAssets,
     pub shaders: ShaderAssets,
+    pub sounds: SoundAssets,
     #[load(load_with = "load_font(&manager, &base_path.join(\"fonts/avalancheno.ttf\"))")]
     pub font: Rc<geng::Font>,
+}
+
+#[derive(geng::asset::Load)]
+pub struct SoundAssets {
+    pub shoot: geng::Sound,
 }
 
 #[derive(geng::asset::Load)]

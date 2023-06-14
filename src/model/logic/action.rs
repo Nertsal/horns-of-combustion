@@ -18,7 +18,7 @@ impl Model {
 
                     let mut query = query_player_ref!(self.actors);
                     let Some(player) = query.get_mut(self.player.actor) else {
-                        return;
+                        return ;
                     };
 
                     if player.gun.shot_delay <= Time::ZERO {
@@ -45,7 +45,7 @@ impl Model {
 
                         let mut query = query_player_ref!(self.actors);
                         let Some(player) = query.get_mut(self.player.actor) else {
-                            return;
+                            return ;
                         };
 
                         // let input_direction =

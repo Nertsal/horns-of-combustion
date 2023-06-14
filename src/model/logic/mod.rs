@@ -12,7 +12,7 @@ mod weapons;
 use super::*;
 
 impl Model {
-    pub fn update(&mut self, delta_time: Time) {
+    pub fn update(&mut self, delta_time: Time) -> Vec<GameEvent> {
         self.time += delta_time;
         if self.actors.health.get(self.player.actor).is_some() {
             self.time_alive = self.time;
@@ -38,6 +38,8 @@ impl Model {
         self.handle_effects(delta_time);
         self.check_deaths(delta_time);
         self.update_camera(delta_time);
+
+        std::mem::take(&mut self.game_events)
     }
 
     fn update_explosions(&mut self, delta_time: Time) {
@@ -403,6 +405,21 @@ impl Model {
         for pickup_id in dead_pickups {
             self.pickups.remove(pickup_id);
         }
+    }
+
+    fn get_player_pos(&self) -> Option<Position> {
+        self.actors
+            .body
+            .collider
+            .position
+            .get(self.player.actor)
+            .copied()
+    }
+
+    fn get_volume_from(&self, position: Position) -> R32 {
+        let player_pos = self.get_player_pos().unwrap_or(self.camera.center);
+        let distance = position.distance(player_pos, self.config.world_size);
+        (Coord::ONE / (distance.max(Coord::ONE) / r32(20.0)).sqr()).min(Coord::ONE)
     }
 }
 

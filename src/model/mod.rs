@@ -18,6 +18,7 @@ pub use self::{
 
 use crate::{
     assets::{config::*, theme::Theme, waves::*},
+    game::{GameEvent, Sound},
     util::{RealConversions, Vec2RealConversions},
 };
 
@@ -54,6 +55,7 @@ pub struct Model {
     pub particles: StructOf<Arena<Particle>>,
     pub pickups: StructOf<Arena<PickUp>>,
     pub queued_effects: VecDeque<QueuedEffect>,
+    pub game_events: Vec<GameEvent>,
 }
 
 impl Model {
@@ -84,6 +86,7 @@ impl Model {
             wave_manager: WaveManager::new(waves.clone()),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),
+            game_events: Vec::new(),
             config,
             level,
             waves,
