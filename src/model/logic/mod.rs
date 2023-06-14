@@ -124,6 +124,27 @@ impl Model {
                         .filter(|(_, actor)| matches!(actor.kind, ActorKind::BossFoot { .. }))
                         .map(|(id, _)| id),
                 );
+                let gas_config = &self.config.player.barrel_state.gasoline;
+                self.gasoline.insert(Gasoline {
+                    collider: Collider::new(Position::ZERO, Shape::Circle { radius: r32(10.0) }),
+                    lifetime: Lifetime::new(gas_config.lifetime),
+                    ignite_timer: gas_config.ignite_timer,
+                    fire_radius: r32(50.0),
+                    explosion: gas_config.explosion.clone(),
+                    fire: gas_config.fire.clone(),
+                });
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::Explosion {
+                        position: Position::ZERO,
+                        config: ExplosionConfig {
+                            radius: r32(100.0),
+                            knockback: r32(200.0),
+                            damage: r32(0.0),
+                            ignite_gasoline: true,
+                            ignite: None,
+                        },
+                    },
+                });
             }
 
             if rng.gen_bool(self.config.death_drop_heal_chance.as_f32().into()) {
