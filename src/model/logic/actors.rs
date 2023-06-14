@@ -6,7 +6,7 @@ impl Model {
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             #[query(storage = ".body.collider")]
-            position: &'a Position,
+            position: &'a mut Position,
             #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<Coord>,
             #[query(storage = ".body")]
@@ -76,6 +76,19 @@ impl Model {
                             ));
                         }
                     }
+                }
+                ActorAI::BossLeg => {
+                    *actor.velocity = vec2::ZERO;
+
+                    let rotation = (self.time * r32(3.0)).sin();
+                    let point = vec2(-3.0, 0.0).as_r32();
+
+                    *actor.rotation = Angle::from_radians(rotation);
+                    // *actor.position = Position::from_world(point, self.config.world_size);
+                    actor.position.shift(
+                        point.rotate(rotation) - point.rotate(actor.rotation.as_radians()),
+                        self.config.world_size,
+                    );
                 }
             }
         }

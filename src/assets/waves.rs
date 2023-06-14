@@ -12,6 +12,7 @@ pub struct WavesConfig {
     pub max_spawn_distance: Coord,
     /// The radius for the spawn circle, in which the all enemies from a wave will spawn.
     pub spawn_circle_radius: Coord,
+    pub infinite_waves_until_boss: usize,
     pub infinite_wave: InfiniteWaveConfig,
     pub waves: VecDeque<WaveConfig>,
 }

@@ -2,6 +2,7 @@
     min_spawn_distance: 90.0,
     max_spawn_distance: 110.0,
     spawn_circle_radius: 10.0,
+    infinite_waves_until_boss: 0,
     infinite_wave: (
         difficulty_time_scaling: 0.3,
         difficulty_wave_scaling: 3.0,

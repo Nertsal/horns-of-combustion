@@ -80,18 +80,23 @@ impl Model {
             return;
         }
 
-        // No more waves found - start the infinite waves
-        let config = &self.wave_manager.config.infinite_wave;
-        let mut wave = WaveConfig {
-            spawn_delay: config.spawn_delay,
-            wait_for_deaths: true,
-            wave_delay: config.wave_delay,
-            enemies: VecDeque::new(),
-        };
+        // No more waves found
+        if self.wave_manager.infinite_wave_number == self.waves.infinite_waves_until_boss {
+            // Spawn boss
+            self.boss_wave();
+        } else {
+            // Infinite wave
+            let config = &self.wave_manager.config.infinite_wave;
+            let mut wave = WaveConfig {
+                spawn_delay: config.spawn_delay,
+                wait_for_deaths: true,
+                wave_delay: config.wave_delay,
+                enemies: VecDeque::new(),
+            };
 
-        let mut points = self.wave_manager.difficulty;
-        while points > R32::ZERO {
-            let Some((enemy, enemy_config)) = config
+            let mut points = self.wave_manager.difficulty;
+            while points > R32::ZERO {
+                let Some((enemy, enemy_config)) = config
                 .enemies
                 .iter()
                 .filter(|(_, config)| config.cost <= points)
@@ -99,11 +104,13 @@ impl Model {
             else {
                 break;
             };
-            points -= enemy_config.cost;
-            wave.enemies.push_back(enemy.clone());
-        }
+                points -= enemy_config.cost;
+                wave.enemies.push_back(enemy.clone());
+            }
 
-        self.switch_wave(wave);
+            self.switch_wave(wave);
+        }
+        self.wave_manager.infinite_wave_number += 1;
     }
 
     fn switch_wave(&mut self, wave: WaveConfig) {
@@ -142,5 +149,32 @@ impl Model {
 
         self.wave_manager.current_wave = wave;
         self.wave_manager.wave_number += 1;
+    }
+
+    fn boss_wave(&mut self) {
+        // let mut rng = thread_rng();
+
+        self.wave_manager.current_wave.wait_for_deaths = true;
+
+        self.actors.insert(Actor::new_enemy(
+            Position::from_world(vec2(0.0, 0.0).as_r32(), self.config.world_size),
+            EnemyConfig {
+                shape: Shape::Rectangle {
+                    width: r32(4.0),
+                    height: r32(2.0),
+                },
+                stats: Stats {
+                    contact_damage: r32(50.0),
+                    move_speed: r32(0.0),
+                    vulnerability: VulnerabilityStats { ..default() },
+                },
+                acceleration: r32(0.0),
+                hp: Hp::new(500.0),
+                ai: ActorAI::BossLeg,
+                kind: ActorKind::BossLeg,
+                gun: None,
+                stops_barrel: true,
+            },
+        ));
     }
 }
