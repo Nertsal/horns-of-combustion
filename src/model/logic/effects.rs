@@ -182,8 +182,16 @@ impl Model {
                 intensity,
                 kind: ai,
             } => {
-                let amount = intensity.as_f32().max(0.0).ceil() as usize;
                 let mut rng = thread_rng();
+                let amount = if intensity.as_f32() < 1.0 {
+                    if rng.gen_bool(intensity.as_f32().into()) {
+                        1
+                    } else {
+                        0
+                    }
+                } else {
+                    intensity.as_f32().max(0.0).ceil() as usize
+                };
                 for _ in 0..amount {
                     let pos = rng.gen_circle(vec2::ZERO, position_radius);
                     let pos = position.shifted(pos, self.config.world_size);

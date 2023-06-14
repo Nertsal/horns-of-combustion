@@ -29,7 +29,7 @@ impl Model {
         self.control_player(delta_time);
         self.control_actors(delta_time);
         self.control_projectiles(delta_time);
-        self.attract_pickups(delta_time);
+        self.update_pickups(delta_time);
 
         self.update_particles(delta_time);
         self.movement(delta_time);
@@ -351,7 +351,7 @@ impl Model {
         }
     }
 
-    fn attract_pickups(&mut self, delta_time: Time) {
+    fn update_pickups(&mut self, delta_time: Time) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct PlayerRef<'a> {
@@ -370,9 +370,7 @@ impl Model {
         }
 
         let player_query = query_player_ref!(self.actors);
-        let Some(player) = player_query.get(self.player.actor) else {
-            return;
-        };
+        let player = player_query.get(self.player.actor);
 
         let mut pickup_query = query_pickup_ref!(self.pickups);
         let mut pickup_iter = pickup_query.iter_mut();
@@ -388,17 +386,32 @@ impl Model {
                 continue;
             }
 
-            let delta = pickup
-                .position
-                .direction(*player.position, self.config.world_size);
-            let dist = delta.len();
-            if dist <= config.attract_radius {
-                let dir = delta.normalize_or_zero();
-                let target_vel = dir * config.max_speed;
-                *pickup.velocity += (target_vel - *pickup.velocity).normalize_or_zero()
-                    * config.attract_strength
-                    * delta_time;
+            if let Some(player) = &player {
+                let delta = pickup
+                    .position
+                    .direction(*player.position, self.config.world_size);
+                let dist = delta.len();
+                if dist <= config.attract_radius {
+                    let dir = delta.normalize_or_zero();
+                    let target_vel = dir * config.max_speed;
+                    *pickup.velocity += (target_vel - *pickup.velocity).normalize_or_zero()
+                        * config.attract_strength
+                        * delta_time;
+                }
             }
+
+            // Particles
+            self.queued_effects.push_back(QueuedEffect {
+                effect: Effect::Particles {
+                    position: *pickup.position,
+                    position_radius: r32(2.0),
+                    velocity: vec2::UNIT_Y,
+                    size: r32(0.2),
+                    lifetime: r32(1.0),
+                    intensity: r32(0.5) * pickup.lifetime.ratio().min(r32(0.5)) / r32(0.5),
+                    kind: ParticleKind::Heal,
+                },
+            });
         }
 
         // Delete dead pickups
