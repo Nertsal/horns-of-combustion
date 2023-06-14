@@ -10,10 +10,10 @@ Config(
             damage_per_second: 10.0,
         )),
     )),
-    death_drop_heal_chance: 0.1,
+    death_drop_heal_chance: 0.3,
     pickups: PickupConfig(
         size: 0.5,
-        heal_amount: 100.0,
+        heal_amount: 20.0,
         attract_radius: 10.0,
         attract_strength: 5.0,
         max_speed: 5.0,
@@ -35,7 +35,7 @@ Config(
         ),
         acceleration: 3.0,
         dash_burst: 30.0,
-        hp: 500.0,
+        hp: 200.0,
         human_state: HumanStateConfig(
             shape: Circle( radius: 1.2 ),
         ),

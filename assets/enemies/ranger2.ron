@@ -21,7 +21,10 @@
         shot_delay: 1.0,
         recoil: 1.0,
         shot: (
-            pattern: Single,
+            pattern: Multiple (
+                spread_degrees: 270,
+                bullets: 4
+            ),
             projectile: (
                 lifetime: 5.0,
                 speed: 20.0,
