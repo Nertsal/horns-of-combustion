@@ -140,9 +140,9 @@ impl Model {
 
                 if dot > r32(10.0) {
                     // Contact damage
-                    let damage_player = self.config.player.stats.contact_damage
+                    let damage_actor = self.config.player.stats.contact_damage
                         * actor.stats.vulnerability.physical;
-                    let damage_actor = actor.stats.contact_damage
+                    let damage_player = actor.stats.contact_damage
                         * self.config.player.stats.vulnerability.physical;
                     player_cor.health.damage(damage_player);
                     actor_cor.health.damage(damage_actor);
