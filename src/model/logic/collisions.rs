@@ -521,7 +521,20 @@ impl Model {
         }
 
         for id in hit_projs {
-            self.projectiles.remove(id);
+            let proj = self.projectiles.remove(id).unwrap();
+            self.queued_effects.push_back(QueuedEffect {
+                effect: {
+                    Effect::Particles {
+                        position: proj.body.collider.position,
+                        position_radius: r32(1.0),
+                        velocity: vec2::UNIT_Y,
+                        size: r32(0.2),
+                        lifetime: r32(1.0),
+                        intensity: r32(20.0),
+                        kind: ParticleKind::Projectile,
+                    }
+                },
+            });
         }
     }
 

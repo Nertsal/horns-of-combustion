@@ -15,12 +15,13 @@ use geng::prelude::*;
 
 #[derive(Debug)]
 pub enum GameEvent {
-    PlaySound { sound: Sound, volume: f32 },
+    PlaySound { sound: Sound, volume: R32 },
 }
 
 #[derive(Debug, Clone, Copy)]
 pub enum Sound {
     Shoot,
+    Explosion,
 }
 
 pub struct Game {
@@ -35,6 +36,7 @@ pub struct Game {
     model: Model,
     master_volume: f32,
     // music_volume: f32,
+    explosion_timeout: f32,
 }
 
 impl Game {
@@ -68,6 +70,7 @@ impl Game {
             render: GameRender::new(geng, assets, theme),
             master_volume: 0.5,
             // music_volume: 1.0,
+            explosion_timeout: 0.0,
         }
     }
 
@@ -128,12 +131,19 @@ impl Game {
     fn handle_game_event(&mut self, event: GameEvent) {
         match event {
             GameEvent::PlaySound { sound, volume } => {
-                let volume = volume * self.master_volume * 0.5;
-                let sound = match sound {
-                    Sound::Shoot => &self.assets.sounds.shoot,
+                let volume = volume.as_f32() * self.master_volume * 0.5;
+                let (sound, volume_mult) = match sound {
+                    Sound::Shoot => (&self.assets.sounds.shoot, 1.0),
+                    Sound::Explosion => {
+                        if self.explosion_timeout > 0.0 {
+                            return;
+                        }
+                        self.explosion_timeout = 0.2;
+                        (&self.assets.sounds.explosion, 0.5)
+                    }
                 };
                 let mut sound = sound.play();
-                sound.set_volume(volume.into());
+                sound.set_volume((volume * volume_mult).into());
             }
         }
     }
@@ -206,7 +216,10 @@ impl geng::State for Game {
     }
 
     fn update(&mut self, delta_time: f64) {
-        let delta_time = Time::new(delta_time as _);
+        let delta_time = delta_time as f32;
+        self.explosion_timeout -= delta_time;
+
+        let delta_time = Time::new(delta_time);
         self.delta_time = delta_time;
 
         let window = self.geng.window();

@@ -46,6 +46,7 @@ pub enum ParticleKind {
     Fire,
     Damage,
     Heal,
+    Projectile,
 }
 
 #[derive(StructOf, Debug)]

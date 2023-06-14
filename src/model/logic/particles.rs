@@ -33,6 +33,7 @@ impl Model {
                 }
                 ParticleKind::Damage => {}
                 ParticleKind::Heal => {}
+                ParticleKind::Projectile => {}
             }
 
             // Move
