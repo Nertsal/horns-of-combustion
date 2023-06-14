@@ -234,7 +234,7 @@ impl WorldRender {
 
         let camera = &model.camera;
         for (_, actor) in &query_actor_ref!(model.actors) {
-            // Draw player sprite.
+            let mut mirror = false;
             let sprite = match actor.kind {
                 ActorKind::Player => match model.player.state {
                     PlayerState::Human => &self.assets.sprites.player_human,
@@ -254,15 +254,26 @@ impl WorldRender {
                             model.config.world_size,
                         )
                         .normalize_or_zero();
-                    let angle = dir.arg().as_f32() / 3.0;
+                    let mut angle = dir.arg().as_f32() / 3.0;
                     let position = vec2(0.0, 0.0).as_r32();
                     let position = Position::from_world(position, model.config.world_size);
                     let sprite = &self.assets.sprites.boss_leg;
-                    let position = super::pixel_perfect_aabb(
+                    let mut position = super::pixel_perfect_aabb(
                         camera.project_f32(position, model.config.world_size),
                         sprite.size(),
                         camera,
                     );
+                    let dir =
+                        Position::ZERO.direction(*actor.collider.position, model.config.world_size);
+                    mirror = dir.x > Coord::ZERO;
+                    if mirror {
+                        std::mem::swap(&mut position.min.x, &mut position.max.x);
+                        let dir =
+                            Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size)
+                                .direction(*actor.collider.position, model.config.world_size)
+                                .normalize_or_zero();
+                        angle = dir.arg().as_f32() / 3.0;
+                    }
                     self.geng.draw2d().draw2d_transformed(
                         framebuffer,
                         camera,
@@ -288,13 +299,16 @@ impl WorldRender {
             let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
 
             let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
-            let position = Aabb2 {
+            let mut position = Aabb2 {
                 min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
                 max: vec2(
                     position.center().x + new_size.x / 2.0,
                     position.min.y + new_size.y,
                 ),
             };
+            if mirror {
+                std::mem::swap(&mut position.min.x, &mut position.max.x);
+            }
 
             // let color = match actor.ai {
             //     None => self.theme.player,

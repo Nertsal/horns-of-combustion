@@ -80,8 +80,12 @@ impl Model {
                 ActorAI::BossFoot { position } => {
                     *actor.velocity = vec2::ZERO;
 
-                    let rotation = r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2);
-                    let point = vec2(-7.0, -3.0).as_r32();
+                    let sign = Position::ZERO
+                        .direction(*position, self.config.world_size)
+                        .x
+                        .signum();
+                    let rotation = r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2) * sign;
+                    let point = vec2(-7.0 * -sign.as_f32(), -3.0).as_r32();
 
                     *actor.position =
                         position.shifted(point.rotate(rotation), self.config.world_size);
