@@ -394,7 +394,7 @@ impl Model {
                     proj_hits.push(proj_id);
                     actor
                         .health
-                        .damage(*proj.damage * actor.stats.vulnerability.physical);
+                        .damage(*proj.damage * actor.stats.vulnerability.projectile);
 
                     // If player is hit, switch back to human state
                     if *actor.fraction == Fraction::Player {

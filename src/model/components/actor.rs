@@ -14,9 +14,12 @@ pub struct Stats {
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(default)]
 pub struct VulnerabilityStats {
     /// Resistance from contact damage and bullets.
     pub physical: R32,
+    /// Resistance from contact damage and bullets.
+    pub projectile: R32,
     /// Resistance from fire damage.
     pub fire: R32,
     /// Resistance from explosions.
@@ -27,6 +30,7 @@ impl Default for VulnerabilityStats {
     fn default() -> Self {
         Self {
             physical: R32::ONE,
+            projectile: R32::ONE,
             fire: R32::ONE,
             explosive: R32::ONE,
         }
