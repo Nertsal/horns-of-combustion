@@ -14,6 +14,9 @@ use super::*;
 impl Model {
     pub fn update(&mut self, delta_time: Time) {
         self.time += delta_time;
+        if self.actors.health.get(self.player.actor).is_some() {
+            self.time_alive = self.time;
+        }
 
         self.update_weapons(delta_time);
         self.update_gas(delta_time);

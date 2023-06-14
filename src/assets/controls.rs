@@ -9,6 +9,7 @@ pub enum Key {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Controls {
     pub fullscreen: Vec<Key>,
+    pub reset: Vec<Key>,
     pub left: Vec<Key>,
     pub right: Vec<Key>,
     pub up: Vec<Key>,

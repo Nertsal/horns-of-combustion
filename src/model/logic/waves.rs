@@ -110,7 +110,6 @@ impl Model {
         let mut rng = thread_rng();
 
         self.wave_manager.wave_delay = wave.wave_delay;
-        self.wave_manager.wave_number += 1;
 
         #[allow(dead_code)]
         #[derive(StructQuery)]
@@ -132,5 +131,6 @@ impl Model {
             player_pos.shifted(angle.unit_vec() * distance, self.config.world_size);
 
         self.wave_manager.current_wave = wave;
+        self.wave_manager.wave_number += 1;
     }
 }

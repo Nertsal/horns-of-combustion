@@ -1,7 +1,8 @@
 use super::*;
 
 impl Model {
-    pub(super) fn generate_level(&mut self, config: LevelConfig) {
+    pub(super) fn generate_level(&mut self) {
+        let config = &self.level;
         let palette = self.theme.get_palette(&self.theme.level.foreground);
         self.blocks = generate_blocks(&config.foreground, &palette, self.config.world_size);
 

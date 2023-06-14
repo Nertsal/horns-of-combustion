@@ -122,18 +122,67 @@ impl GameRender {
         let font = self.geng.default_font();
         let framebuffer_size = framebuffer.size().as_f32();
 
-        font.draw_with_outline(
-            framebuffer,
-            &geng::PixelPerfectCamera,
-            &format!("Wave {}", model.wave_manager.wave_number),
-            vec2::splat(geng::TextAlign(1.0)),
-            mat3::translate(framebuffer_size - vec2::splat(50.0))
-                * mat3::scale_uniform(50.0)
-                * mat3::translate(vec2(0.0, -0.5)),
-            Color::WHITE,
-            0.1,
-            Color::RED,
-        );
+        let time_dead = model.time - model.time_alive;
+        if time_dead <= Time::ZERO {
+            // In-game ui
+            font.draw_with_outline(
+                framebuffer,
+                &geng::PixelPerfectCamera,
+                &format!("Wave {}", model.wave_manager.wave_number),
+                vec2::splat(geng::TextAlign(1.0)),
+                mat3::translate(framebuffer_size - vec2::splat(50.0))
+                    * mat3::scale_uniform(50.0)
+                    * mat3::translate(vec2(0.0, -0.5)),
+                Color::WHITE,
+                0.1,
+                Color::RED,
+            );
+        } else {
+            let text_color = Color::WHITE;
+            let outline_color = Color::BLACK;
+            let outline_size = 0.05;
+
+            // Death screen
+            font.draw_with_outline(
+                framebuffer,
+                &geng::PixelPerfectCamera,
+                &format!("Time survived: {:.0}s", model.time_alive.floor()),
+                vec2::splat(geng::TextAlign(0.5)),
+                mat3::translate(framebuffer_size / 2.0 + vec2(0.0, 50.0))
+                    * mat3::scale_uniform(70.0)
+                    * mat3::translate(vec2(0.0, -0.5)),
+                text_color,
+                outline_size,
+                outline_color,
+            );
+            font.draw_with_outline(
+                framebuffer,
+                &geng::PixelPerfectCamera,
+                &format!(
+                    "Waves passed: {}",
+                    model.wave_manager.wave_number.saturating_sub(1)
+                ),
+                vec2::splat(geng::TextAlign(0.5)),
+                mat3::translate(framebuffer_size / 2.0 + vec2(0.0, -30.0))
+                    * mat3::scale_uniform(70.0)
+                    * mat3::translate(vec2(0.0, -0.5)),
+                text_color,
+                outline_size,
+                outline_color,
+            );
+            font.draw_with_outline(
+                framebuffer,
+                &geng::PixelPerfectCamera,
+                "R to restart",
+                vec2::splat(geng::TextAlign(0.5)),
+                mat3::translate(framebuffer_size / 2.0 + vec2(0.0, -100.0))
+                    * mat3::scale_uniform(70.0)
+                    * mat3::translate(vec2(0.0, -0.5)),
+                text_color,
+                outline_size,
+                outline_color,
+            );
+        }
     }
 }
 

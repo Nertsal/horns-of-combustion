@@ -101,6 +101,11 @@ impl Game {
             self.can_shoot = true;
         };
     }
+
+    /// Restart the game
+    fn reset(&mut self) {
+        self.model.reset();
+    }
 }
 
 impl geng::State for Game {
@@ -138,6 +143,13 @@ impl geng::State for Game {
         if is_event_down(&event, &self.controls.fullscreen) {
             let window = self.geng.window();
             window.set_fullscreen(!window.is_fullscreen());
+        }
+
+        if is_event_down(&event, &self.controls.reset) {
+            let player_alive = self.model.time_alive == self.model.time;
+            if !player_alive || self.geng.window().is_key_pressed(geng::Key::LCtrl) {
+                self.reset()
+            }
         }
 
         self.update_player(&event);

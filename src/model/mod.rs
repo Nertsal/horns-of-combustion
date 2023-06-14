@@ -35,7 +35,10 @@ pub type Lifetime = Health;
 pub struct Model {
     pub theme: Theme,
     pub time: Time,
+    pub time_alive: Time,
     pub config: Config,
+    pub level: LevelConfig,
+    pub waves: WavesConfig,
     pub screen_shake: ScreenShake,
     pub camera: Camera,
     pub enemies_list: HashMap<String, EnemyConfig>,
@@ -65,6 +68,7 @@ impl Model {
         let mut model = Self {
             theme,
             time: Time::ZERO,
+            time_alive: Time::ZERO,
             screen_shake: ScreenShake::new(),
             camera: Camera::new(config.camera.fov),
             player: Player::init(config.player.clone(), &mut actors),
@@ -77,17 +81,30 @@ impl Model {
             explosions: StructOf::new(),
             particles: StructOf::new(),
             pickups: StructOf::new(),
-            wave_manager: WaveManager::new(waves),
+            wave_manager: WaveManager::new(waves.clone()),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),
             config,
+            level,
+            waves,
         };
-        model.init(level);
+        model.init();
         model
     }
 
-    fn init(&mut self, level: LevelConfig) {
+    fn init(&mut self) {
         // TODO: navmesh
-        self.generate_level(level);
+        self.generate_level();
+    }
+
+    /// Restart the whole game.
+    pub fn reset(&mut self) {
+        *self = Self::new(
+            self.theme.clone(),
+            self.config.clone(),
+            self.level.clone(),
+            self.enemies_list.clone(),
+            self.waves.clone(),
+        );
     }
 }
