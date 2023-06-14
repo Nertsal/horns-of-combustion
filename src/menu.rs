@@ -19,7 +19,7 @@ const TEXT_COLOR: Rgba<f32> = Rgba::WHITE;
 
 pub struct StartMenu {
     geng: Geng,
-    // assets: Rc<Assets>,
+    assets: Rc<Assets>,
     opts: crate::Opts,
     transition: Option<geng::state::Transition>,
     camera: Camera2d,
@@ -33,7 +33,7 @@ impl StartMenu {
     pub fn new(geng: &Geng, opts: crate::Opts, assets: &Rc<Assets>) -> Self {
         Self {
             geng: geng.clone(),
-            // assets: assets.clone(),
+            assets: assets.clone(),
             opts,
             transition: None,
             camera: Camera2d {
@@ -64,7 +64,7 @@ impl StartMenu {
             .draw2d()
             .draw2d(framebuffer, &self.camera, &draw2d::Quad::new(pos, color));
 
-        let font = self.geng.default_font();
+        let font = &self.assets.font;
         // self.geng.draw2d().draw2d(
         //     framebuffer,
         //     &self.camera,

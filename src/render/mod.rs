@@ -119,7 +119,7 @@ impl GameRender {
     }
 
     pub fn draw_ui(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        let font = self.geng.default_font();
+        let font = &self.assets.font;
         let framebuffer_size = framebuffer.size().as_f32();
 
         let time_dead = model.time - model.time_alive;
