@@ -7,25 +7,18 @@ pub struct Theme {
     pub palette: Palette,
     pub level: LevelTheme,
     pub background: Color,
-    pub player: Color,
+    pub collider_color: Color,
+    pub spawn_circle_color: Color,
     pub outline_color: Color,
-    pub projectile: Color,
     pub gasoline: Color,
     pub fire: Color,
     pub fire_particles: Color,
     pub health_bg: Color,
     pub health_fg: Color,
-    pub enemies: EnemiesTheme,
     pub pickups: PickUpsTheme,
 }
 
 pub type Palette = HashMap<String, Color>;
-
-#[derive(Serialize, Deserialize, Debug, Clone, Copy)]
-pub struct EnemiesTheme {
-    pub crawler: Color,
-    pub ranger: Color,
-}
 
 #[derive(Serialize, Deserialize, Debug, Clone, Copy)]
 pub struct PickUpsTheme {

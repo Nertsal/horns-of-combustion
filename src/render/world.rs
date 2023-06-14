@@ -27,6 +27,8 @@ impl WorldRender {
     }
 
     pub fn draw(&mut self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+        self.draw_blocks(model, &model.background_blocks, 1.0, false, framebuffer);
+
         // Draw a circle at the center of the world.
         let pos = model
             .camera
@@ -34,12 +36,10 @@ impl WorldRender {
         self.util.draw_shape(
             Shape::Circle { radius: r32(10.0) },
             mat3::translate(pos),
-            Color::opaque(0.0, 0.0, 0.3),
+            self.theme.spawn_circle_color,
             &model.camera,
             framebuffer,
         );
-
-        self.draw_blocks(model, &model.background_blocks, 1.0, false, framebuffer);
 
         self.draw_gasoline(model, framebuffer);
         self.draw_blocks(model, &model.blocks, 1.0, true, framebuffer);
