@@ -75,6 +75,8 @@ impl Model {
 
         let mut rng = thread_rng();
 
+        // let mut to_be_spawned: Vec<Projectile> = Vec::new();
+
         let dead_actors: Vec<Id> = query_actor_ref!(self.actors)
             .iter()
             .filter(|(_, actor)| actor.health.is_dead())
@@ -94,6 +96,24 @@ impl Model {
                         config,
                     },
                 });
+
+                // // Create a circle of projectiles
+                // for i in 0..18 {
+                //     to_be_spawned.push(Projectile::new(
+                //         actor.body.collider.position,
+                //         Angle::from_degrees(r32(i as f32 * 20.0)),
+                //         actor.fraction,
+                //         ProjectileConfig {
+                //             lifetime: r32(10.0),
+                //             speed: r32(1.0),
+                //             damage: r32(1.0),
+                //             shape: Shape::Circle { radius: r32(10.0) },
+                //             ai: ProjectileAI::Straight,
+                //             kind: ProjectileKind::Orb,
+                //             knockback: r32(1.0),
+                //         },
+                //     ));
+                // }
             }
 
             if rng.gen_bool(self.config.death_drop_heal_chance.as_f32().into()) {
@@ -112,6 +132,11 @@ impl Model {
                 });
             }
         }
+
+        // // Spawn projectiles
+        // for proj in to_be_spawned {
+        //     self.projectiles.insert(proj);
+        // }
 
         // Blocks
         #[allow(dead_code)]

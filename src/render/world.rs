@@ -280,7 +280,7 @@ impl WorldRender {
 
                     &self.assets.sprites.boss_foot
                 }
-                ActorKind::BossBody => &self.assets.sprites.boss_body, // TODO: eye
+                ActorKind::BossBody => &self.assets.sprites.boss_body,
             };
 
             // let position = Aabb2::point(actor.collider.position.as_f32())
@@ -330,6 +330,24 @@ impl WorldRender {
                     actor.collider.rotation.as_radians().as_f32(),
                 ),
             );
+
+            // if let actor_kind = actor.kind {
+            //     match actor_kind {
+            //         ActorKind::BossBody => {
+            //             let eye_sprite = &self.assets.sprites.boss_eye;
+            //             self.geng.draw2d().draw2d_transformed(
+            //                 framebuffer,
+            //                 camera,
+            //                 &draw2d::TexturedQuad::colored(position, eye_sprite, blend_colour),
+            //                 mat3::rotate_around(
+            //                     position.center(),
+            //                     actor.collider.rotation.as_radians().as_f32(),
+            //                 ),
+            //             );
+            //         }
+            //         _ => {}
+            //     }
+            // }
         }
     }
 
