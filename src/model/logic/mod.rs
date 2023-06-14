@@ -71,18 +71,19 @@ impl Model {
         #[derive(StructQuery)]
         struct ActorRef<'a> {
             health: &'a Health,
+            kind: &'a ActorKind,
         }
 
         let mut rng = thread_rng();
 
         // let mut to_be_spawned: Vec<Projectile> = Vec::new();
 
-        let dead_actors: Vec<Id> = query_actor_ref!(self.actors)
+        let mut dead_actors: Vec<Id> = query_actor_ref!(self.actors)
             .iter()
             .filter(|(_, actor)| actor.health.is_dead())
             .map(|(id, _)| id)
             .collect();
-        for id in dead_actors {
+        while let Some(id) = dead_actors.pop() {
             let actor = self.actors.remove(id).unwrap();
 
             // TODO: drop gasoline tank
@@ -114,6 +115,15 @@ impl Model {
                 //         },
                 //     ));
                 // }
+            }
+
+            if let ActorKind::BossBody = actor.kind {
+                dead_actors.extend(
+                    query_actor_ref!(self.actors)
+                        .iter()
+                        .filter(|(_, actor)| matches!(actor.kind, ActorKind::BossFoot { .. }))
+                        .map(|(id, _)| id),
+                );
             }
 
             if rng.gen_bool(self.config.death_drop_heal_chance.as_f32().into()) {

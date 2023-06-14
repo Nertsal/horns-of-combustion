@@ -331,23 +331,23 @@ impl WorldRender {
                 ),
             );
 
-            // if let actor_kind = actor.kind {
-            //     match actor_kind {
-            //         ActorKind::BossBody => {
-            //             let eye_sprite = &self.assets.sprites.boss_eye;
-            //             self.geng.draw2d().draw2d_transformed(
-            //                 framebuffer,
-            //                 camera,
-            //                 &draw2d::TexturedQuad::colored(position, eye_sprite, blend_colour),
-            //                 mat3::rotate_around(
-            //                     position.center(),
-            //                     actor.collider.rotation.as_radians().as_f32(),
-            //                 ),
-            //             );
-            //         }
-            //         _ => {}
-            //     }
-            // }
+            if let ActorKind::BossBody = actor.kind {
+                let eye_sprite = &self.assets.sprites.boss_eye;
+                let position = super::pixel_perfect_aabb(
+                    camera.project_f32(*actor.collider.position, model.config.world_size),
+                    eye_sprite.size(),
+                    camera,
+                );
+                self.geng.draw2d().draw2d_transformed(
+                    framebuffer,
+                    camera,
+                    &draw2d::TexturedQuad::colored(position, eye_sprite, blend_colour),
+                    mat3::rotate_around(
+                        position.center(),
+                        actor.collider.rotation.as_radians().as_f32(),
+                    ),
+                );
+            }
         }
     }
 
