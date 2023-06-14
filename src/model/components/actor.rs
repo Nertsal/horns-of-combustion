@@ -58,7 +58,7 @@ pub enum ActorKind {
     EnemyDeathStar,
     EnemyDice,
     EnemyHuge,
-    BossFoot,
+    BossFoot { leg_offset: vec2<Coord> },
     BossBody,
 }
 
