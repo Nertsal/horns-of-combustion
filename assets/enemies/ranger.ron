@@ -23,7 +23,7 @@
             projectile: (
                 lifetime: 5.0,
                 speed: 40.0,
-                damage: 5.0,
+                damage: 30.0,
                 knockback: 5.0,
                 shape: Circle( radius: 0.2 ),
                 ai: CircleBomb (
