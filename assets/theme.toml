@@ -1,7 +1,8 @@
 background = "#1b1b1b"
 gasoline = "#edab50"
 
-health_fg = "#c42430"
+health_fg_player = "#8f974a"
+health_fg_enemy = "#c42430"
 health_bg = "#0e071b"
 
 fire = "#c42430"

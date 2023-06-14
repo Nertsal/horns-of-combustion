@@ -1,7 +1,7 @@
 EnemyConfig(
     shape: Circle( radius: 3.0 ),
     stats: Stats(
-        contact_damage: 10.0,
+        contact_damage: 50.0,
         move_speed: 10.0,
         vulnerability: VulnerabilityStats(
             physical: 0.5,
@@ -9,8 +9,8 @@ EnemyConfig(
             explosive: 0.5,
         ),
     ),
-    acceleration: 1.0,
-    hp: 100.0,
+    acceleration: 5.0,
+    hp: 500.0,
     ai: Crawler,
     kind: EnemyHuge,
     stops_barrel: true,
