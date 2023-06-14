@@ -214,10 +214,10 @@ impl Model {
             ));
         };
 
-        place_foot(vec2(-28.0, 5.0));
-        place_foot(vec2(29.0, 7.0));
-        place_foot(vec2(31.0, -5.0));
-        place_foot(vec2(-31.0, -7.0));
+        place_foot(vec2(-28.0, 3.0));
+        place_foot(vec2(29.0, 5.0));
+        place_foot(vec2(31.0, -7.0));
+        place_foot(vec2(-31.0, -9.0));
 
         // Body
         self.actors.insert(Actor::new_enemy(
