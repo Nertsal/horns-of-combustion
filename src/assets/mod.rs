@@ -18,6 +18,8 @@ pub struct Assets {
 pub struct SoundAssets {
     pub shoot: geng::Sound,
     pub explosion: geng::Sound,
+    #[load(postprocess = "looping", path = "music.mp3")]
+    pub music: geng::Sound,
 }
 
 #[derive(geng::asset::Load)]
@@ -117,7 +119,6 @@ impl geng::asset::Load for Animation {
 }
 
 /// Use in Assets as `#[load(postprocess = "looping")]`
-#[allow(dead_code)]
 fn looping(sfx: &mut geng::Sound) {
     sfx.set_looped(true)
 }

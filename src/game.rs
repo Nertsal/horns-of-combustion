@@ -52,6 +52,8 @@ impl Game {
         waves: WavesConfig,
     ) -> Self {
         geng.window().set_cursor_type(geng::CursorType::None);
+        let mut effect = assets.sounds.music.play();
+        effect.set_volume(0.07);
 
         Self {
             geng: geng.clone(),
