@@ -26,3 +26,17 @@ pub enum Effect {
         kind: ParticleKind,
     },
 }
+
+impl Effect {
+    pub fn particles_damage(position: Position, damage: Hp) -> Self {
+        Self::Particles {
+            position,
+            position_radius: r32(2.0),
+            velocity: vec2::UNIT_Y,
+            size: r32(0.2),
+            lifetime: r32(1.0),
+            intensity: damage,
+            kind: ParticleKind::Damage,
+        }
+    }
+}

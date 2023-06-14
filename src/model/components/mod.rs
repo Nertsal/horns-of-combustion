@@ -44,6 +44,8 @@ pub struct Particle {
 #[derive(Debug, Clone, Copy)]
 pub enum ParticleKind {
     Fire,
+    Damage,
+    Heal,
 }
 
 #[derive(StructOf, Debug)]

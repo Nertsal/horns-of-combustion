@@ -45,6 +45,7 @@ impl WorldRender {
         self.draw_blocks(model, &model.blocks, 1.0, true, framebuffer);
         // self.draw_fire(model, framebuffer);
         self.draw_actors(model, framebuffer);
+        self.draw_particles(model, false, framebuffer);
         self.draw_projectiles(model, framebuffer);
         self.draw_pickups(model, framebuffer);
     }
@@ -196,7 +197,7 @@ impl WorldRender {
             );
         }
 
-        self.draw_particles(model, framebuffer);
+        self.draw_particles(model, true, framebuffer);
 
         // Remove fire around the player.
         let player_index = model.player.actor;
@@ -330,7 +331,7 @@ impl WorldRender {
         }
     }
 
-    fn draw_particles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
+    fn draw_particles(&self, model: &Model, fire: bool, framebuffer: &mut ugli::Framebuffer) {
         #[allow(dead_code)]
         #[derive(StructQuery)]
         struct ParticleRef<'a> {
@@ -342,8 +343,17 @@ impl WorldRender {
 
         let camera = &model.camera;
         for (_, particle) in &query_particle_ref!(model.particles) {
+            if let ParticleKind::Fire = particle.kind {
+                if !fire {
+                    continue;
+                }
+            } else if fire {
+                continue;
+            }
             let mut color = match particle.kind {
                 ParticleKind::Fire => self.theme.fire_particles,
+                ParticleKind::Damage => self.theme.health_fg_enemy,
+                ParticleKind::Heal => self.theme.health_fg_player,
             };
             let alpha = particle.lifetime.ratio().as_f32();
             color.a *= alpha;

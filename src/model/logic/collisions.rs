@@ -58,6 +58,17 @@ impl Model {
                     match pickup.kind {
                         PickUpKind::Heal { hp } => {
                             player.health.heal(hp);
+                            self.queued_effects.push_back(QueuedEffect {
+                                effect: Effect::Particles {
+                                    position: *player.collider.position,
+                                    position_radius: r32(2.0),
+                                    velocity: vec2::UNIT_Y,
+                                    size: r32(0.2),
+                                    lifetime: r32(1.0),
+                                    intensity: hp,
+                                    kind: ParticleKind::Heal,
+                                },
+                            });
                         }
                     }
                 }
@@ -148,6 +159,13 @@ impl Model {
                         * self.config.player.stats.vulnerability.physical;
                     player_cor.health.damage(damage_player);
                     actor_cor.health.damage(damage_actor);
+
+                    self.queued_effects.push_back(QueuedEffect {
+                        effect: Effect::particles_damage(player_cor.position, damage_player),
+                    });
+                    self.queued_effects.push_back(QueuedEffect {
+                        effect: Effect::particles_damage(actor_cor.position, damage_actor),
+                    });
                 }
 
                 corrections.insert(self.player.actor, player_cor);
@@ -244,9 +262,12 @@ impl Model {
                 // Runover damage
                 let damage = self.config.player.barrel_state.runover_damage
                     + self.config.player.barrel_state.runover_damage_scale * relative_vel.len();
-                actor_cor
-                    .health
-                    .damage(damage * actor.stats.vulnerability.physical);
+                let actor_damage = damage * actor.stats.vulnerability.physical;
+                actor_cor.health.damage(actor_damage);
+
+                self.queued_effects.push_back(QueuedEffect {
+                    effect: Effect::particles_damage(actor_cor.position, actor_damage),
+                });
 
                 // TODO: configurable + better formula
                 actor_cor.stun = if *actor.stops_barrel {
@@ -408,6 +429,10 @@ impl Model {
 
                     // Knockback
                     *actor.velocity += relative_vel * r32(0.1) * *proj.knockback;
+
+                    self.queued_effects.push_back(QueuedEffect {
+                        effect: Effect::particles_damage(*actor.collider.position, *proj.damage),
+                    });
 
                     break;
                 }
