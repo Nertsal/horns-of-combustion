@@ -121,7 +121,7 @@ pub struct ExplosionConfig {
     pub radius: Coord,
     pub knockback: Coord,
     pub damage: Hp,
-    #[serde(skip, default)]
+    #[serde(default)]
     pub ignite_gasoline: bool,
     pub ignite: Option<OnFire>,
 }

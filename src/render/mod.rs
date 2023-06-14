@@ -1,8 +1,6 @@
 pub mod util;
 pub mod world;
 
-use std::vec;
-
 use self::world::WorldRender;
 
 use crate::{
