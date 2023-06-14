@@ -92,21 +92,29 @@ impl Model {
                     // *actor.position = Position::from_world(point, self.config.world_size);
                     *actor.rotation = Angle::from_radians(rotation);
 
-                    if actor.rotation.as_radians().abs() > r32(0.8) {
+                    if actor.rotation.as_radians().abs() > r32(0.99) {
                         let target_pos = player.body.collider.position;
                         shots.push((
                             *actor.position,
                             target_pos,
                             Fraction::Enemy,
-                            ShotConfig { ShotPattern::Multiple { spread_degrees: 270, bullets: 9 }, ProjectileConfig {
-                                lifetime: 5.0,
-                                speed: 25.0,
-                                damage: 15.0,
-                                knockback: 1.0,
-                                shape: Circle( radius: 0.2 ),
-                                ai: ConstantTurn ( degrees_per_second: 90.0 ),
-                                kind: SquidLike,
-                            } },
+                            ShotConfig {
+                                pattern: ShotPattern::Multiple {
+                                    spread_degrees: r32(270.0),
+                                    bullets: 9,
+                                },
+                                projectile: ProjectileConfig {
+                                    lifetime: r32(5.0),
+                                    speed: r32(25.0),
+                                    damage: r32(15.0),
+                                    shape: Shape::Circle { radius: r32(0.2) },
+                                    ai: ProjectileAI::ConstantTurn {
+                                        degrees_per_second: r32(90.0),
+                                    },
+                                    kind: ProjectileKind::SquidLike,
+                                    knockback: r32(10.0),
+                                },
+                            },
                         ))
                     }
                 }
