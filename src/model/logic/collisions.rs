@@ -52,11 +52,13 @@ impl Model {
             }
 
             for id in picked_up {
-                let pickup = self.pickups.remove(id).unwrap();
-                // TODO: as effect
-                match pickup.kind {
-                    PickUpKind::Heal { hp } => {
-                        player.health.heal(hp);
+                if player.health.hp < player.health.max_hp {
+                    let pickup = self.pickups.remove(id).unwrap();
+                    // TODO: as effect
+                    match pickup.kind {
+                        PickUpKind::Heal { hp } => {
+                            player.health.heal(hp);
+                        }
                     }
                 }
             }
