@@ -7,12 +7,15 @@ impl Model {
         struct ActorRef<'a> {
             #[query(storage = ".body.collider")]
             position: &'a Position,
+            #[query(storage = ".body.collider")]
+            rotation: &'a mut Angle<Coord>,
             #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
             controller: &'a mut Controller,
             #[query(optic = "._Some")]
             ai: &'a mut ActorAI,
+            kind: &'a mut ActorKind,
             gun: &'a mut Option<Gun>,
             stunned: &'a Option<Time>,
         }
@@ -52,6 +55,12 @@ impl Model {
                         .direction(target, self.config.world_size)
                         .normalize_or_zero();
                     actor.controller.target_velocity = target_dir * actor.stats.move_speed;
+
+                    if let ActorKind::EnemyDeathStar = actor.kind {
+                        *actor.rotation += Angle::from_degrees(
+                            actor.velocity.len() * actor.velocity.x.signum() / r32(4.0),
+                        );
+                    }
 
                     if let Some(gun) = actor.gun {
                         if gun.shot_delay <= Time::ZERO {
