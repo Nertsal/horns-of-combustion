@@ -244,7 +244,7 @@ impl WorldRender {
                 ActorKind::EnemyDeathStar => &self.assets.sprites.enemy_death_star,
                 ActorKind::EnemyDice => &self.assets.sprites.enemy_dice,
                 ActorKind::EnemyHuge => &self.assets.sprites.enemy_huge,
-                ActorKind::BossLeg => &self.assets.sprites.boss_leg,
+                ActorKind::BossFoot => &self.assets.sprites.boss_foot,
             };
 
             // let position = Aabb2::point(actor.collider.position.as_f32())

@@ -47,7 +47,7 @@ pub struct Controller {
 pub enum ActorAI {
     Crawler,
     Ranger { preferred_distance: Coord },
-    BossLeg,
+    BossFoot,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -57,7 +57,7 @@ pub enum ActorKind {
     EnemyDeathStar,
     EnemyDice,
     EnemyHuge,
-    BossLeg,
+    BossFoot,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]

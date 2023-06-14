@@ -77,7 +77,7 @@ impl Model {
                         }
                     }
                 }
-                ActorAI::BossLeg => {
+                ActorAI::BossFoot => {
                     *actor.velocity = vec2::ZERO;
 
                     let rotation = (self.time * r32(3.0)).sin();
