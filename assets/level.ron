@@ -11,7 +11,7 @@ LevelConfig(
                 vulnerability: VulnerabilityStats(
                     physical: 0.5,
                     fire: 2.0,
-                    explosive: 3.0,
+                    explosive: 10.0,
                 ),
                 explosion: Some(ExplosionConfig(
                     radius: 30.0,
