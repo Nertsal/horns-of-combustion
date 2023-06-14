@@ -127,6 +127,20 @@ impl Model {
             let block = self.blocks.remove(id).unwrap();
             if let BlockKind::Barrel = block.kind {
                 if let Some(config) = block.explosion {
+                    let gas_config = &self.config.player.barrel_state.gasoline;
+                    self.gasoline.insert(Gasoline {
+                        collider: Collider::new(
+                            block.collider.position,
+                            Shape::Circle {
+                                radius: config.radius / r32(3.0),
+                            },
+                        ),
+                        lifetime: Lifetime::new(gas_config.lifetime),
+                        ignite_timer: gas_config.ignite_timer,
+                        fire_radius: config.radius / r32(3.0),
+                        explosion: gas_config.explosion.clone(),
+                        fire: gas_config.fire.clone(),
+                    });
                     self.queued_effects.push_back(QueuedEffect {
                         effect: Effect::Explosion {
                             position: block.collider.position,
