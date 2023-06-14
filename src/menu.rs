@@ -27,6 +27,9 @@ pub struct StartMenu {
     cursor_pos: vec2<f32>,
     play_button: Aabb2<f32>,
     exit_button: Aabb2<f32>,
+    screen_texture: ugli::Texture,
+    animation_frame: usize,
+    next_frame: f32,
 }
 
 impl StartMenu {
@@ -45,6 +48,14 @@ impl StartMenu {
             cursor_pos: vec2::ZERO,
             play_button: Aabb2::point(vec2(0.0, 0.0)).extend_symmetric(BUTTON_SIZE / 2.0),
             exit_button: Aabb2::point(vec2(0.0, -5.0)).extend_symmetric(BUTTON_SIZE / 2.0),
+            screen_texture: {
+                let mut texture =
+                    ugli::Texture::new_with(geng.ugli(), vec2(1080, 720), |_| Rgba::BLACK);
+                texture.set_filter(ugli::Filter::Nearest);
+                texture
+            },
+            animation_frame: 0,
+            next_frame: assets.sprites.game_logo.first().unwrap().1,
         }
     }
 
@@ -88,6 +99,23 @@ impl geng::State for StartMenu {
         self.transition.take()
     }
 
+    fn update(&mut self, delta_time: f64) {
+        let delta_time = delta_time as f32;
+        self.next_frame -= delta_time;
+        let animation = &self.assets.sprites.game_logo;
+        if self.animation_frame >= animation.len() {
+            self.animation_frame = 0;
+        }
+        self.next_frame -= delta_time;
+        if self.next_frame < 0.0 {
+            self.animation_frame += 1;
+            self.next_frame = animation
+                .get(self.animation_frame)
+                .map(|(_, delay)| *delay)
+                .unwrap_or(0.0);
+        }
+    }
+
     fn handle_event(&mut self, event: geng::Event) {
         match event {
             geng::Event::MouseMove { position, .. } => {
@@ -116,8 +144,54 @@ impl geng::State for StartMenu {
     }
 
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
-        self.framebuffer_size = framebuffer.size();
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
+
+        self.framebuffer_size = framebuffer.size();
+        let mut screen_framebuffer = ugli::Framebuffer::new_color(
+            self.geng.ugli(),
+            ugli::ColorAttachment::Texture(&mut self.screen_texture),
+        );
+        ugli::clear(&mut screen_framebuffer, Some(Rgba::BLACK), None, None);
+
+        // let aspect = framebuffer_size.aspect();
+        // let target = if aspect > 16.0 / 9.0 {
+        //     vec2(framebuffer_size.y * 16.0 / 9.0, framebuffer_size.y)
+        // } else {
+        //     vec2(framebuffer_size.x, framebuffer_size.x * 9.0 / 16.0)
+        // };
+
+        let animation = &self.assets.sprites.game_logo;
+        if self.animation_frame >= animation.len() {
+            self.animation_frame = 0;
+        };
+        let texture = &animation.get(self.animation_frame).unwrap().0;
+
+        let framebuffer_size = screen_framebuffer.size().as_f32();
+        let size = framebuffer_size.x * 0.9;
+        let size = vec2(size, size / texture.size().as_f32().aspect());
+        let position = Aabb2::point(framebuffer_size * vec2(0.5, 1.0))
+            .extend_symmetric(vec2(size.x / 2.0, 0.0))
+            .extend_down(size.y);
+        self.geng.draw2d().textured_quad(
+            &mut screen_framebuffer,
+            &geng::PixelPerfectCamera,
+            position,
+            texture,
+            Rgba::WHITE,
+        );
+
+        // Draw texture to actual screen
+        let framebuffer_size = framebuffer.size().as_f32();
+        let texture_size = crate::SCREEN_SIZE.as_f32();
+        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
+        let texture_size = texture_size * ratio;
+        self.geng.draw2d().textured_quad(
+            framebuffer,
+            &geng::PixelPerfectCamera,
+            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+            &self.screen_texture,
+            Rgba::WHITE,
+        );
 
         self.draw_button(self.play_button, "Play", framebuffer);
         self.draw_button(self.exit_button, "Exit", framebuffer);

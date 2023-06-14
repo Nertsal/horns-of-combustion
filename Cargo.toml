@@ -9,6 +9,7 @@ edition = "2021"
 clap = { version = "4.3.2", features = ["derive"] }
 ecs = { git = "https://github.com/geng-engine/ecs", rev = "b2600a9ecfc16461b4a1bf2701fb4e8321cbdc3b" }
 geng = { git = "https://github.com/kuviman/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }
+image = "0.24.6"
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
 toml = "0.7.4"
