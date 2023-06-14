@@ -4,17 +4,13 @@ gasoline = "#edab50"
 health_fg = "#c42430"
 health_bg = "#0e071b"
 
-outline_color = "#0e071b"
-
-# UNUSED ???
 fire = "#c42430"
 fire_particles = "#c42430"
-player = "#009FB7"
-projectile = "#9FFFCB"
 
-[enemies] # UNUSED ???
-crawler = "#6D545D"
-ranger = "#6D545D"
+outline_color = "#0e071b"
+collider_color = "#6D545D"
+
+spawn_circle_color = "#571c27"
 
 [pickups]
 heal = "#99e65f"
@@ -25,8 +21,8 @@ fg_red = "#7c2d2b"
 fg_green = "#33984b"
 
 bg_gray = "#272727"
-bg_light_gray = "#3d3d3d"
+bg_dark_gray = "#131313"
 
 [level]
 foreground = ["fg_blue", "fg_red", "fg_green"]
-background = ["bg_gray", "bg_gray", "bg_light_gray"]
+background = ["bg_gray", "bg_gray", "bg_dark_gray"]

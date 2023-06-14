@@ -44,25 +44,25 @@ LevelConfig(
         ],
     ),
     background: ProcGenConfig(
-        spacing: 20.0,
+        spacing: 45.0,
         blocks_number: 50,
         blocks: [
             (
                 weight: 10.0,
                 shape: Rectangle(
-                    width: 3.0,
-                    height: 4.5,
+                    width: 30.0,
+                    height: 40.5,
                 ),
             ),
             (
                 weight: 10.0,
-                shape: Circle( radius: 2.0 ),
+                shape: Circle( radius: 20.0 ),
             ),
             (
                 weight: 10.0,
                 shape: Rectangle(
-                    width: 4.0,
-                    height: 4.0,
+                    width: 40.0,
+                    height: 40.0,
                 ),
             ),
         ],
