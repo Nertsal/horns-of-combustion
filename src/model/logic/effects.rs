@@ -166,6 +166,12 @@ impl Model {
                         self.ignite_gasoline(id);
                     }
                 }
+
+                // Sound
+                self.game_events.push(GameEvent::PlaySound {
+                    sound: Sound::Explosion,
+                    volume: self.get_volume_from(position),
+                });
             }
             Effect::Particles {
                 position,

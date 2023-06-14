@@ -36,7 +36,7 @@ impl Model {
         // Play sound
         self.game_events.push(GameEvent::PlaySound {
             sound: Sound::Shoot,
-            volume: self.get_volume_from(position).as_f32(),
+            volume: self.get_volume_from(position),
         })
     }
 
