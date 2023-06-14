@@ -13,6 +13,8 @@ collider_color = "#6D545D"
 
 spawn_circle_color = "#571c27"
 
+whiteish = "#f9e6cf"
+
 [pickups]
 heal = "#99e65f"
 
