@@ -17,6 +17,7 @@ LevelConfig(
                     radius: 30.0,
                     knockback: 50.0,
                     damage: 50.0,
+                    ignite_gasoline: true,
                     ignite: Some(OnFire(
                         duration: 5.0,
                         damage_per_second: 20.0,
