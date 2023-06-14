@@ -354,6 +354,7 @@ impl WorldRender {
                 ParticleKind::Fire => self.theme.fire_particles,
                 ParticleKind::Damage => self.theme.health_fg_enemy,
                 ParticleKind::Heal => self.theme.health_fg_player,
+                ParticleKind::Projectile => self.theme.gasoline,
             };
             let alpha = particle.lifetime.ratio().as_f32();
             color.a *= alpha;
