@@ -15,6 +15,7 @@ use geng::prelude::*;
 
 pub struct Game {
     geng: Geng,
+    assets: Rc<Assets>,
     framebuffer_size: vec2<usize>,
     delta_time: Time,
     screen_texture: ugli::Texture,
@@ -36,8 +37,11 @@ impl Game {
         enemies: HashMap<String, EnemyConfig>,
         waves: WavesConfig,
     ) -> Self {
+        geng.window().set_cursor_type(geng::CursorType::None);
+
         Self {
             geng: geng.clone(),
+            assets: assets.clone(),
             framebuffer_size: vec2(1, 1),
             delta_time: Time::new(1.0),
             screen_texture: {
@@ -121,6 +125,22 @@ impl geng::State for Game {
         // Draw pixelated world
         self.render
             .draw(&self.model, self.delta_time, &mut screen_framebuffer);
+
+        // Draw cursor
+        let texture = &self.assets.sprites.crosshair;
+        let pos = self.geng.window().cursor_position().as_f32();
+        let pos = self
+            .model
+            .camera
+            .screen_to_world(self.framebuffer_size.as_f32(), pos);
+        let pos = crate::render::pixel_perfect_aabb(pos, texture.size(), &self.model.camera);
+        self.geng.draw2d().textured_quad(
+            &mut screen_framebuffer,
+            &self.model.camera,
+            pos,
+            texture,
+            Rgba::WHITE,
+        );
 
         // Draw texture to actual screen
         let framebuffer_size = framebuffer.size().as_f32();

@@ -186,7 +186,7 @@ impl GameRender {
     }
 }
 
-fn pixel_perfect_aabb(
+pub fn pixel_perfect_aabb(
     pos: vec2<f32>,
     size: vec2<usize>,
     camera: &impl geng::AbstractCamera2d,
