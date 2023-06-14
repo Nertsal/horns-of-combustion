@@ -133,9 +133,9 @@ impl GameRender {
                 mat3::translate(framebuffer_size / vec2(2.0, 1.0) - vec2(0.0, 50.0))
                     * mat3::scale_uniform(50.0)
                     * mat3::translate(vec2(0.0, -0.5)),
-                Color::WHITE,
+                self.theme.whiteish,
                 0.1,
-                Color::RED,
+                self.theme.fire,
             );
         } else {
             let text_color = Color::WHITE;
@@ -146,7 +146,7 @@ impl GameRender {
             font.draw_with_outline(
                 framebuffer,
                 &geng::PixelPerfectCamera,
-                &format!("Time survived: {:.0}s", model.time_alive.floor()),
+                &format!("Time survived: {:.0} sec", model.time_alive.floor()),
                 vec2::splat(geng::TextAlign(0.5)),
                 mat3::translate(framebuffer_size / 2.0 + vec2(0.0, 50.0))
                     * mat3::scale_uniform(70.0)
@@ -173,7 +173,7 @@ impl GameRender {
             font.draw_with_outline(
                 framebuffer,
                 &geng::PixelPerfectCamera,
-                "R to restart",
+                "\n[R] to try again",
                 vec2::splat(geng::TextAlign(0.5)),
                 mat3::translate(framebuffer_size / 2.0 + vec2(0.0, -100.0))
                     * mat3::scale_uniform(70.0)

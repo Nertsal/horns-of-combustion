@@ -16,6 +16,7 @@ pub struct Theme {
     pub health_bg: Color,
     pub health_fg_player: Color,
     pub health_fg_enemy: Color,
+    pub whiteish: Color,
     pub pickups: PickUpsTheme,
 }
 
