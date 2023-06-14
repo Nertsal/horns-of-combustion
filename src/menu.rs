@@ -81,8 +81,8 @@ impl StartMenu {
                     ..waves
                 },
             ),
-            play_button: Aabb2::point(vec2(0.0, 0.0)).extend_symmetric(BUTTON_SIZE / 2.0),
-            exit_button: Aabb2::point(vec2(0.0, -5.0)).extend_symmetric(BUTTON_SIZE / 2.0),
+            play_button: Aabb2::point(vec2(0.0, -1.0)).extend_symmetric(BUTTON_SIZE / 2.0),
+            exit_button: Aabb2::point(vec2(0.0, -3.5)).extend_symmetric(BUTTON_SIZE / 2.0),
             game_texture: {
                 let mut texture =
                     ugli::Texture::new_with(geng.ugli(), crate::SCREEN_SIZE, |_| Rgba::BLACK);
@@ -224,7 +224,7 @@ impl geng::State for StartMenu {
         );
         ugli::clear(
             &mut screen_framebuffer,
-            Some(Rgba::new(0.0, 0.0, 0.0, 0.7)),
+            Some(Rgba::new(80, 30, 20, 180).convert()),
             None,
             None,
         );
@@ -245,7 +245,7 @@ impl geng::State for StartMenu {
         let framebuffer_size = screen_framebuffer.size().as_f32();
         let size = framebuffer_size.x * 0.8;
         let size = vec2(size, size / texture.size().as_f32().aspect());
-        let position = Aabb2::point(framebuffer_size * vec2(0.5, 1.0))
+        let position = Aabb2::point(framebuffer_size * vec2(0.5, 0.95))
             .extend_symmetric(vec2(size.x / 2.0, 0.0))
             .extend_down(size.y);
         self.geng.draw2d().textured_quad(
