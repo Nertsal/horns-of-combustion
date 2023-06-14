@@ -125,10 +125,16 @@ impl GameRender {
         let time_dead = model.time - model.time_alive;
         if time_dead <= Time::ZERO {
             // In-game ui
+            let waves = model.waves.waves.len() + model.waves.infinite_waves_until_boss + 1; // +1 for the boss
+            let text = if model.wave_manager.wave_number <= waves {
+                format!("Wave {} out of {}", model.wave_manager.wave_number, waves)
+            } else {
+                format!("Wave {}", model.wave_manager.wave_number)
+            };
             font.draw_with_outline(
                 framebuffer,
                 &geng::PixelPerfectCamera,
-                &format!("Wave {}", model.wave_manager.wave_number),
+                &text,
                 vec2::splat(geng::TextAlign::CENTER),
                 mat3::translate(framebuffer_size / vec2(2.0, 1.0) - vec2(0.0, 50.0))
                     * mat3::scale_uniform(50.0)
