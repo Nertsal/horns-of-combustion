@@ -1,6 +1,8 @@
 pub mod util;
 pub mod world;
 
+use std::vec;
+
 use self::world::WorldRender;
 
 use crate::{
@@ -129,8 +131,8 @@ impl GameRender {
                 framebuffer,
                 &geng::PixelPerfectCamera,
                 &format!("Wave {}", model.wave_manager.wave_number),
-                vec2::splat(geng::TextAlign(1.0)),
-                mat3::translate(framebuffer_size - vec2::splat(50.0))
+                vec2::splat(geng::TextAlign::CENTER),
+                mat3::translate(framebuffer_size / vec2(2.0, 1.0) - vec2(0.0, 50.0))
                     * mat3::scale_uniform(50.0)
                     * mat3::translate(vec2(0.0, -0.5)),
                 Color::WHITE,

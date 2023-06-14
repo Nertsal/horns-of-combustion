@@ -96,8 +96,8 @@ fn load_font(
             manager.ugli(),
             &data,
             geng::font::Options {
-                pixel_size: 64.0,
-                max_distance: 0.1,
+                pixel_size: 128.0,
+                max_distance: 1.0,
                 antialias: false,
             },
         )?))
