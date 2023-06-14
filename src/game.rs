@@ -127,7 +127,10 @@ impl geng::State for Game {
             .draw(&self.model, self.delta_time, &mut screen_framebuffer);
 
         // Draw cursor
-        let texture = &self.assets.sprites.crosshair;
+        let texture = match self.model.player.state {
+            PlayerState::Human => &self.assets.sprites.crosshair,
+            PlayerState::Barrel { .. } => &self.assets.sprites.crosshair_barrel,
+        };
         let pos = self.geng.window().cursor_position().as_f32();
         let pos = self
             .model

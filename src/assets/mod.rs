@@ -25,6 +25,8 @@ pub struct SpriteAssets {
     pub player_barrel: ugli::Texture,
     #[load(postprocess = "pixel")]
     pub crosshair: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub crosshair_barrel: ugli::Texture,
 
     // Projectiles sprites
     #[load(postprocess = "pixel")]
