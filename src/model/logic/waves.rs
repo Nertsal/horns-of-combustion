@@ -109,6 +109,16 @@ impl Model {
     fn switch_wave(&mut self, wave: WaveConfig) {
         let mut rng = thread_rng();
 
+        // Add missing barrels
+        let amount = self
+            .blocks
+            .kind
+            .iter()
+            .filter(|(_, kind)| matches!(kind, BlockKind::Barrel))
+            .count();
+        let amount = 3_usize.saturating_sub(amount); // Expect 3 barrels each wave
+        self.add_barrels(amount);
+
         self.wave_manager.wave_delay = wave.wave_delay;
 
         #[allow(dead_code)]

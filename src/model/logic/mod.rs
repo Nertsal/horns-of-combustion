@@ -151,6 +151,7 @@ impl Model {
                         },
                     });
                 }
+                self.add_barrels(1); // Spawn a new barrel
             }
         }
     }
