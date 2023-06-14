@@ -187,28 +187,33 @@ impl Model {
 
         self.wave_manager.current_wave.wait_for_deaths = true;
 
-        // Foot
-        let position = Position::from_world(vec2(-31.0, -7.0).as_r32(), self.config.world_size);
-        self.actors.insert(Actor::new_enemy(
-            position,
-            EnemyConfig {
-                shape: Shape::Rectangle {
-                    width: r32(8.0),
-                    height: r32(5.0),
+        // Feet
+        let mut place_foot = |pos: vec2<f32>| {
+            let position = Position::from_world(pos.as_r32(), self.config.world_size);
+            self.actors.insert(Actor::new_enemy(
+                position,
+                EnemyConfig {
+                    shape: Shape::Rectangle {
+                        width: r32(8.0),
+                        height: r32(5.0),
+                    },
+                    stats: Stats {
+                        contact_damage: r32(50.0),
+                        move_speed: r32(0.0),
+                        vulnerability: VulnerabilityStats { ..default() },
+                    },
+                    acceleration: r32(0.0),
+                    hp: Hp::new(500.0),
+                    ai: ActorAI::BossFoot { position },
+                    kind: ActorKind::BossFoot,
+                    gun: None,
+                    stops_barrel: true,
                 },
-                stats: Stats {
-                    contact_damage: r32(50.0),
-                    move_speed: r32(0.0),
-                    vulnerability: VulnerabilityStats { ..default() },
-                },
-                acceleration: r32(0.0),
-                hp: Hp::new(500.0),
-                ai: ActorAI::BossFoot { position },
-                kind: ActorKind::BossFoot,
-                gun: None,
-                stops_barrel: true,
-            },
-        ));
+            ));
+        };
+
+        place_foot(vec2(-31.0, -7.0));
+        place_foot(vec2(31.0, -5.0));
 
         // Body
         self.actors.insert(Actor::new_enemy(
