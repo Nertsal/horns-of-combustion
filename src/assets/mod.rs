@@ -9,7 +9,7 @@ use geng::prelude::*;
 pub struct Assets {
     pub sprites: SpriteAssets,
     pub shaders: ShaderAssets,
-    #[load(path = "fonts/avalancheno.ttf")]
+    #[load(load_with = "load_font(&manager, &base_path.join(\"fonts/avalancheno.ttf\"))")]
     pub font: Rc<geng::Font>,
 }
 
@@ -82,4 +82,25 @@ impl Assets {
             .await
             .context("failed to load assets")
     }
+}
+
+fn load_font(
+    manager: &geng::asset::Manager,
+    path: &std::path::Path,
+) -> geng::asset::Future<Rc<geng::Font>> {
+    let manager = manager.clone();
+    let path = path.to_owned();
+    async move {
+        let data = <Vec<u8> as geng::asset::Load>::load(&manager, &path).await?;
+        Ok(Rc::new(geng::Font::new(
+            manager.ugli(),
+            &data,
+            geng::font::Options {
+                pixel_size: 64.0,
+                max_distance: 0.1,
+                antialias: false,
+            },
+        )?))
+    }
+    .boxed_local()
 }
