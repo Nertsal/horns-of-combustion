@@ -492,6 +492,7 @@ impl WorldRender {
             #[query(nested, storage = ".body")]
             collider: &'a Collider,
             health: &'a Health,
+            fraction: &'a Fraction,
         }
 
         let camera = &model.camera;
@@ -503,7 +504,11 @@ impl WorldRender {
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
             let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
-            self.draw_health_arc(pos, radius, actor.health, camera, framebuffer);
+            let color = match actor.fraction {
+                Fraction::Player => self.theme.health_fg_player,
+                Fraction::Enemy => self.theme.health_fg_enemy,
+            };
+            self.draw_health_arc(pos, radius, actor.health, color, camera, framebuffer);
         }
 
         #[allow(dead_code)]
@@ -523,7 +528,14 @@ impl WorldRender {
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
             let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
-            self.draw_health_arc(pos, radius, actor.health, camera, framebuffer);
+            self.draw_health_arc(
+                pos,
+                radius,
+                actor.health,
+                self.theme.health_fg_enemy,
+                camera,
+                framebuffer,
+            );
         }
     }
 
@@ -532,6 +544,7 @@ impl WorldRender {
         center: vec2<f32>,
         radius: f32,
         health: &Health,
+        color: Color,
         camera: &Camera,
         framebuffer: &mut ugli::Framebuffer,
     ) {
@@ -545,7 +558,7 @@ impl WorldRender {
             (
                 ugli::uniforms! {
                     u_health: health.ratio().as_f32(),
-                    u_color: self.theme.health_fg,
+                    u_color: color,
                     u_color_bg: self.theme.health_bg,
                     u_model_matrix: transform,
                     u_width: 0.1,
