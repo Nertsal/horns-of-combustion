@@ -244,7 +244,35 @@ impl WorldRender {
                 ActorKind::EnemyDeathStar => &self.assets.sprites.enemy_death_star,
                 ActorKind::EnemyDice => &self.assets.sprites.enemy_dice,
                 ActorKind::EnemyHuge => &self.assets.sprites.enemy_huge,
-                ActorKind::BossFoot => &self.assets.sprites.boss_foot,
+                ActorKind::BossFoot => {
+                    // Leg
+                    let dir = actor
+                        .collider
+                        .position
+                        .direction(
+                            Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size),
+                            model.config.world_size,
+                        )
+                        .normalize_or_zero();
+                    let angle = dir.arg().as_f32() / 3.0;
+                    let position = vec2(0.0, 0.0).as_r32();
+                    let position = Position::from_world(position, model.config.world_size);
+                    let sprite = &self.assets.sprites.boss_leg;
+                    let position = super::pixel_perfect_aabb(
+                        camera.project_f32(position, model.config.world_size),
+                        sprite.size(),
+                        camera,
+                    );
+                    self.geng.draw2d().draw2d_transformed(
+                        framebuffer,
+                        camera,
+                        &draw2d::TexturedQuad::new(position, sprite),
+                        mat3::rotate_around(position.center(), angle),
+                    );
+
+                    &self.assets.sprites.boss_foot
+                }
+                ActorKind::BossBody => &self.assets.sprites.boss_body, // TODO: eye
             };
 
             // let position = Aabb2::point(actor.collider.position.as_f32())

@@ -68,6 +68,10 @@ pub struct SpriteAssets {
     // Boss sprites
     #[load(postprocess = "pixel")]
     pub boss_foot: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub boss_leg: ugli::Texture,
+    #[load(postprocess = "pixel")]
+    pub boss_body: ugli::Texture,
 }
 
 #[derive(geng::asset::Load)]

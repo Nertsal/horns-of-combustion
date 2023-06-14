@@ -77,18 +77,19 @@ impl Model {
                         }
                     }
                 }
-                ActorAI::BossFoot => {
+                ActorAI::BossFoot { position } => {
                     *actor.velocity = vec2::ZERO;
 
-                    let rotation = (self.time * r32(3.0)).sin();
-                    let point = vec2(-3.0, 0.0).as_r32();
+                    let rotation = r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2);
+                    let point = vec2(-7.0, -3.0).as_r32();
 
-                    *actor.rotation = Angle::from_radians(rotation);
+                    *actor.position =
+                        position.shifted(point.rotate(rotation), self.config.world_size);
                     // *actor.position = Position::from_world(point, self.config.world_size);
-                    actor.position.shift(
-                        point.rotate(rotation) - point.rotate(actor.rotation.as_radians()),
-                        self.config.world_size,
-                    );
+                    *actor.rotation = Angle::from_radians(rotation);
+                }
+                ActorAI::BossBody => {
+                    *actor.velocity = vec2::ZERO;
                 }
             }
         }

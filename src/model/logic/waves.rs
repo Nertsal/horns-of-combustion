@@ -154,14 +154,47 @@ impl Model {
     fn boss_wave(&mut self) {
         // let mut rng = thread_rng();
 
+        // Explode
+        self.queued_effects.push_back(QueuedEffect {
+            effect: Effect::Explosion {
+                position: Position::ZERO,
+                config: ExplosionConfig {
+                    radius: r32(50.0),
+                    knockback: r32(100.0),
+                    damage: Hp::ZERO,
+                    ignite_gasoline: false,
+                    ignite: None,
+                },
+            },
+        });
+
+        // Remove blocks near the spawn
+        let to_remove: Vec<Id> = self
+            .blocks
+            .collider
+            .position
+            .iter()
+            .filter(|(_, pos)| {
+                pos.distance(Position::ZERO, self.config.world_size)
+                    .as_f32()
+                    <= 50.0
+            })
+            .map(|(id, _)| id)
+            .collect();
+        for id in to_remove {
+            self.blocks.remove(id);
+        }
+
         self.wave_manager.current_wave.wait_for_deaths = true;
 
+        // Foot
+        let position = Position::from_world(vec2(-31.0, -7.0).as_r32(), self.config.world_size);
         self.actors.insert(Actor::new_enemy(
-            Position::from_world(vec2(0.0, 0.0).as_r32(), self.config.world_size),
+            position,
             EnemyConfig {
                 shape: Shape::Rectangle {
-                    width: r32(4.0),
-                    height: r32(2.0),
+                    width: r32(8.0),
+                    height: r32(5.0),
                 },
                 stats: Stats {
                     contact_damage: r32(50.0),
@@ -170,8 +203,27 @@ impl Model {
                 },
                 acceleration: r32(0.0),
                 hp: Hp::new(500.0),
-                ai: ActorAI::BossFoot,
+                ai: ActorAI::BossFoot { position },
                 kind: ActorKind::BossFoot,
+                gun: None,
+                stops_barrel: true,
+            },
+        ));
+
+        // Body
+        self.actors.insert(Actor::new_enemy(
+            Position::from_world(vec2(0.0, 0.0).as_r32(), self.config.world_size),
+            EnemyConfig {
+                shape: Shape::Circle { radius: r32(5.0) },
+                stats: Stats {
+                    contact_damage: r32(100.0),
+                    move_speed: r32(0.0),
+                    vulnerability: VulnerabilityStats { ..default() },
+                },
+                acceleration: r32(0.0),
+                hp: Hp::new(1000.0),
+                ai: ActorAI::BossBody,
+                kind: ActorKind::BossBody,
                 gun: None,
                 stops_barrel: true,
             },
