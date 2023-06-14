@@ -1,5 +1,6 @@
 mod assets;
 mod game;
+mod menu;
 mod model;
 mod render;
 mod util;
@@ -8,8 +9,8 @@ use geng::prelude::*;
 
 const SCREEN_SIZE: vec2<usize> = vec2(960, 540);
 
-#[derive(clap::Parser)]
-struct Opts {
+#[derive(clap::Parser, Clone)]
+pub struct Opts {
     #[clap(long, default_value = "assets/config.ron")]
     config: std::path::PathBuf,
     #[clap(long, default_value = "assets/level.ron")]
@@ -38,32 +39,6 @@ fn main() {
         ..geng::ContextOptions::from_args(&opts.geng)
     });
 
-    let future = {
-        let geng = geng.clone();
-        async move {
-            let manager = geng.asset_manager();
-            let assets = assets::Assets::load(manager).await.unwrap();
-            let config = assets::config::Config::load(&opts.config).await.unwrap();
-            let level: assets::config::LevelConfig = file::load_detect(&opts.level).await.unwrap();
-            let enemies = assets::config::Config::load_enemies(&opts.enemies)
-                .await
-                .unwrap();
-            let waves = assets::waves::WavesConfig::load(&opts.waves).await.unwrap();
-            let theme = assets::theme::Theme::load(&opts.theme).await.unwrap();
-            let controls = assets::controls::Controls::load(&opts.controls)
-                .await
-                .unwrap();
-            game::Game::new(
-                &geng,
-                &Rc::new(assets),
-                config,
-                level,
-                theme,
-                controls,
-                enemies,
-                waves,
-            )
-        }
-    };
-    geng.run_loading(future)
+    let state = menu::run(&geng, opts);
+    geng.run(state)
 }

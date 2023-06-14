@@ -159,3 +159,30 @@ impl geng::State for Game {
         self.model.update(delta_time);
     }
 }
+
+pub fn run(geng: &Geng, opts: crate::Opts) -> impl geng::State {
+    let future = {
+        let geng = geng.clone();
+        async move {
+            let manager = geng.asset_manager();
+            let assets = Assets::load(manager).await.unwrap();
+            let config = Config::load(&opts.config).await.unwrap();
+            let level: LevelConfig = file::load_detect(&opts.level).await.unwrap();
+            let enemies = Config::load_enemies(&opts.enemies).await.unwrap();
+            let waves = WavesConfig::load(&opts.waves).await.unwrap();
+            let theme = Theme::load(&opts.theme).await.unwrap();
+            let controls = Controls::load(&opts.controls).await.unwrap();
+            Game::new(
+                &geng,
+                &Rc::new(assets),
+                config,
+                level,
+                theme,
+                controls,
+                enemies,
+                waves,
+            )
+        }
+    };
+    geng::LoadingScreen::new(geng, geng::EmptyLoadingScreen::new(geng), future)
+}
