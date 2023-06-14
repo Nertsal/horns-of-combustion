@@ -120,9 +120,9 @@ impl Model {
         }
 
         let query = query_player_ref!(self.actors);
-        let player = query
-            .get(self.player.actor)
-            .expect("Player actor not found");
+        let Some(player) = query.get(self.player.actor) else {
+            return;
+        };
         let player_pos = *player.position;
 
         let config = &self.wave_manager.config;

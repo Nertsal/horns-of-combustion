@@ -81,11 +81,10 @@ impl Model {
                     }
 
                     // Screen shake
-                    let player = actor_query
+                    let player_position = actor_query
                         .get(self.player.actor)
-                        .expect("Player actor not found");
-                    let player_dist = player
-                        .position
+                        .map_or(self.camera.center, |player| *player.position);
+                    let player_dist = player_position
                         .direction(position, self.config.world_size)
                         .len()
                         .max(r32(0.1));

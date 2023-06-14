@@ -76,9 +76,9 @@ impl Model {
         }
 
         let query = query_actor_ref!(self.actors);
-        let player = query
-            .get(self.player.actor)
-            .expect("Player actor not found");
+        let Some(player) = query.get(self.player.actor) else {
+            return;
+        };
         let player_collider = &player.collider.clone();
 
         #[derive(Clone)]
@@ -185,9 +185,9 @@ impl Model {
         }
 
         let query = query_actor_ref!(self.actors);
-        let player = query
-            .get(self.player.actor)
-            .expect("Player actor not found");
+        let Some(player) = query.get(self.player.actor) else {
+            return;
+        };
         let player_collider = &player.collider.clone();
 
         #[derive(Clone)]

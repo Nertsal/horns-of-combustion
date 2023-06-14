@@ -17,11 +17,10 @@ impl Model {
             stunned: &'a Option<Time>,
         }
 
-        let player = self
-            .actors
-            .get(self.player.actor)
-            .expect("Player actor not found")
-            .clone();
+        let Some(player) = self.actors.get(self.player.actor) else {
+            return;
+        };
+        let player = player.clone();
 
         let mut shots = Vec::new();
 

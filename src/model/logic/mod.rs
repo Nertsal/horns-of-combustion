@@ -164,44 +164,45 @@ impl Model {
             position: &'a Position,
         }
 
-        let query = query_player_ref!(self.actors);
-        let player = query
-            .get(self.player.actor)
-            .expect("Player actor not found");
-
         let camera = &mut self.camera;
 
-        // Zoom out if player is moving fast.
-        // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
-        // let player_speed = player_velocity.len();
-        // camera.fov = TODO: interpolate fov to player speed.
+        let query = query_player_ref!(self.actors);
+        if let Some(player) = query.get(self.player.actor) {
+            // Zoom out if player is moving fast.
+            // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
+            // let player_speed = player_velocity.len();
+            // camera.fov = TODO: interpolate fov to player speed.
 
-        // Do not follow player if it is inside the bounds of the camera.
-        let direction = camera
-            .center
-            .direction(*player.position, self.config.world_size);
-        let distance = direction.len();
-        if distance > camera.fov / r32(3.0) {
-            self.player.out_of_view = true;
-        }
-
-        if self.player.out_of_view {
-            let config = &self.config.camera;
-            if distance < config.dead_zone {
-                self.player.out_of_view = false;
-                // camera.target_position = *player_position;
-            } else {
-                // Update the target position
-                camera.target_position = *player.position;
+            // Do not follow player if it is inside the bounds of the camera.
+            let direction = camera
+                .center
+                .direction(*player.position, self.config.world_size);
+            let distance = direction.len();
+            if distance > camera.fov / r32(3.0) {
+                self.player.out_of_view = true;
             }
 
-            // Interpolate camera position to the target
-            // Take min to not overshoot the target
-            camera.center.shift(
-                direction * (config.speed * delta_time).min(Coord::ONE),
-                self.config.world_size,
-            );
+            if self.player.out_of_view {
+                let config = &self.config.camera;
+                if distance < config.dead_zone {
+                    self.player.out_of_view = false;
+                    // camera.target_position = *player_position;
+                } else {
+                    // Update the target position
+                    camera.target_position = *player.position;
+                }
+            }
         }
+
+        // Interpolate camera position to the target
+        // Take min to not overshoot the target
+        camera.center.shift(
+            (camera
+                .center
+                .direction(camera.target_position, self.config.world_size))
+                * (self.config.camera.speed * delta_time).min(Coord::ONE),
+            self.config.world_size,
+        );
 
         // Screen shake
         self.screen_shake

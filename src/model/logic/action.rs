@@ -17,9 +17,9 @@ impl Model {
                     }
 
                     let mut query = query_player_ref!(self.actors);
-                    let player = query
-                        .get_mut(self.player.actor)
-                        .expect("Player actor not found");
+                    let Some(player) = query.get_mut(self.player.actor) else {
+                        return;
+                    };
 
                     if player.gun.shot_delay <= Time::ZERO {
                         let pos = *player.position;
@@ -44,9 +44,9 @@ impl Model {
                         }
 
                         let mut query = query_player_ref!(self.actors);
-                        let player = query
-                            .get_mut(self.player.actor)
-                            .expect("Player actor not found");
+                        let Some(player) = query.get_mut(self.player.actor) else {
+                            return;
+                        };
 
                         // let input_direction =
                         //     (self.player.aim_at - *player.position).normalize_or_zero();
@@ -78,9 +78,9 @@ impl Model {
                     }
 
                     let mut query = query_player_ref!(self.actors);
-                    let player = query
-                        .get_mut(self.player.actor)
-                        .expect("Player actor not found");
+                    let Some(player) = query.get_mut(self.player.actor) else {
+                        return;
+                    };
 
                     // let dir = player.velocity.normalize_or_zero();
                     let dir = self.player.input.direction;

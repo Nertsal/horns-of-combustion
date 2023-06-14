@@ -23,9 +23,9 @@ impl Model {
         }
 
         let mut query = query_player_ref!(self.actors);
-        let player = query
-            .get_mut(self.player.actor)
-            .expect("Player actor not found");
+        let Some(player) = query.get_mut(self.player.actor) else {
+            return;
+        };
 
         // Reset rotation
         *player.rotation = Angle::ZERO;
@@ -55,9 +55,9 @@ impl Model {
         }
 
         let mut query = query_player_ref!(self.actors);
-        let player = query
-            .get_mut(self.player.actor)
-            .expect("Player actor not found");
+        let Some(player) = query.get_mut(self.player.actor) else {
+            return;
+        };
 
         // Update shape
         *player.shape = self.config.player.barrel_state.shape;
