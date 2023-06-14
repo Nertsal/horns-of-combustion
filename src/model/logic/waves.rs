@@ -110,6 +110,7 @@ impl Model {
         let mut rng = thread_rng();
 
         self.wave_manager.wave_delay = wave.wave_delay;
+        self.wave_manager.wave_number += 1;
 
         #[allow(dead_code)]
         #[derive(StructQuery)]

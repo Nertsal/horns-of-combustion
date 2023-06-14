@@ -113,6 +113,7 @@ impl geng::State for Game {
             ugli::ColorAttachment::Texture(&mut self.screen_texture),
         );
 
+        // Draw pixelated world
         self.render
             .draw(&self.model, self.delta_time, &mut screen_framebuffer);
 
@@ -128,6 +129,9 @@ impl geng::State for Game {
             &self.screen_texture,
             Rgba::WHITE,
         );
+
+        // Draw ui (not pixelated)
+        self.render.draw_ui(&self.model, framebuffer);
     }
 
     fn handle_event(&mut self, event: geng::Event) {
