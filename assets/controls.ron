@@ -1,5 +1,6 @@
 (
     fullscreen: [Key(F4)],
+    reset: [Key(R)],
     left: [Key(Left), Key(A)],
     right: [Key(Right), Key(D)],
     up: [Key(Up), Key(W)],
