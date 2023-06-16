@@ -22,11 +22,11 @@ pub enum ProjectileKind {
     WheelPizza,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Projectile {
     pub lifetime: Lifetime,
     pub fraction: Fraction,
-    #[structof(nested)]
+    #[split(nested)]
     pub body: Body,
     pub damage: Hp,
     pub target_pos: Option<Position>,

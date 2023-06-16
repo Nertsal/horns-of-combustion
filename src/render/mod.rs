@@ -53,7 +53,7 @@ impl GameRender {
         ugli::clear(&mut world_framebuffer, Some(Rgba::BLACK), None, None);
 
         // Render simplified fire
-        self.world.draw_fire(model, &mut world_framebuffer);
+        // self.world.draw_fire(model, &mut world_framebuffer);
 
         // Fire effect
         let mut fire_framebuffer = ugli::Framebuffer::new_color(
