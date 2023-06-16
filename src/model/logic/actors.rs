@@ -130,33 +130,38 @@ impl Model {
     // }
 
     pub(super) fn control_actors(&mut self, delta_time: Time) {
-        todo!()
-        // #[allow(dead_code)]
-        // #[derive(StructQuery)]
-        // struct ActorRef<'a> {
-        //     #[query(storage = ".body")]
-        //     velocity: &'a mut vec2<Coord>,
-        //     controller: &'a Controller,
-        //     stunned: &'a mut Option<Time>,
-        // }
+        struct ActorRef<'a> {
+            velocity: &'a mut vec2<Coord>,
+            controller: &'a Controller,
+            stunned: &'a mut Option<Time>,
+        }
 
-        // let mut query = query_actor_ref!(self.actors);
-        // let mut iter = query.iter_mut();
-        // while let Some((_, actor)) = iter.next() {
-        //     let target_velocity = if let Some(time) = actor.stunned {
-        //         *time -= delta_time;
-        //         if *time <= Time::ZERO {
-        //             *actor.stunned = None;
-        //         }
-        //         vec2::ZERO
-        //     } else {
-        //         actor.controller.target_velocity
-        //     };
+        for id in self.actors.ids() {
+            let actor = get!(
+                self.actors,
+                id,
+                ActorRef {
+                    mut velocity: body.velocity,
+                    controller,
+                    mut stunned,
+                }
+            );
+            let Some(actor) = actor else { continue };
 
-        //     // Interpolate body velocity to target velocity.
-        //     // Take min(1.0) to not overshoot
-        //     *actor.velocity += (target_velocity - *actor.velocity)
-        //         * (actor.controller.acceleration * delta_time).min(Coord::ONE);
-        // }
+            let target_velocity = if let Some(time) = actor.stunned {
+                *time -= delta_time;
+                if *time <= Time::ZERO {
+                    *actor.stunned = None;
+                }
+                vec2::ZERO
+            } else {
+                actor.controller.target_velocity
+            };
+
+            // Interpolate body velocity to target velocity.
+            // Take min(1.0) to not overshoot
+            *actor.velocity += (target_velocity - *actor.velocity)
+                * (actor.controller.acceleration * delta_time).min(Coord::ONE);
+        }
     }
 }
