@@ -1,0 +1,45 @@
+(
+    shape: Circle( radius: 2.0 ),
+    stats: Stats(
+        contact_damage: 10.0,
+        move_speed: 20.0,
+        vulnerability: VulnerabilityStats(
+            physical: 1.0,
+            fire: 1.0,
+            explosive: 1.0,
+        ),
+    ),
+    acceleration: 0.5,
+    hp: 150.0,
+    ai: Ranger(
+        preferred_distance: 30.0,
+    ),
+    kind: EnemyClown,
+    gun: Some((
+        shot_delay: 2.0,
+        recoil: 20.0,
+        shot: (
+            pattern: Single,
+            projectile: (
+                lifetime: 5.0,
+                speed: 40.0,
+                damage: 30.0,
+                knockback: 5.0,
+                shape: Circle( radius: 0.2 ),
+                ai: CircleBomb (
+                    explosive_type: (
+                        lifetime: 5.0,
+                        speed: 40.0,
+                        damage: 5.0,
+                        knockback: 1.0,
+                        shape: Circle( radius: 0.2 ),
+                        ai: ConstantTurn ( degrees_per_second: 30.0 ),
+                        kind: SmallOrb
+                    ),
+                    delay: 1.5
+                ),
+                kind: Orb
+            ),
+        )
+    )),
+)

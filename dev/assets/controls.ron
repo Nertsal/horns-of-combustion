@@ -1,0 +1,12 @@
+(
+    fullscreen: [Key(F4)],
+    reset: [Key(R)],
+    left: [Key(Left), Key(A)],
+    right: [Key(Right), Key(D)],
+    up: [Key(Up), Key(W)],
+    down: [Key(Down), Key(S)],
+    shoot: [Mouse(Left)],
+    transform: [Mouse(Right)],
+    barrel_dash: [Mouse(Left)],
+    gas: [Mouse(Left)],
+)
