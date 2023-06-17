@@ -111,15 +111,13 @@ impl Game {
 
         // Transform state
         if is_event_down(event, &self.controls.transform) {
-            todo!();
-            // self.model.player_action(PlayerAction::SwitchState);
+            self.model.player_action(PlayerAction::SwitchState);
         }
 
         // Barrel dash
         if let PlayerState::Barrel { .. } = self.model.player.state {
             if is_event_down(event, &self.controls.barrel_dash) {
-                todo!();
-                // self.model.player_action(PlayerAction::BarrelDash);
+                self.model.player_action(PlayerAction::BarrelDash);
                 self.can_shoot = false;
             }
         } else if is_event_up(event, &self.controls.barrel_dash) {
@@ -234,10 +232,9 @@ impl geng::State for Game {
                 .camera
                 .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
                 .as_r32();
-            todo!();
-            // self.model.player_action(PlayerAction::Shoot {
-            //     target_pos: Position::from_world(world_pos, self.model.config.world_size),
-            // });
+            self.model.player_action(PlayerAction::Shoot {
+                target_pos: Position::from_world(world_pos, self.model.config.world_size),
+            });
         }
 
         for event in self.model.update(delta_time) {

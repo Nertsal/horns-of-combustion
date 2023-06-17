@@ -20,8 +20,8 @@ impl Model {
                 self.actors,
                 id,
                 MoveRef {
-                    mut position: body.collider.position,
-                    velocity: body.velocity,
+                    position: &mut body.collider.position,
+                    velocity: &body.velocity,
                 }
             ));
         }
@@ -30,8 +30,8 @@ impl Model {
                 self.projectiles,
                 id,
                 MoveRef {
-                    mut position: body.collider.position,
-                    velocity: body.velocity,
+                    position: &mut body.collider.position,
+                    velocity: &body.velocity,
                 }
             ));
         }
@@ -40,8 +40,8 @@ impl Model {
                 self.pickups,
                 id,
                 MoveRef {
-                    mut position: body.collider.position,
-                    velocity: body.velocity,
+                    position: &mut body.collider.position,
+                    velocity: &body.velocity,
                 }
             ));
         }

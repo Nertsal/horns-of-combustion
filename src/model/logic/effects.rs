@@ -48,21 +48,28 @@ impl Model {
 
                 {
                     // Update actors
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
                     struct ActorRef<'a> {
-                        #[query(storage = ".body.collider")]
                         position: &'a Position,
-                        #[query(storage = ".body")]
                         velocity: &'a mut vec2<Coord>,
                         health: &'a mut Health,
                         on_fire: &'a mut Option<OnFire>,
                         stats: &'a Stats,
                     }
 
-                    let mut actor_query = query_actor_ref!(self.actors);
-                    let mut actor_iter = actor_query.iter_mut();
-                    while let Some((_, actor)) = actor_iter.next() {
+                    for actor_id in self.actors.ids() {
+                        let actor = get!(
+                            self.actors,
+                            actor_id,
+                            ActorRef {
+                                position: &body.collider.position,
+                                velocity: &mut body.velocity,
+                                health: &mut health,
+                                on_fire: &mut on_fire,
+                                stats,
+                            }
+                        );
+                        let Some(actor) = actor else { continue };
+
                         if !check(*actor.position) {
                             continue;
                         }
@@ -81,9 +88,7 @@ impl Model {
                     }
 
                     // Screen shake
-                    let player_position = actor_query
-                        .get(self.player.actor)
-                        .map_or(self.camera.center, |player| *player.position);
+                    let player_position = self.get_player_pos().unwrap_or(self.camera.center);
                     let player_dist = player_position
                         .direction(position, self.config.world_size)
                         .len()
@@ -99,20 +104,26 @@ impl Model {
 
                 {
                     // Update blocks
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
                     struct BlockRef<'a> {
-                        #[query(storage = ".collider")]
                         position: &'a Position,
-                        #[query(optic = "._Some")]
                         health: &'a mut Health,
                         on_fire: &'a mut Option<OnFire>,
                         vulnerability: &'a VulnerabilityStats,
                     }
 
-                    let mut block_query = query_block_ref!(self.blocks);
-                    let mut block_iter = block_query.iter_mut();
-                    while let Some((_, block)) = block_iter.next() {
+                    for block_id in self.blocks.ids() {
+                        let block = get!(
+                            self.blocks,
+                            block_id,
+                            BlockRef {
+                                position: &collider.position,
+                                health: &mut health.Get.Some,
+                                on_fire: &mut on_fire,
+                                vulnerability,
+                            }
+                        );
+                        let Some(block) = block else { continue };
+
                         if !check(*block.position) {
                             continue;
                         }
@@ -129,37 +140,32 @@ impl Model {
 
                 if self.config.explosions_affect_projectiles {
                     // Update projectiles
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
                     struct ProjRef<'a> {
-                        #[query(storage = ".body.collider")]
                         position: &'a Position,
-                        #[query(storage = ".body")]
                         velocity: &'a mut vec2<Coord>,
                     }
 
-                    let mut proj_query = query_proj_ref!(self.projectiles);
-                    let mut proj_iter = proj_query.iter_mut();
-                    while let Some((_, proj)) = proj_iter.next() {
-                        if !check(*proj.position) {
-                            continue;
+                    for proj_id in self.projectiles.ids() {
+                        if let Some(proj) = get!(
+                            self.projectiles,
+                            proj_id,
+                            ProjRef {
+                                position: &body.collider.position,
+                                velocity: &mut body.velocity,
+                            }
+                        ) {
+                            if !check(*proj.position) {
+                                continue;
+                            }
+                            *proj.velocity += apply_velocity(*proj.position);
                         }
-                        *proj.velocity += apply_velocity(*proj.position);
                     }
                 }
 
                 if config.ignite_gasoline {
                     // Ignite gasoline
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
-                    struct GasRef<'a> {
-                        #[query(optic = ".collider._get", component = "Collider")]
-                        position: &'a Position,
-                    }
-
-                    let to_ignite: Vec<Id> = query_gas_ref!(self.gasoline)
-                        .iter()
-                        .filter(|(_, gas)| check(*gas.position))
+                    let to_ignite: Vec<Id> = query!(self.gasoline, (&collider.position))
+                        .filter(|(_, (&pos,))| check(pos))
                         .map(|(id, _)| id)
                         .collect();
                     for id in to_ignite {

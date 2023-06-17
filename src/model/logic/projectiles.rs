@@ -2,16 +2,11 @@ use super::*;
 
 impl Model {
     pub(super) fn control_projectiles(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ProjRef<'a> {
             lifetime: &'a mut Lifetime,
             fraction: &'a Fraction,
-            #[query(storage = ".body.collider")]
             position: &'a Position,
-            #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<R32>,
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             target_pos: &'a Option<Position>,
             ai: &'a mut ProjectileAI,
@@ -21,9 +16,22 @@ impl Model {
         let mut kill_projs: Vec<Id> = Vec::new();
         let mut to_be_spawned: Vec<Projectile> = Vec::new();
 
-        let mut query = query_proj_ref!(self.projectiles);
-        let mut iter = query.iter_mut();
-        while let Some((proj_id, proj)) = iter.next() {
+        for proj_id in self.projectiles.ids() {
+            let proj = get!(
+                self.projectiles,
+                proj_id,
+                ProjRef {
+                    lifetime: &mut lifetime,
+                    fraction,
+                    position: &body.collider.position,
+                    rotation: &mut body.collider.rotation,
+                    velocity: &mut body.velocity,
+                    target_pos,
+                    ai: &mut ai,
+                }
+            );
+            let Some(proj) = proj else { continue };
+
             // Update lifetime
             proj.lifetime.damage(delta_time);
             if proj.lifetime.is_dead() {
@@ -84,23 +92,15 @@ impl Model {
             self.projectiles.insert(proj);
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct GasRef<'a> {
-            collider: &'a Collider,
-        }
-
-        let gas_query = query_gas_ref!(self.gasoline);
-
         // Every grounded projectile ignites gasoline
         let mut ignite: Vec<Id> = Vec::new();
         for proj_id in grounded_projs {
             let proj = self.projectiles.remove(proj_id).unwrap();
-            for (gas_id, gas) in &gas_query {
+            for (gas_id, (gas_collider,)) in query!(self.gasoline, (&collider)) {
                 if proj
                     .body
                     .collider
-                    .check(gas.collider, self.config.world_size)
+                    .check(&gas_collider.clone(), self.config.world_size)
                 {
                     // Ignite gasoline
                     ignite.push(gas_id);

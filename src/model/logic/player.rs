@@ -20,9 +20,9 @@ impl Model {
             self.actors,
             self.player.actor,
             PlayerRef {
-                mut rotation: body.collider.rotation,
-                mut shape: body.collider.shape,
-                mut controller,
+                rotation: &mut body.collider.rotation,
+                shape: &mut body.collider.shape,
+                controller: &mut controller,
                 stats,
             }
         );
@@ -52,11 +52,11 @@ impl Model {
             self.actors,
             self.player.actor,
             PlayerRef {
-                mut velocity: body.velocity,
-                position: body.collider.position,
-                mut rotation: body.collider.rotation,
-                mut shape: body.collider.shape,
-                mut controller,
+                velocity: &mut body.velocity,
+                position: &body.collider.position,
+                rotation: &mut body.collider.rotation,
+                shape: &mut body.collider.shape,
+                controller: &mut controller,
             }
         );
         let Some(player) = player else { return };

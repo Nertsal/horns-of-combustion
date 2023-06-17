@@ -9,6 +9,7 @@ use super::*;
 
 #[derive(SplitFields, Debug)]
 pub struct Gasoline {
+    #[split(nested)]
     pub collider: Collider,
     pub lifetime: Lifetime,
     /// Ignites after being in contact with fire for that time.
@@ -20,6 +21,7 @@ pub struct Gasoline {
 
 #[derive(SplitFields, Debug)]
 pub struct Fire {
+    #[split(nested)]
     pub collider: Collider,
     pub lifetime: Lifetime,
     pub config: FireConfig,
