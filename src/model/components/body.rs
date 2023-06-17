@@ -3,7 +3,7 @@ use super::*;
 #[derive(SplitFields, Debug)]
 pub struct Body {
     #[split(nested)]
-        pub collider: Collider,
+    pub collider: Collider,
     pub velocity: vec2<Coord>,
 }
 
