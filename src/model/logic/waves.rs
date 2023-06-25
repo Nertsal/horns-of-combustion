@@ -52,16 +52,8 @@ impl Model {
             //     return;
             // }
 
-            #[allow(dead_code)]
-            #[derive(StructQuery)]
-            struct ActorRef<'a> {
-                fraction: &'a Fraction,
-            }
-
-            let query = query_actor_ref!(self.actors);
-            if query
-                .iter()
-                .any(|(_, actor)| *actor.fraction != Fraction::Player)
+            if query!(self.actors, (&fraction))
+                .any(|(_, (fraction,))| *fraction != Fraction::Player)
             {
                 // Some enemies haven't died yet
                 return;
@@ -128,18 +120,9 @@ impl Model {
 
         self.wave_manager.wave_delay = wave.wave_delay;
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
-        let query = query_player_ref!(self.actors);
-        let Some(player) = query.get(self.player.actor) else {
+        let Some(player_pos) = self.get_player_pos() else {
             return;
         };
-        let player_pos = *player.position;
 
         let config = &self.wave_manager.config;
         let angle = Angle::from_degrees(r32(rng.gen_range(0.0..=360.0)));

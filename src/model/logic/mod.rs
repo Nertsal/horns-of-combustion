@@ -43,20 +43,23 @@ impl Model {
     }
 
     fn update_explosions(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ExplRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_expl_ref!(self.explosions);
-
         let mut to_remove: Vec<Id> = Vec::new();
-        let mut iter = query.iter_mut();
-        while let Some((id, expl)) = iter.next() {
-            expl.lifetime.damage(delta_time);
-            if expl.lifetime.is_dead() {
-                to_remove.push(id);
+        for id in self.explosions.ids() {
+            if let Some(expl) = get!(
+                self.explosions,
+                id,
+                ExplRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                expl.lifetime.damage(delta_time);
+                if expl.lifetime.is_dead() {
+                    to_remove.push(id);
+                }
             }
         }
 
@@ -66,23 +69,16 @@ impl Model {
     }
 
     fn check_deaths(&mut self, _delta_time: Time) {
-        // Actors
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            health: &'a Health,
-            kind: &'a ActorKind,
-        }
-
         let mut rng = thread_rng();
 
-        // let mut to_be_spawned: Vec<Projectile> = Vec::new();
+        // Actors
 
-        let mut dead_actors: Vec<Id> = query_actor_ref!(self.actors)
-            .iter()
-            .filter(|(_, actor)| actor.health.is_dead())
+        let mut dead_actors: Vec<Id> = query!(self.actors, (&health))
+            .filter(|(_, (health,))| health.is_dead())
             .map(|(id, _)| id)
             .collect();
+
+        // let mut to_be_spawned: Vec<Projectile> = Vec::new();
         while let Some(id) = dead_actors.pop() {
             let actor = self.actors.remove(id).unwrap();
 
@@ -119,9 +115,8 @@ impl Model {
 
             if let ActorKind::BossBody = actor.kind {
                 dead_actors.extend(
-                    query_actor_ref!(self.actors)
-                        .iter()
-                        .filter(|(_, actor)| matches!(actor.kind, ActorKind::BossFoot { .. }))
+                    query!(self.actors, (&kind))
+                        .filter(|(_, (kind,))| matches!(kind, ActorKind::BossFoot { .. }))
                         .map(|(id, _)| id),
                 );
                 let gas_config = &self.config.player.barrel_state.gasoline;
@@ -170,16 +165,8 @@ impl Model {
         // }
 
         // Blocks
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct BlockRef<'a> {
-            #[query(optic = "._Some")]
-            health: &'a mut Health,
-        }
-
-        let dead_blocks: Vec<Id> = query_block_ref!(self.blocks)
-            .iter()
-            .filter(|(_, block)| block.health.is_dead())
+        let dead_blocks: Vec<Id> = query!(self.blocks, (&health.Get.Some))
+            .filter(|(_, (health,))| health.is_dead())
             .map(|(id, _)| id)
             .collect();
         for id in dead_blocks {
@@ -234,28 +221,19 @@ impl Model {
     }
 
     fn update_camera(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
-        let camera = &mut self.camera;
-
-        let query = query_player_ref!(self.actors);
-        if let Some(player) = query.get(self.player.actor) {
+        if let Some(player_pos) = self.get_player_pos() {
             // Zoom out if player is moving fast.
             // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
             // let player_speed = player_velocity.len();
             // camera.fov = TODO: interpolate fov to player speed.
 
             // Do not follow player if it is inside the bounds of the camera.
-            let direction = camera
+            let direction = self
+                .camera
                 .center
-                .direction(*player.position, self.config.world_size);
+                .direction(player_pos, self.config.world_size);
             let distance = direction.len();
-            if distance > camera.fov / r32(3.0) {
+            if distance > self.camera.fov / r32(3.0) {
                 self.player.out_of_view = true;
             }
 
@@ -266,41 +244,46 @@ impl Model {
                     // camera.target_position = *player_position;
                 } else {
                     // Update the target position
-                    camera.target_position = *player.position;
+                    self.camera.target_position = player_pos;
                 }
             }
         }
 
         // Interpolate camera position to the target
         // Take min to not overshoot the target
-        camera.center.shift(
-            (camera
+        self.camera.center.shift(
+            (self
+                .camera
                 .center
-                .direction(camera.target_position, self.config.world_size))
+                .direction(self.camera.target_position, self.config.world_size))
                 * (self.config.camera.speed * delta_time).min(Coord::ONE),
             self.config.world_size,
         );
 
         // Screen shake
         self.screen_shake
-            .apply_to_camera(camera, self.config.world_size, delta_time);
+            .apply_to_camera(&mut self.camera, self.config.world_size, delta_time);
         self.screen_shake.update(delta_time);
     }
 
     fn update_gas(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct GasRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_gas_ref!(self.gasoline);
-        let mut iter = query.iter_mut();
         let mut expired: Vec<Id> = Vec::new();
-        while let Some((id, gas)) = iter.next() {
-            gas.lifetime.damage(delta_time);
-            if gas.lifetime.is_dead() {
-                expired.push(id);
+        for id in self.gasoline.ids() {
+            if let Some(gas) = get!(
+                self.gasoline,
+                id,
+                GasRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                gas.lifetime.damage(delta_time);
+                if gas.lifetime.is_dead() {
+                    expired.push(id);
+                }
             }
         }
 
@@ -310,19 +293,23 @@ impl Model {
     }
 
     fn update_fire(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct FireRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_fire_ref!(self.fire);
-        let mut iter = query.iter_mut();
         let mut expired: Vec<Id> = Vec::new();
-        while let Some((id, fire)) = iter.next() {
-            fire.lifetime.damage(delta_time);
-            if fire.lifetime.is_dead() {
-                expired.push(id);
+        for id in self.fire.ids() {
+            if let Some(fire) = get!(
+                self.fire,
+                id,
+                FireRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                fire.lifetime.damage(delta_time);
+                if fire.lifetime.is_dead() {
+                    expired.push(id);
+                }
             }
         }
 
@@ -332,19 +319,26 @@ impl Model {
     }
 
     fn update_on_fire(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a Position,
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
             stats: &'a Stats,
         }
 
-        let mut query = query_actor_ref!(self.actors);
-        let mut iter = query.iter_mut();
-        while let Some((_, actor)) = iter.next() {
+        for id in self.actors.ids() {
+            let actor = get!(
+                self.actors,
+                id,
+                ActorRef {
+                    position: &body.collider.position,
+                    health: &mut health,
+                    on_fire: &mut on_fire,
+                    stats,
+                }
+            );
+            let Some(actor) = actor else { continue };
+
             if let Some(on_fire) = actor.on_fire {
                 actor.health.damage(
                     on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
@@ -369,20 +363,26 @@ impl Model {
             }
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(storage = ".collider")]
             position: &'a Position,
-            #[query(optic = "._Some")]
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
             vulnerability: &'a VulnerabilityStats,
         }
 
-        let mut query = query_block_ref!(self.blocks);
-        let mut iter = query.iter_mut();
-        while let Some((_, block)) = iter.next() {
+        for id in self.blocks.ids() {
+            let block = get!(
+                self.blocks,
+                id,
+                BlockRef {
+                    position: &collider.position,
+                    health: &mut health.Get.Some,
+                    on_fire: &mut on_fire,
+                    vulnerability,
+                }
+            );
+            let Some(block) = block else { continue };
+
             if let Some(on_fire) = block.on_fire {
                 block
                     .health
@@ -409,33 +409,29 @@ impl Model {
     }
 
     fn update_pickups(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PickupRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a Position,
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
         }
 
-        let player_query = query_player_ref!(self.actors);
-        let player = player_query.get(self.player.actor);
-
-        let mut pickup_query = query_pickup_ref!(self.pickups);
-        let mut pickup_iter = pickup_query.iter_mut();
+        let player_pos = self.get_player_pos();
 
         let mut dead_pickups = Vec::new();
 
         let config = &self.config.pickups;
-        while let Some((pickup_id, pickup)) = pickup_iter.next() {
+        for pickup_id in self.pickups.ids() {
+            let pickup = get!(
+                self.pickups,
+                pickup_id,
+                PickupRef {
+                    position: &body.collider.position,
+                    velocity: &mut body.velocity,
+                    lifetime: &mut lifetime,
+                }
+            );
+            let Some(pickup) = pickup else { continue };
+
             pickup.lifetime.damage(delta_time);
 
             if pickup.lifetime.is_dead() {
@@ -443,10 +439,10 @@ impl Model {
                 continue;
             }
 
-            if let Some(player) = &player {
+            if let Some(player_pos) = player_pos {
                 let delta = pickup
                     .position
-                    .direction(*player.position, self.config.world_size);
+                    .direction(player_pos, self.config.world_size);
                 let dist = delta.len();
                 if dist <= config.attract_radius {
                     let dir = delta.normalize_or_zero();

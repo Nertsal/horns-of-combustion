@@ -59,17 +59,11 @@ impl WorldRender {
     }
 
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct GasRef<'a> {
-            collider: &'a Collider,
-        }
-
         let camera = &model.camera;
         let color = self.theme.gasoline;
-        for (_, gas) in &query_gas_ref!(model.gasoline) {
+        for (_, (collider,)) in query!(model.gasoline, (&collider)) {
             self.draw_collider(
-                &gas.collider.clone(),
+                &collider.clone(),
                 color,
                 camera,
                 model.config.world_size,
@@ -86,17 +80,21 @@ impl WorldRender {
         with_outline: bool,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(nested)]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             color: &'a Color,
             kind: &'a BlockKind,
         }
 
         let camera = &model.camera;
-        for (_, block) in &query_block_ref!(blocks) {
+        for (_, block) in query!(
+            blocks,
+            BlockRef {
+                collider,
+                color,
+                kind
+            }
+        ) {
             let collider = block.collider.clone();
 
             match block.kind {
@@ -158,16 +156,14 @@ impl WorldRender {
     }
 
     pub fn draw_fire(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct FireRef<'a> {
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
         let color = self.theme.fire;
-        for (_, fire) in &query_fire_ref!(model.fire) {
+        for (_, fire) in query!(model.fire, FireRef { collider, lifetime }) {
             let scale = ((fire.lifetime.max_hp - fire.lifetime.hp).as_f32() / 0.3).clamp(0.0, 1.0);
             self.draw_collider_transformed(
                 &fire.collider.clone(),
@@ -179,15 +175,20 @@ impl WorldRender {
             );
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ExplRef<'a> {
             position: &'a Position,
             max_radius: &'a Coord,
             lifetime: &'a Lifetime,
         }
 
-        for (_, expl) in &query_expl_ref!(model.explosions) {
+        for (_, expl) in query!(
+            model.explosions,
+            ExplRef {
+                position,
+                max_radius,
+                lifetime
+            }
+        ) {
             let radius = (1.0 - expl.lifetime.ratio().as_f32()) * expl.max_radius.as_f32();
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
@@ -221,19 +222,21 @@ impl WorldRender {
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
-            #[query(storage = ".body")]
+            collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
-            ai: &'a Option<ActorAI>,
             kind: &'a ActorKind,
         }
 
         let camera = &model.camera;
-        for (_, actor) in &query_actor_ref!(model.actors) {
+        for (_, actor) in query!(
+            model.actors,
+            ActorRef {
+                collider: &body.collider,
+                velocity: &body.velocity,
+                kind
+            }
+        ) {
             let mut mirror = false;
             let sprite = match actor.kind {
                 ActorKind::Player => match model.player.state {
@@ -352,16 +355,19 @@ impl WorldRender {
     }
 
     fn draw_projectiles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ProjRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             kind: &'a ProjectileKind,
         }
 
         let camera = &model.camera;
-        for (_id, proj) in &query_proj_ref!(model.projectiles) {
+        for (_id, proj) in query!(
+            model.projectiles,
+            ProjRef {
+                collider: &body.collider,
+                kind
+            }
+        ) {
             let sprite = match proj.kind {
                 ProjectileKind::Default => &self.assets.sprites.projectile_default,
                 ProjectileKind::Orb => &self.assets.sprites.projectile_orb,
@@ -390,8 +396,6 @@ impl WorldRender {
     }
 
     fn draw_particles(&self, model: &Model, fire: bool, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ParticleRef<'a> {
             position: &'a Position,
             size: &'a Coord,
@@ -400,7 +404,15 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, particle) in &query_particle_ref!(model.particles) {
+        for (_, particle) in query!(
+            model.particles,
+            ParticleRef {
+                position,
+                size,
+                lifetime,
+                kind
+            }
+        ) {
             if let ParticleKind::Fire = particle.kind {
                 if !fire {
                     continue;
@@ -431,17 +443,21 @@ impl WorldRender {
     }
 
     fn draw_pickups(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PickupRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             kind: &'a PickUpKind,
             lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
-        for (_, pickup) in &query_pickup_ref!(model.pickups) {
+        for (_, pickup) in query!(
+            model.pickups,
+            PickupRef {
+                collider: &body.collider,
+                kind,
+                lifetime
+            }
+        ) {
             let mut color = match pickup.kind {
                 PickUpKind::Heal { .. } => self.theme.pickups.heal,
             };
@@ -494,23 +510,16 @@ impl WorldRender {
     }
 
     fn draw_enemy_arrows(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
         let camera = &model.camera;
         let camera_view = vec2(
             framebuffer.size().as_f32().aspect() * camera.fov.as_f32(),
             camera.fov.as_f32(),
         ) / 2.0;
 
-        for (_id, actor) in &query_actor_ref!(model.actors) {
+        for (_id, (&position,)) in query!(model.actors, (&body.collider.position)) {
             let delta = camera
                 .center
-                .direction(*actor.position, model.config.world_size)
+                .direction(position, model.config.world_size)
                 .as_f32();
             if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
                 // In view
@@ -557,17 +566,21 @@ impl WorldRender {
     }
 
     fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             health: &'a Health,
             fraction: &'a Fraction,
         }
 
         let camera = &model.camera;
-        for (_id, actor) in &query_actor_ref!(model.actors) {
+        for (_id, actor) in query!(
+            model.actors,
+            ActorRef {
+                collider: &body.collider,
+                health,
+                fraction
+            }
+        ) {
             if actor.health.ratio().as_f32() == 1.0 {
                 continue;
             }
@@ -582,16 +595,18 @@ impl WorldRender {
             self.draw_health_arc(pos, radius, actor.health, color, camera, framebuffer);
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(nested)]
-            collider: &'a Collider,
-            #[query(optic = "._Some")]
+            collider: ColliderRef<'a>,
             health: &'a Health,
         }
 
-        for (_id, actor) in &query_block_ref!(model.blocks) {
+        for (_id, actor) in query!(
+            model.blocks,
+            BlockRef {
+                collider,
+                health: &health.Get.Some
+            }
+        ) {
             if actor.health.ratio().as_f32() == 1.0 {
                 continue;
             }

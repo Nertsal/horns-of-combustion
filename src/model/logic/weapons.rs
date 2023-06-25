@@ -45,17 +45,10 @@ impl Model {
     }
 
     fn update_actors(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            #[query(optic = "._Some")]
-            gun: &'a mut Gun,
-        }
-
-        let mut query = query_actor_ref!(self.actors);
-        let mut iter = query.iter_mut();
-        while let Some((_id, actor)) = iter.next() {
-            update_weapon(&mut actor.gun.shot_delay, delta_time);
+        for id in self.actors.ids() {
+            if let Some((gun,)) = get!(self.actors, id, (&mut gun.Get.Some)) {
+                update_weapon(&mut gun.shot_delay, delta_time);
+            }
         }
     }
 }

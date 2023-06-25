@@ -9,23 +9,24 @@ impl Model {
     }
 
     fn human_control(&mut self, _delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PlayerRef<'a> {
-            // #[query(storage = ".body")]
-            // velocity: &'a mut vec2<Coord>,
-            #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<Coord>,
-            #[query(storage = ".body.collider")]
             shape: &'a mut Shape,
             controller: &'a mut Controller,
             stats: &'a Stats,
         }
 
-        let mut query = query_player_ref!(self.actors);
-        let Some(player) = query.get_mut(self.player.actor) else {
-            return;
-        };
+        let player = get!(
+            self.actors,
+            self.player.actor,
+            PlayerRef {
+                rotation: &mut body.collider.rotation,
+                shape: &mut body.collider.shape,
+                controller: &mut controller,
+                stats,
+            }
+        );
+        let Some(player) = player else { return };
 
         // Reset rotation
         *player.rotation = Angle::ZERO;
@@ -39,25 +40,26 @@ impl Model {
     }
 
     fn barrel_control(&mut self, mut last_gas: Position, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PlayerRef<'a> {
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
-            #[query(storage = ".body.collider")]
-            shape: &'a mut Shape,
-            #[query(storage = ".body.collider")]
-            rotation: &'a mut Angle<Coord>,
-            controller: &'a mut Controller,
-            #[query(storage = ".body.collider")]
             position: &'a Position,
-            stats: &'a Stats,
+            rotation: &'a mut Angle<Coord>,
+            shape: &'a mut Shape,
+            controller: &'a mut Controller,
         }
 
-        let mut query = query_player_ref!(self.actors);
-        let Some(player) = query.get_mut(self.player.actor) else {
-            return;
-        };
+        let player = get!(
+            self.actors,
+            self.player.actor,
+            PlayerRef {
+                velocity: &mut body.velocity,
+                position: &body.collider.position,
+                rotation: &mut body.collider.rotation,
+                shape: &mut body.collider.shape,
+                controller: &mut controller,
+            }
+        );
+        let Some(player) = player else { return };
 
         // Update shape
         *player.shape = self.config.player.barrel_state.shape;

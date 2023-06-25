@@ -2,18 +2,12 @@ use super::*;
 
 impl Model {
     pub(super) fn actors_ai(&mut self, _delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a mut Position,
-            #[query(storage = ".body.collider")]
             rotation: &'a mut Angle<Coord>,
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
             controller: &'a mut Controller,
-            #[query(optic = "._Some")]
             ai: &'a mut ActorAI,
             kind: &'a mut ActorKind,
             gun: &'a mut Option<Gun>,
@@ -27,9 +21,24 @@ impl Model {
 
         let mut shots = Vec::new();
 
-        let mut query = query_actor_ref!(self.actors);
-        let mut iter = query.iter_mut();
-        while let Some((_, actor)) = iter.next() {
+        for actor_id in self.actors.ids() {
+            let actor = get!(
+                self.actors,
+                actor_id,
+                ActorRef {
+                    position: &mut body.collider.position,
+                    rotation: &mut body.collider.rotation,
+                    velocity: &mut body.velocity,
+                    stats,
+                    controller: &mut controller,
+                    ai: &mut ai.Get.Some,
+                    kind: &mut kind,
+                    gun: &mut gun,
+                    stunned,
+                }
+            );
+            let Some(actor) = actor else { continue };
+
             if actor.stunned.is_some() {
                 continue;
             }
@@ -130,18 +139,24 @@ impl Model {
     }
 
     pub(super) fn control_actors(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             controller: &'a Controller,
             stunned: &'a mut Option<Time>,
         }
 
-        let mut query = query_actor_ref!(self.actors);
-        let mut iter = query.iter_mut();
-        while let Some((_, actor)) = iter.next() {
+        for id in self.actors.ids() {
+            let actor = get!(
+                self.actors,
+                id,
+                ActorRef {
+                    velocity: &mut body.velocity,
+                    controller,
+                    stunned: &mut stunned,
+                }
+            );
+            let Some(actor) = actor else { continue };
+
             let target_velocity = if let Some(time) = actor.stunned {
                 *time -= delta_time;
                 if *time <= Time::ZERO {

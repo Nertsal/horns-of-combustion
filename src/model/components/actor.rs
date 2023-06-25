@@ -68,10 +68,10 @@ pub struct OnFire {
     pub damage_per_second: Hp,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Actor {
     pub fraction: Fraction,
-    #[structof(nested)]
+    #[split(nested)]
     pub body: Body,
     pub health: Health,
     // #[structof(nested)] // TODO: optional nesting

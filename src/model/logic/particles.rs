@@ -2,8 +2,6 @@ use super::*;
 
 impl Model {
     pub(super) fn update_particles(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ParticleRef<'a> {
             position: &'a mut Position,
             velocity: &'a mut vec2<Coord>,
@@ -11,11 +9,20 @@ impl Model {
             kind: &'a ParticleKind,
         }
 
-        let mut query = query_particle_ref!(self.particles);
-
-        let mut iter = query.iter_mut();
         let mut to_remove: Vec<Id> = Vec::new();
-        while let Some((id, particle)) = iter.next() {
+        for id in self.particles.ids() {
+            let particle = get!(
+                self.particles,
+                id,
+                ParticleRef {
+                    position: &mut position,
+                    velocity: &mut velocity,
+                    lifetime: &mut lifetime,
+                    kind,
+                }
+            );
+            let Some(particle) = particle else { continue };
+
             // Update lifetime
             particle.lifetime.damage(delta_time);
             if particle.lifetime.is_dead() {
