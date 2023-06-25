@@ -99,11 +99,7 @@ impl Game {
         player.input.direction = player_direction.normalize_or_zero().as_r32();
 
         // Aim
-        let cursor_pos = window.cursor_position().as_f32();
-        let aim_position = self
-            .model
-            .camera
-            .screen_to_world(self.framebuffer_size.as_f32(), cursor_pos);
+        let aim_position = self.model.camera.cursor_pos_world();
         player.input.aim_at = aim_position.as_r32();
 
         // Drip gasoline
@@ -152,6 +148,30 @@ impl Game {
 }
 
 impl geng::State for Game {
+    fn update(&mut self, delta_time: f64) {
+        // Update cursor position within a camera
+        self.model.camera.cursor_pos = self.geng.window().cursor_position();
+        self.model.camera.framebuffer_size = self.framebuffer_size;
+
+        let delta_time = delta_time as f32;
+        self.explosion_timeout -= delta_time;
+
+        let delta_time = Time::new(delta_time);
+        self.delta_time = delta_time;
+
+        let window = self.geng.window();
+        if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
+            let world_pos = self.model.camera.cursor_pos_world();
+            self.model.player_action(PlayerAction::Shoot {
+                target_pos: Position::from_world(world_pos.as_r32(), self.model.config.world_size),
+            });
+        }
+
+        for event in self.model.update(delta_time) {
+            self.handle_game_event(event);
+        }
+    }
+
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
 
@@ -215,31 +235,6 @@ impl geng::State for Game {
         }
 
         self.update_player(&event);
-    }
-
-    fn update(&mut self, delta_time: f64) {
-        let delta_time = delta_time as f32;
-        self.explosion_timeout -= delta_time;
-
-        let delta_time = Time::new(delta_time);
-        self.delta_time = delta_time;
-
-        let window = self.geng.window();
-        if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
-            let position = window.cursor_position();
-            let world_pos = self
-                .model
-                .camera
-                .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
-                .as_r32();
-            self.model.player_action(PlayerAction::Shoot {
-                target_pos: Position::from_world(world_pos, self.model.config.world_size),
-            });
-        }
-
-        for event in self.model.update(delta_time) {
-            self.handle_game_event(event);
-        }
     }
 }
 

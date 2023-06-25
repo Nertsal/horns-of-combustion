@@ -323,6 +323,36 @@ impl WorldRender {
             //     framebuffer,
             // );
 
+            // Draw player direction hint (DEV ONLY)
+            let cursor_world_pos = model.camera.cursor_pos_world();
+
+            match actor.kind {
+                ActorKind::Player => self.geng.draw2d().draw2d(
+                    framebuffer,
+                    camera,
+                    &draw2d::Segment::new(
+                        Segment(
+                            position.center(),
+                            position.center()
+                                + Position::from_world(
+                                    position.center().as_r32(),
+                                    model.config.world_size,
+                                )
+                                .direction(
+                                    Position::from_world(cursor_world_pos, model.config.world_size),
+                                    model.config.world_size,
+                                )
+                                .as_f32()
+                                .normalize()
+                                    * 20.0,
+                        ),
+                        0.05,
+                        Color::RED,
+                    ),
+                ),
+                _ => {}
+            }
+
             let blend_colour = Color::new(1.0, 1.0, 1.0, 1.0);
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,

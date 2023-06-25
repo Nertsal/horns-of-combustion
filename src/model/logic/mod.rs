@@ -221,6 +221,8 @@ impl Model {
     }
 
     fn update_camera(&mut self, delta_time: Time) {
+        let mut scale = 0.15;
+
         if let Some(player_pos) = self.get_player_pos() {
             // Zoom out if player is moving fast.
             // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
@@ -245,9 +247,17 @@ impl Model {
                 } else {
                     // Update the target position
                     self.camera.target_position = player_pos;
+                    //scale = 0.15;
                 }
             }
         }
+
+        // Offset camera towards cursor position
+        let cursor_pos_world = self.camera.cursor_pos_world();
+        self.camera.offset_center = self.camera.center.direction(
+            Position::from_world(cursor_pos_world, self.config.world_size),
+            self.config.world_size,
+        ) * r32(scale);
 
         // Interpolate camera position to the target
         // Take min to not overshoot the target
@@ -337,7 +347,7 @@ impl Model {
                     stats,
                 }
             );
-            let Some(actor) = actor else { continue };
+            let Some(actor) = actor else { continue; };
 
             if let Some(on_fire) = actor.on_fire {
                 actor.health.damage(
@@ -381,7 +391,7 @@ impl Model {
                     vulnerability,
                 }
             );
-            let Some(block) = block else { continue };
+            let Some(block) = block else { continue; };
 
             if let Some(on_fire) = block.on_fire {
                 block
@@ -430,7 +440,7 @@ impl Model {
                     lifetime: &mut lifetime,
                 }
             );
-            let Some(pickup) = pickup else { continue };
+            let Some(pickup) = pickup else { continue; };
 
             pickup.lifetime.damage(delta_time);
 
