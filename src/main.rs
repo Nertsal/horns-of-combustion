@@ -34,7 +34,7 @@ fn main() {
     let opts: Opts = clap::Parser::parse();
 
     let geng = Geng::new_with(geng::ContextOptions {
-        title: "Anlaut Summer Game Jam".to_string(),
+        title: "Horns of Combustion".to_string(),
         window_size: Some(SCREEN_SIZE),
         ..geng::ContextOptions::from_args(&opts.geng)
     });
