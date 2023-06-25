@@ -1,13 +1,15 @@
 [package]
-name = "horns-of-combustion"
+name = "dynamic-linking"
 version = "0.1.0"
 edition = "2021"
+
+[lib]
+crate-type = ["dylib"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-# NOTE: make sure to update dependencies in `dynamic-linking/Cargo.toml`
-dynamic-linking = { path = "dynamic-linking", optional = true }
+# NOTE: should match the dependencies in `Cargo.toml`
 clap = { version = "4.3.2", features = ["derive"] }
 ecs = { git = "https://github.com/geng-engine/ecs", rev = "855ea601776f20b6988c2f9c26a4a4192f24a130" }
 geng = { git = "https://github.com/kuviman/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }

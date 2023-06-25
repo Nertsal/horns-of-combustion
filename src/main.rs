@@ -1,3 +1,7 @@
+#[cfg(feature = "dynamic-linking")]
+#[allow(unused_imports)]
+use dynamic_linking;
+
 mod assets;
 mod game;
 mod menu;
