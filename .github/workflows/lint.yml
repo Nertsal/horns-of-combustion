@@ -2,6 +2,10 @@ name: Lint
 on:
   push:
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   lint:
     name: Lint
