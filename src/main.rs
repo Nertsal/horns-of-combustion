@@ -1,3 +1,14 @@
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::wildcard_imports,
+    clippy::module_name_repetitions,
+    clippy::uninlined_format_args,
+    clippy::semicolon_if_nothing_returned,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation,
+    clippy::too_many_lines // TODO: remove
+)]
+
 #[cfg(feature = "dynamic-linking")]
 #[allow(unused_imports)]
 use dynamic_linking;
