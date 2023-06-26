@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![warn(clippy::todo)]
 #![allow(
     clippy::wildcard_imports,
     clippy::module_name_repetitions,
