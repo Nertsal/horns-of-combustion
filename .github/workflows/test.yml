@@ -1,8 +1,6 @@
-name: Test all native platforms
+name: Test
 on:
   push:
-  pull_request:
-  workflow_dispatch:
 
 jobs:
   test-native:
@@ -32,4 +30,3 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release

@@ -190,13 +190,13 @@ impl Model {
             } => {
                 let mut rng = thread_rng();
                 let amount = if intensity.as_f32() < 1.0 {
-                    if rng.gen_bool(intensity.as_f32().into()) {
-                        1
-                    } else {
-                        0
-                    }
+                    usize::from(rng.gen_bool(intensity.as_f32().into()))
                 } else {
-                    intensity.as_f32().max(0.0).ceil() as usize
+                    #[allow(clippy::cast_sign_loss)]
+                    // `.max(0.0)` makes sure the value is not negative
+                    {
+                        intensity.as_f32().ceil().max(0.0) as usize
+                    }
                 };
                 for _ in 0..amount {
                     let pos = rng.gen_circle(vec2::ZERO, position_radius);

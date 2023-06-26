@@ -39,11 +39,11 @@ impl Position {
         *self = self.shifted(direction, world_size);
     }
 
-    pub fn shifted(&self, direction: vec2<Coord>, world_size: vec2<Coord>) -> Self {
+    pub fn shifted(self, direction: vec2<Coord>, world_size: vec2<Coord>) -> Self {
         Self::from_world(self.to_world() + direction, world_size)
     }
 
-    pub fn direction(&self, towards: Self, world_size: vec2<Coord>) -> vec2<Coord> {
+    pub fn direction(self, towards: Self, world_size: vec2<Coord>) -> vec2<Coord> {
         let mut delta = towards.to_world() - self.to_world();
 
         // Normalize delta
@@ -59,8 +59,7 @@ impl Position {
         delta
     }
 
-    #[allow(dead_code)]
-    pub fn distance(&self, other: Self, world_size: vec2<Coord>) -> Coord {
+    pub fn distance(self, other: Self, world_size: vec2<Coord>) -> Coord {
         self.direction(other, world_size).len()
     }
 

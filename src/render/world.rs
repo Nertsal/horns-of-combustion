@@ -295,10 +295,10 @@ impl WorldRender {
             );
 
             let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
-            let xoff = circle_radius * (model.time * r32(10.0)).cos();
-            let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
+            let x_off = circle_radius * (model.time * r32(10.0)).cos();
+            let y_off = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
 
-            let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
+            let new_size = position.size() + vec2(x_off.as_f32(), y_off.as_f32());
             let mut position = Aabb2 {
                 min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
                 max: vec2(
@@ -326,8 +326,8 @@ impl WorldRender {
             // Draw player direction hint (DEV ONLY)
             let cursor_world_pos = model.camera.cursor_pos_world();
 
-            match actor.kind {
-                ActorKind::Player => self.geng.draw2d().draw2d(
+            if let ActorKind::Player = actor.kind {
+                self.geng.draw2d().draw2d(
                     framebuffer,
                     camera,
                     &draw2d::Segment::new(
@@ -349,8 +349,7 @@ impl WorldRender {
                         0.05,
                         Color::RED,
                     ),
-                ),
-                _ => {}
+                )
             }
 
             let blend_colour = Color::new(1.0, 1.0, 1.0, 1.0);
@@ -611,7 +610,7 @@ impl WorldRender {
                 fraction
             }
         ) {
-            if actor.health.ratio().as_f32() == 1.0 {
+            if actor.health.is_full() {
                 continue;
             }
 
@@ -637,7 +636,7 @@ impl WorldRender {
                 health: &health.Get.Some
             }
         ) {
-            if actor.health.ratio().as_f32() == 1.0 {
+            if actor.health.is_full() {
                 continue;
             }
 

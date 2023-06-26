@@ -153,8 +153,7 @@ impl geng::State for StartMenu {
             self.animation_frame += 1;
             self.next_frame = animation
                 .get(self.animation_frame)
-                .map(|(_, delay)| *delay)
-                .unwrap_or(0.0);
+                .map_or(0.0, |(_, delay)| *delay);
         }
 
         self.delta_time = Time::new(delta_time);

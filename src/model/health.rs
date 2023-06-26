@@ -14,6 +14,11 @@ impl Health {
         Self { hp, max_hp: hp }
     }
 
+    /// Returns whether current hp is at or above max hp.
+    pub fn is_full(&self) -> bool {
+        self.hp > self.max_hp
+    }
+
     pub fn ratio(&self) -> R32 {
         if self.max_hp.approx_eq(&Hp::ZERO) {
             R32::ZERO

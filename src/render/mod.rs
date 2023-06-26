@@ -201,7 +201,7 @@ pub fn pixel_perfect_aabb(
     // Transform to screen space
     let screen_size = crate::SCREEN_SIZE.as_f32();
     let pos = camera_world_to_screen(camera, screen_size, pos);
-    let pos = pos.map(|x| x.floor()) + size.as_f32().map(|x| (x / 2.0).fract());
+    let pos = pos.map(f32::floor) + size.as_f32().map(|x| (x / 2.0).fract());
     let screen_aabb = Aabb2::point(pos).extend_symmetric(size.as_f32() / 2.0);
     // Transform back to world
     screen_aabb.map_bounds(|pos| camera.screen_to_world(screen_size, pos))

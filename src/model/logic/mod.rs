@@ -221,7 +221,7 @@ impl Model {
     }
 
     fn update_camera(&mut self, delta_time: Time) {
-        let mut scale = 0.15;
+        let scale = 0.15;
 
         if let Some(player_pos) = self.get_player_pos() {
             // Zoom out if player is moving fast.
