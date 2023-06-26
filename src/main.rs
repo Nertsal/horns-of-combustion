@@ -13,7 +13,7 @@
 )]
 
 #[cfg(feature = "dynamic-linking")]
-#[allow(unused_imports)]
+#[allow(unused_imports, clippy::single_component_path_imports)]
 use dynamic_linking;
 
 mod assets;
