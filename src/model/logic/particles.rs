@@ -38,9 +38,7 @@ impl Model {
                     *particle.velocity =
                         vec2::UNIT_Y.rotate(t * amplitude) * particle.velocity.len();
                 }
-                ParticleKind::Damage => {}
-                ParticleKind::Heal => {}
-                ParticleKind::Projectile => {}
+                ParticleKind::Damage | ParticleKind::Heal | ParticleKind::Projectile => {}
             }
 
             // Move

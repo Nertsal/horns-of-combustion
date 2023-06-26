@@ -6,7 +6,9 @@
     clippy::semicolon_if_nothing_returned,
     clippy::cast_precision_loss,
     clippy::cast_possible_truncation,
-    clippy::too_many_lines // TODO: remove
+    clippy::too_many_lines, // TODO: remove
+    clippy::needless_pass_by_value,
+    clippy::items_after_statements // Used a lot for querying, maybe shouldn't?
 )]
 
 #[cfg(feature = "dynamic-linking")]

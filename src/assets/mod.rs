@@ -96,8 +96,8 @@ impl geng::asset::Load for Animation {
         let data = <Vec<u8> as geng::asset::Load>::load(manager, path);
         let manager = manager.clone();
         async move {
-            let data = data.await?;
             use image::AnimationDecoder;
+            let data = data.await?;
             Ok(Self {
                 frames: image::codecs::gif::GifDecoder::new(data.as_slice())
                     .unwrap()

@@ -28,9 +28,10 @@ impl Model {
             .first()
             .expect("No foreground objects found") // TODO: better
             .clone();
-        if !matches!(barrel.kind, BlockKind::Barrel) {
-            panic!("First block in level foreground config expected to be a barrel");
-        }
+        assert!(
+            !matches!(barrel.kind, BlockKind::Barrel),
+            "First block in level foreground config expected to be a barrel"
+        );
         let config = ProcGenConfig {
             spacing: self.level.foreground.spacing,
             blocks_number: amount,
