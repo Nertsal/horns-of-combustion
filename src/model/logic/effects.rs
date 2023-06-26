@@ -190,11 +190,7 @@ impl Model {
             } => {
                 let mut rng = thread_rng();
                 let amount = if intensity.as_f32() < 1.0 {
-                    if rng.gen_bool(intensity.as_f32().into()) {
-                        1
-                    } else {
-                        0
-                    }
+                    usize::from(rng.gen_bool(intensity.as_f32().into()))
                 } else {
                     intensity.as_f32().max(0.0).ceil() as usize
                 };

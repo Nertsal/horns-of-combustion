@@ -75,7 +75,7 @@ impl_vec2_float!(R64);
 
 impl<T: Float> Mat3RealConversions for mat3<T> {
     fn as_f32(&self) -> mat3<f32> {
-        self.map(|x| x.as_f32())
+        self.map(geng::prelude::Float::as_f32)
     }
     fn as_r32(&self) -> mat3<R32> {
         self.map(|x| r32(x.as_f32()))
