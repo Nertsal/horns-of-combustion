@@ -29,7 +29,7 @@ impl Model {
             .expect("No foreground objects found") // TODO: better
             .clone();
         assert!(
-            !matches!(barrel.kind, BlockKind::Barrel),
+            matches!(barrel.kind, BlockKind::Barrel),
             "First block in level foreground config expected to be a barrel"
         );
         let config = ProcGenConfig {
