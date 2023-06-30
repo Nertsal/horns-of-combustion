@@ -168,9 +168,12 @@ impl Model {
             self.actors.insert(Actor::new_enemy(
                 position,
                 EnemyConfig {
-                    shape: Shape::Rectangle {
-                        width: r32(8.0),
-                        height: r32(5.0),
+                    body: BodyConfig {
+                        shape: Shape::Rectangle {
+                            width: r32(8.0),
+                            height: r32(5.0),
+                        },
+                        mass: r32(1e6),
                     },
                     stats: Stats {
                         contact_damage: r32(50.0),
@@ -198,7 +201,10 @@ impl Model {
         self.actors.insert(Actor::new_enemy(
             Position::from_world(vec2(0.0, 0.0).as_r32(), self.config.world_size),
             EnemyConfig {
-                shape: Shape::Circle { radius: r32(5.0) },
+                body: BodyConfig {
+                    shape: Shape::Circle { radius: r32(5.0) },
+                    mass: r32(1e6),
+                },
                 stats: Stats {
                     contact_damage: r32(100.0),
                     move_speed: r32(0.0),

@@ -44,7 +44,7 @@ impl Projectile {
     ) -> Self {
         Self {
             fraction,
-            body: Body::new(pos, config.shape).with_velocity(direction.unit_vec() * config.speed),
+            body: Body::new(pos, config.body).with_velocity(direction.unit_vec() * config.speed),
             lifetime: Lifetime::new(config.lifetime),
             damage: config.damage,
             target_pos: None,

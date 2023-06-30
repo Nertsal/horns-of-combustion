@@ -150,8 +150,11 @@ impl Model {
                 self.pickups.insert(PickUp {
                     body: Body::new(
                         actor.body.collider.position,
-                        Shape::Circle {
-                            radius: config.size,
+                        BodyConfig {
+                            shape: Shape::Circle {
+                                radius: config.size,
+                            },
+                            mass: R32::ONE,
                         },
                     ),
                     kind: PickUpKind::Heal {

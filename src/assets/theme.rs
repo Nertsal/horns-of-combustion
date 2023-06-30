@@ -35,7 +35,7 @@ pub struct LevelTheme {
 
 impl Theme {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        file::load_detect(path).await
+        crate::util::load_file(path).await
     }
 
     pub fn get_palette(&self, names: &[String]) -> Vec<Color> {

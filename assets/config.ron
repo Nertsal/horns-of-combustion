@@ -37,7 +37,9 @@ Config(
         dash_burst: 30.0,
         hp: 200.0,
         human_state: HumanStateConfig(
-            shape: Circle( radius: 1.2 ),
+            body: BodyConfig(
+                shape: Circle( radius: 1.2 ),
+            ),
         ),
         barrel_state: BarrelStateConfig(
             steering: 1.0,
@@ -55,9 +57,11 @@ Config(
             runover_damage: 0.0,
             runover_damage_scale: 0.2,
             self_explosion_strength: 50.0,
-            shape: Rectangle(
-                width: 1.75,
-                height: 2.5,
+            body: BodyConfig(
+                shape: Rectangle(
+                    width: 1.75,
+                    height: 2.5,
+                ),
             ),
             gasoline: (
                 can_control: false,
@@ -93,7 +97,9 @@ Config(
                     speed: 50.0,
                     damage: 10.0,
                     knockback: 1.0,
-                    shape: Circle( radius: 0.2 ),
+                    body: BodyConfig(
+                        shape: Circle( radius: 0.2 ),
+                    ),
                 ),
             ),
         ),

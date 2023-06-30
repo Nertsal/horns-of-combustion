@@ -1,5 +1,7 @@
 (
-    shape: Circle( radius: 2.0 ),
+    body: BodyConfig(
+        shape: Circle( radius: 2.0 ),
+    ),
     stats: Stats(
         contact_damage: 10.0,
         move_speed: 20.0,
@@ -25,14 +27,18 @@
                 speed: 40.0,
                 damage: 30.0,
                 knockback: 5.0,
-                shape: Circle( radius: 0.2 ),
+                body: BodyConfig(
+                    shape: Circle( radius: 0.2 ),
+                ),
                 ai: CircleBomb (
                     explosive_type: (
                         lifetime: 5.0,
                         speed: 40.0,
                         damage: 5.0,
                         knockback: 1.0,
-                        shape: Circle( radius: 0.2 ),
+                        body: BodyConfig(
+                            shape: Circle( radius: 0.2 ),
+                        ),
                         ai: ConstantTurn ( degrees_per_second: 30.0 ),
                         kind: SmallOrb
                     ),

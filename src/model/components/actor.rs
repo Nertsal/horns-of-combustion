@@ -114,7 +114,7 @@ impl Actor {
 
     pub fn new_enemy(pos: Position, config: EnemyConfig) -> Self {
         let mut enemy = Self::new(
-            Body::new(pos, config.shape),
+            Body::new(pos, config.body),
             config.hp,
             config.acceleration,
             Fraction::Enemy,

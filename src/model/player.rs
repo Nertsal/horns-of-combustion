@@ -47,10 +47,7 @@ impl Player {
     ) -> Self {
         let actor = actors.insert(
             Actor::new(
-                Body::new(
-                    Position::zero(world_size),
-                    Shape::Circle { radius: r32(1.0) },
-                ),
+                Body::new(Position::zero(world_size), config.human_state.body),
                 config.hp,
                 config.acceleration,
                 Fraction::Player,

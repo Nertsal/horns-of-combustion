@@ -107,7 +107,10 @@ impl Model {
                                     lifetime: r32(5.0),
                                     speed: r32(25.0),
                                     damage: r32(15.0),
-                                    shape: Shape::Circle { radius: r32(0.2) },
+                                    body: BodyConfig {
+                                        shape: Shape::Circle { radius: r32(0.2) },
+                                        mass: R32::ONE,
+                                    },
                                     ai: ProjectileAI::ConstantTurn {
                                         degrees_per_second: r32(90.0),
                                     },

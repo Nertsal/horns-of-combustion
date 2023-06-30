@@ -50,6 +50,6 @@ pub struct WaveConfig {
 
 impl WavesConfig {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        file::load_detect(path).await
+        crate::util::load_file(path).await
     }
 }

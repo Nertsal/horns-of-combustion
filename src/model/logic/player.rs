@@ -10,8 +10,7 @@ impl Model {
 
     fn human_control(&mut self, _delta_time: Time) {
         struct PlayerRef<'a> {
-            rotation: &'a mut Angle<Coord>,
-            shape: &'a mut Shape,
+            body: BodyRefMut<'a>,
             controller: &'a mut Controller,
             stats: &'a Stats,
         }
@@ -20,8 +19,7 @@ impl Model {
             self.actors,
             self.player.actor,
             PlayerRef {
-                rotation: &mut body.collider.rotation,
-                shape: &mut body.collider.shape,
+                body: &mut body,
                 controller: &mut controller,
                 stats,
             }
@@ -29,10 +27,11 @@ impl Model {
         let Some(player) = player else { return };
 
         // Reset rotation
-        *player.rotation = Angle::ZERO;
+        *player.body.collider.rotation = Angle::ZERO;
 
-        // Update shape
-        *player.shape = self.config.player.human_state.shape;
+        // Update body shape and mass
+        *player.body.collider.shape = self.config.player.human_state.body.shape;
+        *player.body.mass = self.config.player.human_state.body.mass;
 
         // Controller
         player.controller.target_velocity = self.player.input.direction * player.stats.move_speed;
@@ -41,10 +40,7 @@ impl Model {
 
     fn barrel_control(&mut self, mut last_gas: Position, delta_time: Time) {
         struct PlayerRef<'a> {
-            velocity: &'a mut vec2<Coord>,
-            position: &'a Position,
-            rotation: &'a mut Angle<Coord>,
-            shape: &'a mut Shape,
+            body: BodyRefMut<'a>,
             controller: &'a mut Controller,
         }
 
@@ -52,17 +48,15 @@ impl Model {
             self.actors,
             self.player.actor,
             PlayerRef {
-                velocity: &mut body.velocity,
-                position: &body.collider.position,
-                rotation: &mut body.collider.rotation,
-                shape: &mut body.collider.shape,
+                body: &mut body,
                 controller: &mut controller,
             }
         );
         let Some(player) = player else { return };
 
-        // Update shape
-        *player.shape = self.config.player.barrel_state.shape;
+        // Update body shape and mass
+        *player.body.collider.shape = self.config.player.barrel_state.body.shape;
+        *player.body.mass = self.config.player.barrel_state.body.mass;
 
         // Controller
         // let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
@@ -70,25 +64,26 @@ impl Model {
         let delta_angle = if input_direction == vec2::ZERO {
             Coord::ZERO
         } else {
-            let current_angle = Angle::from_radians(player.velocity.arg());
+            let current_angle = Angle::from_radians(player.body.velocity.arg());
             let target_angle = Angle::from_radians(input_direction.arg());
             let delta_angle = current_angle.angle_to(target_angle).as_radians();
             let steering = self.config.player.barrel_state.steering;
             delta_angle.clamp_abs(steering * delta_time)
         };
         player.controller.target_velocity = player
+            .body
             .velocity
             .rotate(delta_angle)
             .clamp_len(..=self.config.player.barrel_state.speed);
         player.controller.acceleration = r32(100.0);
 
         // Look in the direction of travel
-        *player.rotation = Angle::from_radians(player.velocity.arg());
+        *player.body.collider.rotation = Angle::from_radians(player.body.velocity.arg());
 
         // Drip gasoline
         let config = &self.config.player.barrel_state.gasoline;
         if !config.can_control || self.player.input.drip_gas {
-            let pos = *player.position;
+            let pos = *player.body.collider.position;
             let last_delta = pos.delta_to(last_gas);
             let last_dir = last_delta.normalize_or_zero();
             let mut last_dist = last_delta.len();
@@ -111,7 +106,7 @@ impl Model {
                 });
             }
         } else {
-            last_gas = *player.position;
+            last_gas = *player.body.collider.position;
         }
 
         self.player.state = PlayerState::Barrel { last_gas };

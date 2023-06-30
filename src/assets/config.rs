@@ -85,7 +85,7 @@ pub struct PlayerConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HumanStateConfig {
-    pub shape: Shape,
+    pub body: BodyConfig,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -98,7 +98,7 @@ pub struct BarrelStateConfig {
     pub runover_damage: Hp,
     pub runover_damage_scale: Hp,
     pub self_explosion_strength: Coord,
-    pub shape: Shape,
+    pub body: BodyConfig,
     pub gasoline: GasolineConfig,
 }
 
@@ -152,7 +152,7 @@ pub struct ProjectileConfig {
     pub lifetime: Time,
     pub speed: Coord,
     pub damage: Hp,
-    pub shape: Shape,
+    pub body: BodyConfig,
     #[serde(default)]
     pub ai: ProjectileAI,
     #[serde(default)]
@@ -162,7 +162,7 @@ pub struct ProjectileConfig {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct EnemyConfig {
-    pub shape: Shape,
+    pub body: BodyConfig,
     pub stats: Stats,
     pub acceleration: Coord,
     pub hp: Hp,
@@ -173,9 +173,22 @@ pub struct EnemyConfig {
     pub stops_barrel: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct BodyConfig {
+    pub shape: Shape,
+    #[serde(default = "BodyConfig::default_mass")]
+    pub mass: R32,
+}
+
+impl BodyConfig {
+    fn default_mass() -> R32 {
+        R32::ONE
+    }
+}
+
 impl Config {
     pub async fn load(path: impl AsRef<std::path::Path>) -> anyhow::Result<Self> {
-        file::load_detect(path).await
+        crate::util::load_file(path).await
     }
 
     pub async fn load_enemies(
@@ -183,17 +196,13 @@ impl Config {
     ) -> anyhow::Result<HashMap<String, EnemyConfig>> {
         let path = path.as_ref();
         log::debug!("Loading folder {:?}", path);
-        let list_path = path.join("_list.ron");
-        let list: Vec<String> = file::load_detect(&list_path)
-            .await
-            .context(format!("when loading {:?}", list_path))?;
+
+        let list: Vec<String> = crate::util::load_file(&path.join("_list.ron")).await?;
 
         let mut enemies = HashMap::new();
         for name in list {
-            let path = path.join(&name).with_extension("ron");
-            let enemy: EnemyConfig = file::load_detect(&path)
-                .await
-                .context(format!("when loading {:?}", path))?;
+            let enemy: EnemyConfig =
+                crate::util::load_file(&path.join(&name).with_extension("ron")).await?;
             enemies.insert(name, enemy);
         }
         Ok(enemies)

@@ -242,7 +242,7 @@ pub fn run(geng: &Geng, opts: crate::Opts) -> impl geng::State {
             let manager = geng.asset_manager();
             let assets = Assets::load(manager).await.unwrap();
             let config = Config::load(&opts.config).await.unwrap();
-            let level: LevelConfig = file::load_detect(&opts.level).await.unwrap();
+            let level: LevelConfig = crate::util::load_file(&opts.level).await.unwrap();
             let enemies = Config::load_enemies(&opts.enemies).await.unwrap();
             let waves = WavesConfig::load(&opts.waves).await.unwrap();
             let theme = Theme::load(&opts.theme).await.unwrap();
