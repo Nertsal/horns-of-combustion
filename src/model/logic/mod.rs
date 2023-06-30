@@ -121,7 +121,10 @@ impl Model {
                 );
                 let gas_config = &self.config.player.barrel_state.gasoline;
                 self.gasoline.insert(Gasoline {
-                    collider: Collider::new(Position::ZERO, Shape::Circle { radius: r32(10.0) }),
+                    collider: Collider::new(
+                        Position::zero(self.config.world_size),
+                        Shape::Circle { radius: r32(10.0) },
+                    ),
                     lifetime: Lifetime::new(gas_config.lifetime),
                     ignite_timer: gas_config.ignite_timer,
                     fire_radius: r32(50.0),
@@ -130,7 +133,7 @@ impl Model {
                 });
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Explosion {
-                        position: Position::ZERO,
+                        position: Position::zero(self.config.world_size),
                         config: ExplosionConfig {
                             radius: r32(100.0),
                             knockback: r32(200.0),
@@ -230,10 +233,7 @@ impl Model {
             // camera.fov = TODO: interpolate fov to player speed.
 
             // Do not follow player if it is inside the bounds of the camera.
-            let direction = self
-                .camera
-                .center
-                .direction(player_pos, self.config.world_size);
+            let direction = self.camera.center.delta_to(player_pos);
             let distance = direction.len();
             if distance > self.camera.fov / r32(3.0) {
                 self.player.out_of_view = true;
@@ -254,25 +254,18 @@ impl Model {
 
         // Offset camera towards cursor position
         let cursor_pos_world = self.camera.cursor_pos_world();
-        self.camera.offset_center = self.camera.center.direction(
-            Position::from_world(cursor_pos_world, self.config.world_size),
-            self.config.world_size,
-        ) * r32(scale);
+        self.camera.offset_center = self.camera.center.delta_to(cursor_pos_world) * r32(scale);
 
         // Interpolate camera position to the target
         // Take min to not overshoot the target
         self.camera.center.shift(
-            (self
-                .camera
-                .center
-                .direction(self.camera.target_position, self.config.world_size))
+            (self.camera.center.delta_to(self.camera.target_position))
                 * (self.config.camera.speed * delta_time).min(Coord::ONE),
-            self.config.world_size,
         );
 
         // Screen shake
         self.screen_shake
-            .apply_to_camera(&mut self.camera, self.config.world_size, delta_time);
+            .apply_to_camera(&mut self.camera, delta_time);
         self.screen_shake.update(delta_time);
     }
 
@@ -450,9 +443,7 @@ impl Model {
             }
 
             if let Some(player_pos) = player_pos {
-                let delta = pickup
-                    .position
-                    .direction(player_pos, self.config.world_size);
+                let delta = pickup.position.delta_to(player_pos);
                 let dist = delta.len();
                 if dist <= config.attract_radius {
                     let dir = delta.normalize_or_zero();
@@ -494,7 +485,7 @@ impl Model {
 
     fn get_volume_from(&self, position: Position) -> R32 {
         let player_pos = self.get_player_pos().unwrap_or(self.camera.center);
-        let distance = position.distance(player_pos, self.config.world_size);
+        let distance = position.distance(player_pos);
         (Coord::ONE / (distance.max(Coord::ONE) / r32(20.0)).sqr()).min(Coord::ONE)
     }
 }

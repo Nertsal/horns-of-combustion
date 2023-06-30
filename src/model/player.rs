@@ -11,7 +11,7 @@ pub struct Player {
 
 #[derive(Debug)]
 pub struct PlayerInput {
-    pub aim_at: vec2<Coord>,
+    pub aim_at: Position,
     pub direction: vec2<Coord>,
     pub drip_gas: bool,
 }
@@ -23,11 +23,11 @@ pub enum PlayerState {
 }
 
 impl Player {
-    pub fn new(actor: Id) -> Self {
+    pub fn new(actor: Id, world_size: vec2<Coord>) -> Self {
         Self {
             actor,
             input: PlayerInput {
-                aim_at: vec2::ZERO,
+                aim_at: Position::zero(world_size),
                 direction: vec2::ZERO,
                 drip_gas: false,
             },
@@ -40,10 +40,17 @@ impl Player {
         }
     }
 
-    pub fn init(config: PlayerConfig, actors: &mut StructOf<Arena<Actor>>) -> Self {
+    pub fn init(
+        config: PlayerConfig,
+        world_size: vec2<Coord>,
+        actors: &mut StructOf<Arena<Actor>>,
+    ) -> Self {
         let actor = actors.insert(
             Actor::new(
-                Body::new(Position::ZERO, Shape::Circle { radius: r32(1.0) }),
+                Body::new(
+                    Position::zero(world_size),
+                    Shape::Circle { radius: r32(1.0) },
+                ),
                 config.hp,
                 config.acceleration,
                 Fraction::Player,
@@ -52,6 +59,6 @@ impl Player {
             )
             .with_gun(config.gun),
         );
-        Self::new(actor)
+        Self::new(actor, world_size)
     }
 }

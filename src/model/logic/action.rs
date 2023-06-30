@@ -26,7 +26,7 @@ impl Model {
                         let pos = *player.position;
                         player.gun.shot_delay = player.gun.config.shot_delay;
                         let config = player.gun.config.shot.clone();
-                        let dir = pos.direction(target_pos, self.config.world_size);
+                        let dir = pos.delta_to(target_pos);
                         *player.velocity -= dir.normalize_or_zero() * player.gun.config.recoil;
                         self.shoot(pos, target_pos, Fraction::Player, config);
                     }

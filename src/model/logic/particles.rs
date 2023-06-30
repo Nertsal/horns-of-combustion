@@ -42,9 +42,7 @@ impl Model {
             }
 
             // Move
-            particle
-                .position
-                .shift(*particle.velocity * delta_time, self.config.world_size);
+            particle.position.shift(*particle.velocity * delta_time);
         }
 
         for id in to_remove {

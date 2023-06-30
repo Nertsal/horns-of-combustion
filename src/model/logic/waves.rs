@@ -32,10 +32,7 @@ impl Model {
                 .unwrap_or_else(|| panic!("Enemy {:?} not found", enemy_name))
                 .clone();
             let pos = rng.gen_circle(vec2::ZERO, self.wave_manager.config.spawn_circle_radius);
-            let pos = self
-                .wave_manager
-                .spawn_point
-                .shifted(pos, self.config.world_size);
+            let pos = self.wave_manager.spawn_point.shifted(pos);
             let _enemy = self.actors.insert(Actor::new_enemy(pos, enemy_config));
             // self.wave_manager.current_enemies.push(enemy);
             self.wave_manager.spawn_delay = self.wave_manager.current_wave.spawn_delay;
@@ -127,8 +124,7 @@ impl Model {
         let config = &self.wave_manager.config;
         let angle = Angle::from_degrees(r32(rng.gen_range(0.0..=360.0)));
         let distance = rng.gen_range(config.min_spawn_distance..=config.max_spawn_distance);
-        self.wave_manager.spawn_point =
-            player_pos.shifted(angle.unit_vec() * distance, self.config.world_size);
+        self.wave_manager.spawn_point = player_pos.shifted(angle.unit_vec() * distance);
 
         self.wave_manager.current_wave = wave;
         self.wave_manager.wave_number += 1;
@@ -140,7 +136,7 @@ impl Model {
         // Explode
         self.queued_effects.push_back(QueuedEffect {
             effect: Effect::Explosion {
-                position: Position::ZERO,
+                position: Position::zero(self.config.world_size),
                 config: ExplosionConfig {
                     radius: r32(50.0),
                     knockback: r32(100.0),
@@ -157,11 +153,7 @@ impl Model {
             .collider
             .position
             .iter()
-            .filter(|(_, pos)| {
-                pos.distance(Position::ZERO, self.config.world_size)
-                    .as_f32()
-                    <= 50.0
-            })
+            .filter(|(_, pos)| pos.as_dir().len().as_f32() <= 50.0)
             .map(|(id, _)| id)
             .collect();
         for id in to_remove {

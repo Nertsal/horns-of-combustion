@@ -8,8 +8,7 @@ impl Model {
         fraction: Fraction,
         config: ShotConfig,
     ) {
-        let aim_angle =
-            Angle::from_radians((position.direction(aimed_towards, self.config.world_size)).arg());
+        let aim_angle = Angle::from_radians((position.delta_to(aimed_towards)).arg());
 
         let mut shoot_at = |angle: Angle<R32>| {
             self.projectiles.insert(Projectile::new(

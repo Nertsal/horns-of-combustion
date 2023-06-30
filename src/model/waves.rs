@@ -17,7 +17,7 @@ pub struct WaveManager {
 }
 
 impl WaveManager {
-    pub fn new(config: WavesConfig) -> Self {
+    pub fn new(config: WavesConfig, world_size: vec2<Coord>) -> Self {
         Self {
             difficulty: R32::ZERO,
             wave_number: 0,
@@ -32,7 +32,7 @@ impl WaveManager {
                 enemies: VecDeque::new(),
             },
             config,
-            spawn_point: Position::ZERO,
+            spawn_point: Position::zero(world_size),
         }
     }
 }

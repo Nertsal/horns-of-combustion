@@ -62,7 +62,7 @@ fn generate_blocks(
             .collider
             .position
             .iter()
-            .any(|(_, pos)| pos.distance(position, world_size) < config.spacing)
+            .any(|(_, pos)| pos.distance(position) < config.spacing)
         {
             // Too close to another block
             continue;

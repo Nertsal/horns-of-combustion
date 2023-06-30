@@ -44,7 +44,7 @@ impl Model {
 
             if let Some(target_pos) = *proj.target_pos {
                 // Target position is specified, so the projectile should stop at the target
-                let target_dir = proj.position.direction(target_pos, self.config.world_size);
+                let target_dir = proj.position.delta_to(target_pos);
                 if vec2::dot(target_dir, *proj.velocity) < Coord::ZERO {
                     // The projectile is travelling away from the target
                     grounded_projs.push(proj_id);
@@ -97,11 +97,7 @@ impl Model {
         for proj_id in grounded_projs {
             let proj = self.projectiles.remove(proj_id).unwrap();
             for (gas_id, (gas_collider,)) in query!(self.gasoline, (&collider)) {
-                if proj
-                    .body
-                    .collider
-                    .check(&gas_collider.clone(), self.config.world_size)
-                {
+                if proj.body.collider.check(&gas_collider.clone()) {
                     // Ignite gasoline
                     ignite.push(gas_id);
                 }

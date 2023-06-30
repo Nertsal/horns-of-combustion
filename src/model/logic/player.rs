@@ -89,12 +89,11 @@ impl Model {
         let config = &self.config.player.barrel_state.gasoline;
         if !config.can_control || self.player.input.drip_gas {
             let pos = *player.position;
-            let last_delta = pos.direction(last_gas, self.config.world_size);
+            let last_delta = pos.delta_to(last_gas);
             let last_dir = last_delta.normalize_or_zero();
             let mut last_dist = last_delta.len();
             while last_dist >= config.distance_period {
-                let position =
-                    last_gas.shifted(-last_dir * config.distance_period, self.config.world_size);
+                let position = last_gas.shifted(-last_dir * config.distance_period);
                 last_gas = position;
                 last_dist -= config.distance_period;
 

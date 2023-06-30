@@ -42,7 +42,7 @@ impl Model {
 
             let mut picked_up: Vec<Id> = Vec::new();
             for (pickup_id, (collider,)) in query!(self.pickups, (&body.collider)) {
-                if player_collider.check(&collider.clone(), self.config.world_size) {
+                if player_collider.check(&collider.clone()) {
                     picked_up.push(pickup_id);
                 }
             }
@@ -113,9 +113,7 @@ impl Model {
             if actor_id == self.player.actor {
                 continue;
             }
-            if let Some(collision) =
-                player_collider.collide(&actor.collider.clone(), self.config.world_size)
-            {
+            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
                 let mut player_cor =
                     corrections
                         .get(&self.player.actor)
@@ -144,12 +142,10 @@ impl Model {
                 player_cor.position.shift(
                     -collision.normal * collision.penetration * coef_player
                         / (coef_player + coef_actor),
-                    self.config.world_size,
                 );
                 actor_cor.position.shift(
                     collision.normal * collision.penetration * coef_actor
                         / (coef_player + coef_actor),
-                    self.config.world_size,
                 );
 
                 // Apply impulses
@@ -247,9 +243,7 @@ impl Model {
             if actor_id == self.player.actor {
                 continue;
             }
-            if let Some(collision) =
-                player_collider.collide(&actor.collider.clone(), self.config.world_size)
-            {
+            if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
                 let mut player_cor =
                     corrections
                         .get(&self.player.actor)
@@ -381,17 +375,13 @@ impl Model {
                 actor_collider.position = actor_cor.position;
                 other_collider.position = other_cor.position;
 
-                if let Some(collision) =
-                    actor_collider.collide(&other.collider.clone(), self.config.world_size)
-                {
-                    actor_cor.position.shift(
-                        -collision.normal * collision.penetration / r32(2.0),
-                        self.config.world_size,
-                    );
-                    other_cor.position.shift(
-                        collision.normal * collision.penetration / r32(2.0),
-                        self.config.world_size,
-                    );
+                if let Some(collision) = actor_collider.collide(&other.collider.clone()) {
+                    actor_cor
+                        .position
+                        .shift(-collision.normal * collision.penetration / r32(2.0));
+                    other_cor
+                        .position
+                        .shift(collision.normal * collision.penetration / r32(2.0));
 
                     corrections.insert(other_id, other_cor);
                 }
@@ -462,11 +452,7 @@ impl Model {
                 if proj.fraction == actor.fraction {
                     continue;
                 }
-                if proj
-                    .collider
-                    .clone()
-                    .check(&actor.collider.clone(), self.config.world_size)
-                {
+                if proj.collider.clone().check(&actor.collider.clone()) {
                     proj_hits.push(proj_id);
                     actor
                         .health
@@ -534,15 +520,11 @@ impl Model {
                 );
                 let Some(block) = block else { continue };
 
-                if let Some(collision) = actor
-                    .collider
-                    .clone()
-                    .collide(&block.collider.clone(), self.config.world_size)
-                {
-                    actor.collider.position.shift(
-                        -collision.normal * collision.penetration,
-                        self.config.world_size,
-                    );
+                if let Some(collision) = actor.collider.clone().collide(&block.collider.clone()) {
+                    actor
+                        .collider
+                        .position
+                        .shift(-collision.normal * collision.penetration);
 
                     let dot = vec2::dot(collision.normal, *actor.velocity);
                     let bounciness = r32(0.5);
@@ -582,11 +564,7 @@ impl Model {
                 );
                 let Some(block) = block else { continue };
 
-                if proj
-                    .collider
-                    .clone()
-                    .check(&block.collider.clone(), self.config.world_size)
-                {
+                if proj.collider.clone().check(&block.collider.clone()) {
                     hit_projs.push(proj_id);
                     if let Some(health) = block.health {
                         health.damage(*proj.damage * block.vulnerability.physical);
@@ -633,11 +611,7 @@ impl Model {
                     collider: &body.collider
                 }
             ) {
-                if proj
-                    .collider
-                    .clone()
-                    .check(&gas.collider.clone(), self.config.world_size)
-                {
+                if proj.collider.clone().check(&gas.collider.clone()) {
                     gas_ignited.push(gas_id);
                     break;
                 }
@@ -672,11 +646,7 @@ impl Model {
             let Some(gas) = gas else { continue };
 
             for (_, fire) in query!(self.fire, FireRef { collider }) {
-                if fire
-                    .collider
-                    .clone()
-                    .check(&gas.collider.clone(), self.config.world_size)
-                {
+                if fire.collider.clone().check(&gas.collider.clone()) {
                     *gas.ignite_timer -= delta_time;
                     if *gas.ignite_timer <= Time::ZERO {
                         to_ignite.push(gas_id);
@@ -718,11 +688,7 @@ impl Model {
             let Some(actor) = actor else { continue };
 
             for (_, fire) in query!(self.fire, FireRef { collider, config }) {
-                if actor
-                    .collider
-                    .clone()
-                    .check(&fire.collider.clone(), self.config.world_size)
-                {
+                if actor.collider.clone().check(&fire.collider.clone()) {
                     if actor.stats.vulnerability.fire > R32::ZERO {
                         *actor.on_fire = Some(update_on_fire(
                             actor.on_fire.clone(),

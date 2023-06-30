@@ -10,8 +10,7 @@ impl Model {
 
         let process = |body: Option<MoveRef<'_>>| {
             if let Some(body) = body {
-                body.position
-                    .shift(*body.velocity * delta_time, self.config.world_size);
+                body.position.shift(*body.velocity * delta_time);
             }
         };
 

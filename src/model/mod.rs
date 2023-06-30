@@ -72,8 +72,8 @@ impl Model {
             time: Time::ZERO,
             time_alive: Time::ZERO,
             screen_shake: ScreenShake::new(),
-            camera: Camera::new(config.camera.fov),
-            player: Player::init(config.player.clone(), &mut actors),
+            camera: Camera::new(config.camera.fov, config.world_size),
+            player: Player::init(config.player.clone(), config.world_size, &mut actors),
             actors,
             blocks: StructOf::new(),
             background_blocks: StructOf::new(),
@@ -83,7 +83,7 @@ impl Model {
             explosions: StructOf::new(),
             particles: StructOf::new(),
             pickups: StructOf::new(),
-            wave_manager: WaveManager::new(waves.clone()),
+            wave_manager: WaveManager::new(waves.clone(), config.world_size),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),
             game_events: Vec::new(),
@@ -102,7 +102,11 @@ impl Model {
 
     /// Revive the player.
     pub fn revive(&mut self) {
-        self.player = Player::init(self.config.player.clone(), &mut self.actors);
+        self.player = Player::init(
+            self.config.player.clone(),
+            self.config.world_size,
+            &mut self.actors,
+        );
     }
 
     /// Restart the whole game.

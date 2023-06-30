@@ -32,7 +32,7 @@ impl WorldRender {
         // Draw a circle at the center of the world.
         let pos = model
             .camera
-            .project_f32(Position::ZERO, model.config.world_size);
+            .project_f32(Position::zero(model.config.world_size));
         self.util.draw_shape(
             Shape::Circle { radius: r32(10.0) },
             mat3::translate(pos),
@@ -62,13 +62,7 @@ impl WorldRender {
         let camera = &model.camera;
         let color = self.theme.gasoline;
         for (_, (collider,)) in query!(model.gasoline, (&collider)) {
-            self.draw_collider(
-                &collider.clone(),
-                color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+            self.draw_collider(&collider.clone(), color, camera, framebuffer);
         }
     }
 
@@ -119,7 +113,6 @@ impl WorldRender {
                             },
                             outline_color,
                             camera,
-                            model.config.world_size,
                             framebuffer,
                         );
                     }
@@ -127,18 +120,12 @@ impl WorldRender {
                     // Fill
                     let mut color = *block.color;
                     color.a *= alpha;
-                    self.draw_collider(
-                        &collider,
-                        color,
-                        camera,
-                        model.config.world_size,
-                        framebuffer,
-                    );
+                    self.draw_collider(&collider, color, camera, framebuffer);
                 }
                 BlockKind::Barrel => {
                     let sprite = &self.assets.sprites.barrel;
 
-                    let pos = camera.project_f32(*block.collider.position, model.config.world_size);
+                    let pos = camera.project_f32(*block.collider.position);
                     let position = super::pixel_perfect_aabb(pos, sprite.size(), camera);
 
                     self.geng.draw2d().draw2d_transformed(
@@ -169,7 +156,6 @@ impl WorldRender {
                 &fire.collider.clone(),
                 color,
                 camera,
-                model.config.world_size,
                 mat3::scale_uniform(scale),
                 framebuffer,
             );
@@ -194,7 +180,7 @@ impl WorldRender {
                 framebuffer,
                 camera,
                 &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.5, radius, color),
-                mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
+                mat3::translate(camera.project_f32(*expl.position)),
             );
         }
 
@@ -213,7 +199,7 @@ impl WorldRender {
                 framebuffer,
                 camera,
                 &draw2d::Ellipse::circle(
-                    camera.project_f32(*player_position, model.config.world_size),
+                    camera.project_f32(*player_position),
                     radius,
                     Color::BLACK,
                 ),
@@ -249,28 +235,28 @@ impl WorldRender {
                 ActorKind::EnemyHuge => &self.assets.sprites.enemy_huge,
                 ActorKind::BossFoot { leg_offset } => {
                     // Leg
-                    let delta = actor.collider.position.direction(
-                        Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size),
+                    let delta = actor.collider.position.delta_to(Position::from_world(
+                        vec2(0.0, -5.0).as_r32(),
                         model.config.world_size,
-                    );
+                    ));
                     let dir = delta.normalize_or_zero();
                     let mut angle = dir.arg().as_f32() / 3.0;
                     let position = *leg_offset;
                     let position = Position::from_world(position, model.config.world_size);
                     let sprite = &self.assets.sprites.boss_leg;
                     let mut position = super::pixel_perfect_aabb(
-                        camera.project_f32(position, model.config.world_size),
+                        camera.project_f32(position),
                         sprite.size(),
                         camera,
                     );
                     let dir =
-                        Position::ZERO.direction(*actor.collider.position, model.config.world_size);
+                        Position::zero(model.config.world_size).delta_to(*actor.collider.position);
                     mirror = dir.x > Coord::ZERO;
                     if mirror {
                         std::mem::swap(&mut position.min.x, &mut position.max.x);
                         let dir =
                             Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size)
-                                .direction(*actor.collider.position, model.config.world_size)
+                                .delta_to(*actor.collider.position)
                                 .normalize_or_zero();
                         angle = dir.arg().as_f32() / 3.0;
                     }
@@ -289,7 +275,7 @@ impl WorldRender {
             // let position = Aabb2::point(actor.collider.position.as_f32())
             //     .extend_symmetric(sprite_size / 2.0);
             let position = super::pixel_perfect_aabb(
-                camera.project_f32(*actor.collider.position, model.config.world_size),
+                camera.project_f32(*actor.collider.position),
                 sprite.size(),
                 camera,
             );
@@ -319,14 +305,13 @@ impl WorldRender {
             //     &actor.collider.clone(),
             //     color,
             //     camera,
-            //     model.config.world_size,
             //     framebuffer,
             // );
 
             // Draw player direction hint (DEV ONLY)
-            let cursor_world_pos = model.camera.cursor_pos_world();
-
+            #[cfg(debug_assertions)]
             if let ActorKind::Player = actor.kind {
+                let cursor_world_pos = model.camera.cursor_pos_world();
                 self.geng.draw2d().draw2d(
                     framebuffer,
                     camera,
@@ -338,10 +323,7 @@ impl WorldRender {
                                     position.center().as_r32(),
                                     model.config.world_size,
                                 )
-                                .direction(
-                                    Position::from_world(cursor_world_pos, model.config.world_size),
-                                    model.config.world_size,
-                                )
+                                .delta_to(cursor_world_pos)
                                 .as_f32()
                                 .normalize()
                                     * 20.0,
@@ -366,7 +348,7 @@ impl WorldRender {
             if let ActorKind::BossBody = actor.kind {
                 let eye_sprite = &self.assets.sprites.boss_eye;
                 let position = super::pixel_perfect_aabb(
-                    camera.project_f32(*actor.collider.position, model.config.world_size),
+                    camera.project_f32(*actor.collider.position),
                     eye_sprite.size(),
                     camera,
                 );
@@ -407,7 +389,7 @@ impl WorldRender {
             };
 
             let position = super::pixel_perfect_aabb(
-                camera.project_f32(*proj.collider.position, model.config.world_size),
+                camera.project_f32(*proj.collider.position),
                 sprite.size(),
                 camera,
             );
@@ -458,7 +440,7 @@ impl WorldRender {
             let alpha = particle.lifetime.ratio().as_f32();
             color.a *= alpha;
 
-            let pos = camera.project_f32(*particle.position, model.config.world_size);
+            let pos = camera.project_f32(*particle.position);
             self.util.draw_shape(
                 Shape::Circle {
                     radius: *particle.size,
@@ -491,13 +473,7 @@ impl WorldRender {
                 PickUpKind::Heal { .. } => self.theme.pickups.heal,
             };
             color.a *= (2.0 * pickup.lifetime.ratio().as_f32()).clamp(0.0, 1.0);
-            self.draw_collider(
-                &pickup.collider.clone(),
-                color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+            self.draw_collider(&pickup.collider.clone(), color, camera, framebuffer);
         }
     }
 
@@ -506,17 +482,9 @@ impl WorldRender {
         collider: &Collider,
         color: Color,
         camera: &Camera,
-        world_size: vec2<Coord>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        self.draw_collider_transformed(
-            collider,
-            color,
-            camera,
-            world_size,
-            mat3::identity(),
-            framebuffer,
-        )
+        self.draw_collider_transformed(collider, color, camera, mat3::identity(), framebuffer)
     }
 
     fn draw_collider_transformed(
@@ -524,11 +492,10 @@ impl WorldRender {
         collider: &Collider,
         color: Color,
         camera: &Camera,
-        world_size: vec2<Coord>,
         transform: mat3<f32>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        let transform = collider.transform_mat(camera, world_size).as_f32() * transform;
+        let transform = collider.transform_mat(camera).as_f32() * transform;
         self.util.draw_shape(
             collider.shape,
             transform.as_f32(),
@@ -546,10 +513,7 @@ impl WorldRender {
         ) / 2.0;
 
         for (_id, (&position,)) in query!(model.actors, (&body.collider.position)) {
-            let delta = camera
-                .center
-                .direction(position, model.config.world_size)
-                .as_f32();
+            let delta = camera.center.delta_to(position).as_f32();
             if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
                 // In view
                 continue;
@@ -616,7 +580,7 @@ impl WorldRender {
 
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
-            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            let pos = camera.project_f32(*actor.collider.position);
             let color = match actor.fraction {
                 Fraction::Player => self.theme.health_fg_player,
                 Fraction::Enemy => self.theme.health_fg_enemy,
@@ -642,7 +606,7 @@ impl WorldRender {
 
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
-            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            let pos = camera.project_f32(*actor.collider.position);
             self.draw_health_arc(
                 pos,
                 radius,

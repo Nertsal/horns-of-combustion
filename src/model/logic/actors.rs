@@ -43,9 +43,7 @@ impl Model {
                 continue;
             }
 
-            let player_dir = actor
-                .position
-                .direction(player.body.collider.position, self.config.world_size);
+            let player_dir = actor.position.delta_to(player.body.collider.position);
             // let player_dist = player_dir.len();
             let player_dir = player_dir.normalize_or_zero();
 
@@ -58,11 +56,8 @@ impl Model {
                         .body
                         .collider
                         .position
-                        .shifted(-player_dir * *preferred_distance, self.config.world_size);
-                    let target_dir = actor
-                        .position
-                        .direction(target, self.config.world_size)
-                        .normalize_or_zero();
+                        .shifted(-player_dir * *preferred_distance);
+                    let target_dir = actor.position.delta_to(target).normalize_or_zero();
                     actor.controller.target_velocity = target_dir * actor.stats.move_speed;
 
                     if let ActorKind::EnemyDeathStar = actor.kind {
@@ -75,7 +70,7 @@ impl Model {
                         if gun.shot_delay <= Time::ZERO {
                             gun.shot_delay = gun.config.shot_delay;
                             let target_pos = player.body.collider.position;
-                            let dir = actor.position.direction(target_pos, self.config.world_size);
+                            let dir = actor.position.delta_to(target_pos);
                             *actor.velocity -= dir.normalize_or_zero() * gun.config.recoil;
                             shots.push((
                                 *actor.position,
@@ -89,15 +84,11 @@ impl Model {
                 ActorAI::BossFoot { position } => {
                     *actor.velocity = vec2::ZERO;
 
-                    let sign = Position::ZERO
-                        .direction(*position, self.config.world_size)
-                        .x
-                        .signum();
+                    let sign = position.as_dir().x.signum();
                     let rotation = r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2) * sign;
                     let point = vec2(-7.0 * -sign.as_f32(), -3.0).as_r32();
 
-                    *actor.position =
-                        position.shifted(point.rotate(rotation), self.config.world_size);
+                    *actor.position = position.shifted(point.rotate(rotation));
                     // *actor.position = Position::from_world(point, self.config.world_size);
                     *actor.rotation = Angle::from_radians(rotation);
 

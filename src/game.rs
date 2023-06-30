@@ -99,8 +99,7 @@ impl Game {
         player.input.direction = player_direction.normalize_or_zero().as_r32();
 
         // Aim
-        let aim_position = self.model.camera.cursor_pos_world();
-        player.input.aim_at = aim_position.as_r32();
+        player.input.aim_at = self.model.camera.cursor_pos_world();
 
         // Drip gasoline
         player.input.drip_gas = is_key_pressed(window, &self.controls.gas);
@@ -161,10 +160,8 @@ impl geng::State for Game {
 
         let window = self.geng.window();
         if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
-            let world_pos = self.model.camera.cursor_pos_world();
-            self.model.player_action(PlayerAction::Shoot {
-                target_pos: Position::from_world(world_pos.as_r32(), self.model.config.world_size),
-            });
+            let target_pos = self.model.camera.cursor_pos_world();
+            self.model.player_action(PlayerAction::Shoot { target_pos });
         }
 
         for event in self.model.update(delta_time) {

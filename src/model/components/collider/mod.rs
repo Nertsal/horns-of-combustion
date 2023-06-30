@@ -28,8 +28,8 @@ impl Collider {
         }
     }
 
-    pub fn transform_mat(&self, camera: &Camera, world_size: vec2<Coord>) -> mat3<Coord> {
-        let position = camera.project(self.position, world_size);
+    pub fn transform_mat(&self, camera: &Camera) -> mat3<Coord> {
+        let position = camera.project(self.position);
         let rotation = self.rotation.as_radians();
         mat3::translate(position) * mat3::rotate(rotation)
     }
@@ -58,8 +58,8 @@ impl Collider {
     }
 
     /// Check whether two colliders are intersecting.
-    pub fn check(&self, other: &Self, world_size: vec2<Coord>) -> bool {
-        let delta = self.position.direction(other.position, world_size).as_f32();
+    pub fn check(&self, other: &Self) -> bool {
+        let delta = self.position.delta_to(other.position).as_f32();
 
         let self_angle = self.rotation.as_radians().as_f32();
         let self_iso = parry2d::math::Isometry::rotation(self_angle);
@@ -75,8 +75,8 @@ impl Collider {
     }
 
     /// Return the collision info if the two colliders are intersecting.
-    pub fn collide(&self, other: &Self, world_size: vec2<Coord>) -> Option<Collision> {
-        let delta = self.position.direction(other.position, world_size).as_f32();
+    pub fn collide(&self, other: &Self) -> Option<Collision> {
+        let delta = self.position.delta_to(other.position).as_f32();
 
         let self_angle = self.rotation.as_radians().as_f32();
         let self_iso = parry2d::math::Isometry::rotation(self_angle);
@@ -100,7 +100,10 @@ impl Collider {
             let normal = contact.normal1.into_inner();
             let point = contact.point1;
             Collision {
-                point: Position::from_world(vec2(point.x, point.y).map(Coord::new), world_size),
+                point: Position::from_world(
+                    vec2(point.x, point.y).map(Coord::new),
+                    self.position.world_size(),
+                ),
                 normal: vec2(normal.x, normal.y).map(Coord::new),
                 penetration: Coord::new(-contact.dist),
             }

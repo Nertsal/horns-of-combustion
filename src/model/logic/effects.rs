@@ -21,13 +21,13 @@ impl Model {
                 });
 
                 let check = |body_position: Position| -> bool {
-                    let delta = position.direction(body_position, self.config.world_size);
+                    let delta = position.delta_to(body_position);
                     let dist = delta.len();
                     dist <= config.radius
                 };
 
                 let apply_velocity = |body_position: Position| -> vec2<Coord> {
-                    let delta = position.direction(body_position, self.config.world_size);
+                    let delta = position.delta_to(body_position);
                     let dist = delta.len();
                     let t = (Coord::ONE
                         - ((dist - Coord::ONE).max(Coord::ZERO) / config.radius).sqrt())
@@ -38,7 +38,7 @@ impl Model {
                 };
 
                 let calculate_damage = |body_position: Position, vulnerability: R32| -> Hp {
-                    let delta = position.direction(body_position, self.config.world_size);
+                    let delta = position.delta_to(body_position);
                     let dist = delta.len();
                     let t = (Coord::ONE
                         - ((dist - Coord::ONE).max(Coord::ZERO) / config.radius).sqrt())
@@ -89,10 +89,7 @@ impl Model {
 
                     // Screen shake
                     let player_position = self.get_player_pos().unwrap_or(self.camera.center);
-                    let player_dist = player_position
-                        .direction(position, self.config.world_size)
-                        .len()
-                        .max(r32(0.1));
+                    let player_dist = player_position.distance(position).max(r32(0.1));
                     let amplitude = (r32(30.0) / player_dist).clamp_range(r32(0.0)..=r32(30.0));
                     self.queued_effects.push_back(QueuedEffect {
                         effect: Effect::ScreenShake(ScreenShake {
@@ -200,7 +197,7 @@ impl Model {
                 };
                 for _ in 0..amount {
                     let pos = rng.gen_circle(vec2::ZERO, position_radius);
-                    let pos = position.shifted(pos, self.config.world_size);
+                    let pos = position.shifted(pos);
                     self.particles.insert(Particle {
                         position: pos,
                         size,
