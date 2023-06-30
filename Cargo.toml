@@ -9,8 +9,8 @@ edition = "2021"
 # NOTE: make sure to update dependencies in `dynamic-linking/Cargo.toml`
 dynamic-linking = { path = "dynamic-linking", optional = true }
 clap = { version = "4.3.2", features = ["derive"] }
-ecs = { git = "https://github.com/geng-engine/ecs", rev = "855ea601776f20b6988c2f9c26a4a4192f24a130" }
-geng = { git = "https://github.com/kuviman/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }
+ecs = { git = "https://github.com/geng-engine/ecs" }
+geng = { git = "https://github.com/geng-engine/geng", rev = "37d3a3040f39d170b1e6cce854de4e9288ec9bd2" }
 image = "0.24.6"
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
