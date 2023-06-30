@@ -6,7 +6,7 @@ use crate::{
     util::{Mat3RealConversions, Vec2RealConversions},
 };
 
-use ecs::{arena::Arena, prelude::*};
+use ecs::{prelude::*, storage::arena::Arena};
 use geng::prelude::*;
 
 pub struct WorldRender {

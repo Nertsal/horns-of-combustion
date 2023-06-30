@@ -74,7 +74,7 @@ pub struct Actor {
     #[split(nested)]
     pub body: Body,
     pub health: Health,
-    // #[structof(nested)] // TODO: optional nesting
+    // #[split(nested)] // TODO: optional nesting
     pub gun: Option<Gun>,
     pub stats: Stats,
     pub controller: Controller,

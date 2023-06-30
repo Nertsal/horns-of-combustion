@@ -24,13 +24,13 @@ use crate::{
 
 use std::collections::VecDeque;
 
-use ecs::{arena::Arena, prelude::*};
+use ecs::{prelude::*, storage::arena::Arena};
 use geng::prelude::*;
 
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
-pub type Id = ecs::arena::Index;
+pub type Id = ecs::storage::arena::Index;
 pub type Lifetime = Health;
 
 pub struct Model {
