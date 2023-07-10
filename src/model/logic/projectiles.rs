@@ -40,7 +40,7 @@ impl Model {
             }
 
             // Update rotation
-            *proj.rotation = Angle::from_radians(proj.velocity.arg());
+            *proj.rotation = proj.velocity.arg();
 
             if let Some(target_pos) = *proj.target_pos {
                 // Target position is specified, so the projectile should stop at the target
@@ -56,7 +56,7 @@ impl Model {
                 ProjectileAI::ConstantTurn { degrees_per_second } => {
                     // Change velocity direction by a constant angle
                     let angle = Angle::from_degrees(*degrees_per_second * delta_time);
-                    *proj.velocity = proj.velocity.rotate(angle.as_radians());
+                    *proj.velocity = proj.velocity.rotate(angle);
                 }
                 ProjectileAI::CircleBomb {
                     explosive_type,

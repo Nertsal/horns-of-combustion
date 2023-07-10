@@ -19,13 +19,10 @@ pub use self::{
 use crate::{
     assets::{config::*, theme::Theme, waves::*},
     game::{GameEvent, Sound},
-    util::{RealConversions, Vec2RealConversions},
+    prelude::*,
 };
 
 use std::collections::VecDeque;
-
-use ecs::{prelude::*, storage::arena::Arena};
-use geng::prelude::*;
 
 pub type Color = Rgba<f32>;
 pub type Time = R32;

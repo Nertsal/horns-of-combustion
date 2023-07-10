@@ -6,11 +6,9 @@ use crate::{
         Assets,
     },
     model::{Model, Time},
+    prelude::*,
     render::GameRender,
-    util::Vec2RealConversions,
 };
-
-use geng::prelude::*;
 
 const BUTTON_SIZE: vec2<f32> = vec2(5.0, 2.0);
 const BUTTON_COLOR: Rgba<f32> = Rgba {
@@ -65,7 +63,7 @@ impl StartMenu {
             transition: None,
             camera: Camera2d {
                 center: vec2::ZERO,
-                rotation: 0.0,
+                rotation: Angle::ZERO,
                 fov: 20.0,
             },
             framebuffer_size: vec2(1, 1),
@@ -97,7 +95,7 @@ impl StartMenu {
             },
             delta_time: Time::ONE,
             animation_frame: 0,
-            next_frame: assets.sprites.game_logo.first().unwrap().1,
+            next_frame: assets.sprites.game_logo.first().unwrap().duration,
         }
     }
 
@@ -153,7 +151,7 @@ impl geng::State for StartMenu {
             self.animation_frame += 1;
             self.next_frame = animation
                 .get(self.animation_frame)
-                .map_or(0.0, |(_, delay)| *delay);
+                .map_or(0.0, |frame| frame.duration);
         }
 
         self.delta_time = Time::new(delta_time);
@@ -165,15 +163,12 @@ impl geng::State for StartMenu {
 
     fn handle_event(&mut self, event: geng::Event) {
         match event {
-            geng::Event::MouseMove { position, .. } => {
+            geng::Event::CursorMove { position, .. } => {
                 self.cursor_pos = self
                     .camera
                     .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32());
             }
-            geng::Event::MouseDown { position, .. } => {
-                self.cursor_pos = self
-                    .camera
-                    .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32());
+            geng::Event::MousePress { .. } => {
                 if self.play_button.contains(self.cursor_pos) {
                     self.transition = Some(geng::state::Transition::Push(Box::new(
                         crate::game::run(&self.geng, self.opts.clone()),
@@ -239,7 +234,7 @@ impl geng::State for StartMenu {
         if self.animation_frame >= animation.len() {
             self.animation_frame = 0;
         };
-        let texture = &animation.get(self.animation_frame).unwrap().0;
+        let texture = &animation.get(self.animation_frame).unwrap().texture;
 
         let framebuffer_size = screen_framebuffer.size().as_f32();
         let size = framebuffer_size.x * 0.8;

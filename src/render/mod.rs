@@ -6,10 +6,8 @@ use self::world::WorldRender;
 use crate::{
     assets::{theme::Theme, Assets},
     model::*,
-    util::Vec2RealConversions,
+    prelude::*,
 };
-
-use geng::prelude::*;
 
 pub struct GameRender {
     geng: Geng,

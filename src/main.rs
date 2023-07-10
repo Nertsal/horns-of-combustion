@@ -23,6 +23,15 @@ mod model;
 mod render;
 mod util;
 
+mod prelude {
+    pub use ecs::{prelude::*, storage::arena::Arena};
+    pub use geng::prelude::*;
+    pub use geng_utils::{
+        conversions::*,
+        key::{self as key_utils, EventKey},
+    };
+}
+
 use geng::prelude::*;
 
 const SCREEN_SIZE: vec2<usize> = vec2(960, 540);
@@ -51,12 +60,13 @@ fn main() {
 
     let opts: Opts = clap::Parser::parse();
 
-    let geng = Geng::new_with(geng::ContextOptions {
-        title: "Horns of Combustion".to_string(),
-        window_size: Some(SCREEN_SIZE),
-        ..geng::ContextOptions::from_args(&opts.geng)
-    });
+    let mut geng_options = geng::ContextOptions::default();
+    geng_options.window.title = "Horns of Combustion".to_string();
+    geng_options.window.size = Some(SCREEN_SIZE);
+    geng_options.with_cli(&opts.geng);
 
-    let state = menu::run(&geng, opts);
-    geng.run(state)
+    Geng::run_with(&geng_options, |geng| async move {
+        let state = menu::run(&geng, opts);
+        geng.run_state(state).await;
+    });
 }

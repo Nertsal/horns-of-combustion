@@ -3,11 +3,8 @@ use super::util::UtilRender;
 use crate::{
     assets::{theme::Theme, Assets},
     model::*,
-    util::{Mat3RealConversions, Vec2RealConversions},
+    prelude::*,
 };
-
-use ecs::{prelude::*, storage::arena::Arena};
-use geng::prelude::*;
 
 pub struct WorldRender {
     geng: Geng,
@@ -134,7 +131,7 @@ impl WorldRender {
                         &draw2d::TexturedQuad::new(position, sprite),
                         mat3::rotate_around(
                             position.center(),
-                            block.collider.rotation.as_radians().as_f32(),
+                            block.collider.rotation.map(R32::as_f32),
                         ),
                     );
                 }
@@ -240,7 +237,7 @@ impl WorldRender {
                         model.config.world_size,
                     ));
                     let dir = delta.normalize_or_zero();
-                    let mut angle = dir.arg().as_f32() / 3.0;
+                    let mut angle = dir.arg().map(R32::as_f32) / 3.0;
                     let position = *leg_offset;
                     let position = Position::from_world(position, model.config.world_size);
                     let sprite = &self.assets.sprites.boss_leg;
@@ -258,7 +255,7 @@ impl WorldRender {
                             Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size)
                                 .delta_to(*actor.collider.position)
                                 .normalize_or_zero();
-                        angle = dir.arg().as_f32() / 3.0;
+                        angle = dir.arg().map(R32::as_f32) / 3.0;
                     }
                     self.geng.draw2d().draw2d_transformed(
                         framebuffer,
@@ -339,10 +336,7 @@ impl WorldRender {
                 framebuffer,
                 camera,
                 &draw2d::TexturedQuad::colored(position, sprite, blend_colour),
-                mat3::rotate_around(
-                    position.center(),
-                    actor.collider.rotation.as_radians().as_f32(),
-                ),
+                mat3::rotate_around(position.center(), actor.collider.rotation.map(R32::as_f32)),
             );
 
             if let ActorKind::BossBody = actor.kind {
@@ -358,7 +352,7 @@ impl WorldRender {
                     &draw2d::TexturedQuad::colored(position, eye_sprite, blend_colour),
                     mat3::rotate_around(
                         position.center(),
-                        actor.collider.rotation.as_radians().as_f32(),
+                        actor.collider.rotation.map(R32::as_f32),
                     ),
                 );
             }
@@ -398,10 +392,7 @@ impl WorldRender {
                 framebuffer,
                 camera,
                 &draw2d::TexturedQuad::new(position, sprite),
-                mat3::rotate_around(
-                    position.center(),
-                    proj.collider.rotation.as_radians().as_f32(),
-                ),
+                mat3::rotate_around(position.center(), proj.collider.rotation.map(R32::as_f32)),
             );
         }
     }

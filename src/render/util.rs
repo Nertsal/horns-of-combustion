@@ -1,6 +1,4 @@
-use crate::{model::*, util::Vec2RealConversions};
-
-use geng::prelude::*;
+use crate::{model::*, prelude::*};
 
 pub struct UtilRender {
     geng: Geng,

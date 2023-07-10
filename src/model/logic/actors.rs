@@ -85,12 +85,14 @@ impl Model {
                     *actor.velocity = vec2::ZERO;
 
                     let sign = position.as_dir().x.signum();
-                    let rotation = r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2) * sign;
+                    let rotation = Angle::from_radians(
+                        r32((self.time.as_f32() * 3.0).sin() * 0.8 - 0.2) * sign,
+                    );
                     let point = vec2(-7.0 * -sign.as_f32(), -3.0).as_r32();
 
                     *actor.position = position.shifted(point.rotate(rotation));
                     // *actor.position = Position::from_world(point, self.config.world_size);
-                    *actor.rotation = Angle::from_radians(rotation);
+                    *actor.rotation = rotation;
 
                     if actor.rotation.as_radians().abs() > r32(0.99) {
                         let target_pos = player.body.collider.position;

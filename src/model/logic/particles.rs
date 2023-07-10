@@ -35,8 +35,9 @@ impl Model {
                 ParticleKind::Fire => {
                     let amplitude = particle.lifetime.ratio();
                     let t = particle.lifetime.hp.sin();
-                    *particle.velocity =
-                        vec2::UNIT_Y.rotate(t * amplitude) * particle.velocity.len();
+                    let angle = Angle::from_radians(t * amplitude);
+                    let dir = angle.unit_vec().rotate_90();
+                    *particle.velocity = dir * particle.velocity.len();
                 }
                 ParticleKind::Damage | ParticleKind::Heal | ParticleKind::Projectile => {}
             }

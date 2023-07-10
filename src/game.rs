@@ -7,11 +7,9 @@ use crate::{
         Assets,
     },
     model::*,
+    prelude::*,
     render::GameRender,
-    util::{is_event_down, is_event_up, is_key_pressed, Vec2RealConversions},
 };
-
-use geng::prelude::*;
 
 #[derive(Debug)]
 pub enum GameEvent {
@@ -82,16 +80,16 @@ impl Game {
 
         // Change player velocity based on input.
         let mut player_direction: vec2<f32> = vec2::ZERO;
-        if is_key_pressed(window, &self.controls.up) {
+        if key_utils::is_key_pressed(window, &self.controls.up) {
             player_direction.y += 1.0;
         }
-        if is_key_pressed(window, &self.controls.down) {
+        if key_utils::is_key_pressed(window, &self.controls.down) {
             player_direction.y -= 1.0;
         }
-        if is_key_pressed(window, &self.controls.right) {
+        if key_utils::is_key_pressed(window, &self.controls.right) {
             player_direction.x += 1.0;
         }
-        if is_key_pressed(window, &self.controls.left) {
+        if key_utils::is_key_pressed(window, &self.controls.left) {
             player_direction.x -= 1.0;
         }
 
@@ -102,20 +100,20 @@ impl Game {
         player.input.aim_at = self.model.camera.cursor_pos_world();
 
         // Drip gasoline
-        player.input.drip_gas = is_key_pressed(window, &self.controls.gas);
+        player.input.drip_gas = key_utils::is_key_pressed(window, &self.controls.gas);
 
         // Transform state
-        if is_event_down(event, &self.controls.transform) {
+        if key_utils::is_event_press(event, &self.controls.transform) {
             self.model.player_action(PlayerAction::SwitchState);
         }
 
         // Barrel dash
         if let PlayerState::Barrel { .. } = self.model.player.state {
-            if is_event_down(event, &self.controls.barrel_dash) {
+            if key_utils::is_event_press(event, &self.controls.barrel_dash) {
                 self.model.player_action(PlayerAction::BarrelDash);
                 self.can_shoot = false;
             }
-        } else if is_event_up(event, &self.controls.barrel_dash) {
+        } else if key_utils::is_event_release(event, &self.controls.barrel_dash) {
             self.can_shoot = true;
         };
     }
@@ -149,8 +147,9 @@ impl Game {
 impl geng::State for Game {
     fn update(&mut self, delta_time: f64) {
         // Update cursor position within a camera
-        self.model.camera.cursor_pos = self.geng.window().cursor_position();
-        self.model.camera.framebuffer_size = self.framebuffer_size;
+        if let Some(pos) = self.geng.window().cursor_position() {
+            self.model.camera.cursor_pos = pos;
+        }
 
         let delta_time = delta_time as f32;
         self.explosion_timeout -= delta_time;
@@ -159,7 +158,7 @@ impl geng::State for Game {
         self.delta_time = delta_time;
 
         let window = self.geng.window();
-        if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
+        if self.can_shoot && key_utils::is_key_pressed(window, &self.controls.shoot) {
             let target_pos = self.model.camera.cursor_pos_world();
             self.model.player_action(PlayerAction::Shoot { target_pos });
         }
@@ -173,6 +172,8 @@ impl geng::State for Game {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
 
         self.framebuffer_size = framebuffer.size();
+        self.model.camera.framebuffer_size = self.framebuffer_size;
+
         let mut screen_framebuffer = ugli::Framebuffer::new_color(
             self.geng.ugli(),
             ugli::ColorAttachment::Texture(&mut self.screen_texture),
@@ -187,11 +188,7 @@ impl geng::State for Game {
             PlayerState::Human => &self.assets.sprites.crosshair,
             PlayerState::Barrel { .. } => &self.assets.sprites.crosshair_barrel,
         };
-        let pos = self.geng.window().cursor_position().as_f32();
-        let pos = self
-            .model
-            .camera
-            .screen_to_world(self.framebuffer_size.as_f32(), pos);
+        let pos = self.model.camera.cursor_pos_relative().as_f32();
         let pos = crate::render::pixel_perfect_aabb(pos, texture.size(), &self.model.camera);
         self.geng.draw2d().textured_quad(
             &mut screen_framebuffer,
@@ -219,14 +216,14 @@ impl geng::State for Game {
     }
 
     fn handle_event(&mut self, event: geng::Event) {
-        if is_event_down(&event, &self.controls.fullscreen) {
+        if key_utils::is_event_press(&event, &self.controls.fullscreen) {
             let window = self.geng.window();
             window.set_fullscreen(!window.is_fullscreen());
         }
 
-        if is_event_down(&event, &self.controls.reset) {
+        if key_utils::is_event_press(&event, &self.controls.reset) {
             let player_alive = self.model.time_alive == self.model.time;
-            if !player_alive || self.geng.window().is_key_pressed(geng::Key::LCtrl) {
+            if !player_alive || self.geng.window().is_key_pressed(geng::Key::ControlLeft) {
                 self.reset()
             }
         }

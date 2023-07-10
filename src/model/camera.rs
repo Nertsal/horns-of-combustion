@@ -25,7 +25,7 @@ impl Camera {
     fn to_camera2d(&self) -> geng::Camera2d {
         geng::Camera2d {
             center: self.center.to_world().as_f32() + self.offset_center.as_f32(),
-            rotation: 0.0,
+            rotation: Angle::ZERO,
             fov: self.fov.as_f32(),
         }
     }
@@ -47,6 +47,11 @@ impl Camera {
             .screen_to_world(self.framebuffer_size.as_f32(), self.cursor_pos.as_f32())
             .as_r32();
         Position::from_world(pos, self.center.world_size())
+    }
+
+    /// Returns the position of the cursor in the world space relative to the camera.
+    pub fn cursor_pos_relative(&self) -> vec2<Coord> {
+        self.project(self.cursor_pos_world())
     }
 }
 

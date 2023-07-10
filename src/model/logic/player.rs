@@ -62,13 +62,13 @@ impl Model {
         // let input_direction = (self.player.aim_at - *player.position).normalize_or_zero();
         let input_direction = self.player.input.direction;
         let delta_angle = if input_direction == vec2::ZERO {
-            Coord::ZERO
+            Angle::ZERO
         } else {
-            let current_angle = Angle::from_radians(player.body.velocity.arg());
-            let target_angle = Angle::from_radians(input_direction.arg());
-            let delta_angle = current_angle.angle_to(target_angle).as_radians();
+            let current_angle = player.body.velocity.arg();
+            let target_angle = input_direction.arg();
+            let delta_angle = current_angle.angle_to(target_angle);
             let steering = self.config.player.barrel_state.steering;
-            delta_angle.clamp_abs(steering * delta_time)
+            delta_angle.clamp_abs(Angle::from_radians(steering * delta_time))
         };
         player.controller.target_velocity = player
             .body
@@ -78,7 +78,7 @@ impl Model {
         player.controller.acceleration = r32(100.0);
 
         // Look in the direction of travel
-        *player.body.collider.rotation = Angle::from_radians(player.body.velocity.arg());
+        *player.body.collider.rotation = player.body.velocity.arg();
 
         // Drip gasoline
         let config = &self.config.player.barrel_state.gasoline;

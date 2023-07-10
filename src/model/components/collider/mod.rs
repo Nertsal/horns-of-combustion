@@ -30,8 +30,7 @@ impl Collider {
 
     pub fn transform_mat(&self, camera: &Camera) -> mat3<Coord> {
         let position = camera.project(self.position);
-        let rotation = self.rotation.as_radians();
-        mat3::translate(position) * mat3::rotate(rotation)
+        mat3::translate(position) * mat3::rotate(self.rotation)
     }
 
     /// NOTE: Use with caution, as it does not normalize distance to other entities.
