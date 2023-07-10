@@ -11,6 +11,7 @@ pub struct WorldRender {
     assets: Rc<Assets>,
     theme: Theme,
     util: UtilRender,
+    unit_quad: ugli::VertexBuffer<draw2d::TexturedVertex>,
 }
 
 impl WorldRender {
@@ -20,6 +21,7 @@ impl WorldRender {
             assets: assets.clone(),
             theme,
             util: UtilRender::new(geng),
+            unit_quad: geng_utils::geometry::unit_quad_geometry(geng.ugli()),
         }
     }
 
@@ -625,7 +627,7 @@ impl WorldRender {
             framebuffer,
             &self.assets.shaders.health_arc,
             ugli::DrawMode::TriangleFan,
-            &super::unit_geometry(self.geng.ugli()),
+            &self.unit_quad,
             (
                 ugli::uniforms! {
                     u_health: health.get_ratio().as_f32(),

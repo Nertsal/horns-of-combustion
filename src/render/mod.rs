@@ -9,6 +9,8 @@ use crate::{
     prelude::*,
 };
 
+use geng_utils::texture as texture_utils;
+
 pub struct GameRender {
     geng: Geng,
     assets: Rc<Assets>,
@@ -17,6 +19,7 @@ pub struct GameRender {
     world_texture: ugli::Texture,
     fire_texture: ugli::Texture,
     fire_shake: vec2<Coord>,
+    unit_quad: ugli::VertexBuffer<draw2d::TexturedVertex>,
 }
 
 impl GameRender {
@@ -26,9 +29,10 @@ impl GameRender {
             assets: assets.clone(),
             world: WorldRender::new(geng, assets, theme.clone()),
             theme,
-            fire_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
-            world_texture: new_texture(geng.ugli(), crate::SCREEN_SIZE),
+            fire_texture: texture_utils::new_texture(geng.ugli(), crate::SCREEN_SIZE),
+            world_texture: texture_utils::new_texture(geng.ugli(), crate::SCREEN_SIZE),
             fire_shake: vec2::ZERO,
+            unit_quad: geng_utils::geometry::unit_quad_geometry(geng.ugli()),
         }
     }
 
@@ -36,28 +40,28 @@ impl GameRender {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
 
         // Update textures' size
-        update_texture_size(
+        texture_utils::update_texture_size(
             &mut self.world_texture,
-            self.geng.ugli(),
             framebuffer.size(),
+            self.geng.ugli(),
         );
-        update_texture_size(&mut self.fire_texture, self.geng.ugli(), framebuffer.size());
+        texture_utils::update_texture_size(
+            &mut self.fire_texture,
+            framebuffer.size(),
+            self.geng.ugli(),
+        );
 
         // Draw to an intermediate texture for postprocess effects
-        let mut world_framebuffer = ugli::Framebuffer::new_color(
-            self.geng.ugli(),
-            ugli::ColorAttachment::Texture(&mut self.world_texture),
-        );
+        let mut world_framebuffer =
+            texture_utils::attach_texture(&mut self.world_texture, self.geng.ugli());
         ugli::clear(&mut world_framebuffer, Some(Rgba::BLACK), None, None);
 
         // Render simplified fire
         self.world.draw_fire(model, &mut world_framebuffer);
 
         // Fire effect
-        let mut fire_framebuffer = ugli::Framebuffer::new_color(
-            self.geng.ugli(),
-            ugli::ColorAttachment::Texture(&mut self.fire_texture),
-        );
+        let mut fire_framebuffer =
+            texture_utils::attach_texture(&mut self.fire_texture, self.geng.ugli());
         ugli::clear(&mut fire_framebuffer, Some(Rgba::BLACK), None, None);
 
         // Tiled fire texture
@@ -71,7 +75,7 @@ impl GameRender {
             &mut fire_framebuffer,
             &self.assets.shaders.tile_background,
             ugli::DrawMode::TriangleFan,
-            &unit_geometry(self.geng.ugli()),
+            &self.unit_quad,
             (
                 ugli::uniforms! {
                     u_texture: &self.world_texture,
@@ -96,7 +100,7 @@ impl GameRender {
             framebuffer,
             &self.assets.shaders.conv_drunk17,
             ugli::DrawMode::TriangleFan,
-            &unit_geometry(self.geng.ugli()),
+            &self.unit_quad,
             ugli::uniforms! {
                 u_texture: &self.fire_texture,
                 u_resolution: &self.fire_texture.size().as_f32(),
@@ -219,43 +223,4 @@ fn camera_world_to_screen(
         (pos.x + 1.0) / 2.0 * framebuffer_size.x,
         (pos.y + 1.0) / 2.0 * framebuffer_size.y,
     )
-}
-
-fn unit_geometry(ugli: &Ugli) -> ugli::VertexBuffer<draw2d::TexturedVertex> {
-    ugli::VertexBuffer::new_dynamic(ugli, unit_quad().to_vec())
-}
-
-fn unit_quad() -> [draw2d::TexturedVertex; 4] {
-    [
-        draw2d::TexturedVertex {
-            a_pos: vec2(-1.0, -1.0),
-            a_color: Rgba::WHITE,
-            a_vt: vec2(0.0, 0.0),
-        },
-        draw2d::TexturedVertex {
-            a_pos: vec2(1.0, -1.0),
-            a_color: Rgba::WHITE,
-            a_vt: vec2(1.0, 0.0),
-        },
-        draw2d::TexturedVertex {
-            a_pos: vec2(1.0, 1.0),
-            a_color: Rgba::WHITE,
-            a_vt: vec2(1.0, 1.0),
-        },
-        draw2d::TexturedVertex {
-            a_pos: vec2(-1.0, 1.0),
-            a_color: Rgba::WHITE,
-            a_vt: vec2(0.0, 1.0),
-        },
-    ]
-}
-
-fn new_texture(ugli: &Ugli, size: vec2<usize>) -> ugli::Texture {
-    ugli::Texture::new_with(ugli, size, |_| Rgba::BLACK)
-}
-
-fn update_texture_size(texture: &mut ugli::Texture, ugli: &Ugli, size: vec2<usize>) {
-    if texture.size() != size {
-        *texture = ugli::Texture::new_with(ugli, size, |_| Rgba::BLACK);
-    }
 }
