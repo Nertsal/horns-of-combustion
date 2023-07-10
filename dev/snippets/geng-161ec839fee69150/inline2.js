@@ -1,5 +1,5 @@
 
-            export function set_progress_title(title) {
-                window.gengUpdateProgressTitle(title);
+            export function set_progress(progress, total) {
+                window.gengUpdateProgress(progress, total);
             }
             
