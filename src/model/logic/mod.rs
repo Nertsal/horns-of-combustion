@@ -312,7 +312,7 @@ impl Model {
                     lifetime: &mut lifetime
                 }
             ) {
-                fire.lifetime.change(delta_time);
+                fire.lifetime.change(-delta_time);
                 if fire.lifetime.is_min() {
                     expired.push(id);
                 }
