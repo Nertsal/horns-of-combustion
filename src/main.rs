@@ -30,6 +30,8 @@ mod prelude {
         conversions::*,
         key::{self as key_utils, EventKey},
     };
+
+    pub type Position = geng_utils::torus::PositionTorus<crate::model::Coord>;
 }
 
 use geng::prelude::*;

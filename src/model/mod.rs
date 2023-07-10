@@ -5,14 +5,12 @@ mod effect;
 mod gen;
 mod logic;
 mod player;
-mod position;
 mod shake;
 mod waves;
 mod weapons;
 
 pub use self::{
-    action::*, camera::*, components::*, effect::*, player::*, position::*, shake::*, waves::*,
-    weapons::*,
+    action::*, camera::*, components::*, effect::*, player::*, shake::*, waves::*, weapons::*,
 };
 
 use crate::{
