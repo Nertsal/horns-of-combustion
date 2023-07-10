@@ -200,16 +200,11 @@ impl geng::State for StartMenu {
             .draw(&self.model, self.delta_time, &mut game_framebuffer);
 
         // Draw game to screen
-        let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = self.game_texture.size().as_f32();
-        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
-        let texture_size = texture_size * ratio;
-        self.geng.draw2d().textured_quad(
-            framebuffer,
-            &geng::PixelPerfectCamera,
-            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+        geng_utils::texture::draw_texture_fit_screen(
             &self.game_texture,
-            Rgba::WHITE,
+            vec2::splat(0.5),
+            &self.geng,
+            framebuffer,
         );
 
         let mut screen_framebuffer = ugli::Framebuffer::new_color(
@@ -223,44 +218,32 @@ impl geng::State for StartMenu {
             None,
         );
 
-        // let aspect = framebuffer_size.aspect();
-        // let target = if aspect > 16.0 / 9.0 {
-        //     vec2(framebuffer_size.y * 16.0 / 9.0, framebuffer_size.y)
-        // } else {
-        //     vec2(framebuffer_size.x, framebuffer_size.x * 9.0 / 16.0)
-        // };
-
         let animation = &self.assets.sprites.game_logo;
         if self.animation_frame >= animation.len() {
             self.animation_frame = 0;
         };
         let texture = &animation.get(self.animation_frame).unwrap().texture;
 
-        let framebuffer_size = screen_framebuffer.size().as_f32();
-        let size = framebuffer_size.x * 0.8;
-        let size = vec2(size, size / texture.size().as_f32().aspect());
-        let position = Aabb2::point(framebuffer_size * vec2(0.5, 0.95))
-            .extend_symmetric(vec2(size.x / 2.0, 0.0))
-            .extend_down(size.y);
-        self.geng.draw2d().textured_quad(
-            &mut screen_framebuffer,
-            &geng::PixelPerfectCamera,
-            position,
+        let screen_size = screen_framebuffer.size().as_f32();
+        let offset = screen_size.x * 0.1;
+        geng_utils::texture::draw_texture_fit_width(
             texture,
-            Rgba::WHITE,
+            Aabb2 {
+                min: vec2(offset, 0.0),
+                max: vec2(screen_size.x - offset, screen_size.y),
+            },
+            1.0,
+            &geng::PixelPerfectCamera,
+            &self.geng,
+            &mut screen_framebuffer,
         );
 
         // Draw texture to actual screen
-        let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = self.screen_texture.size().as_f32();
-        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
-        let texture_size = texture_size * ratio;
-        self.geng.draw2d().textured_quad(
-            framebuffer,
-            &geng::PixelPerfectCamera,
-            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+        geng_utils::texture::draw_texture_fit_screen(
             &self.screen_texture,
-            Rgba::WHITE,
+            vec2(0.5, 0.5),
+            &self.geng,
+            framebuffer,
         );
 
         self.draw_button(self.play_button, "Play", framebuffer);

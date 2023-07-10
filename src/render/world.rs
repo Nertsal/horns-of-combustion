@@ -125,7 +125,13 @@ impl WorldRender {
                     let sprite = &self.assets.sprites.barrel;
 
                     let pos = camera.project_f32(*block.collider.position);
-                    let position = super::pixel_perfect_aabb(pos, sprite.size(), camera);
+                    let position = geng_utils::pixel::pixel_perfect_aabb(
+                        pos,
+                        vec2::splat(0.5),
+                        sprite.size(),
+                        camera,
+                        framebuffer.size().as_f32(),
+                    );
 
                     self.geng.draw2d().draw2d_transformed(
                         framebuffer,
@@ -244,10 +250,12 @@ impl WorldRender {
                     let position = *leg_offset;
                     let position = Position::from_world(position, model.config.world_size);
                     let sprite = &self.assets.sprites.boss_leg;
-                    let mut position = super::pixel_perfect_aabb(
+                    let mut position = geng_utils::pixel::pixel_perfect_aabb(
                         camera.project_f32(position),
+                        vec2::splat(0.5),
                         sprite.size(),
                         camera,
+                        framebuffer.size().as_f32(),
                     );
                     let dir =
                         Position::zero(model.config.world_size).delta_to(*actor.collider.position);
@@ -272,12 +280,12 @@ impl WorldRender {
                 ActorKind::BossBody => &self.assets.sprites.boss_body,
             };
 
-            // let position = Aabb2::point(actor.collider.position.as_f32())
-            //     .extend_symmetric(sprite_size / 2.0);
-            let position = super::pixel_perfect_aabb(
+            let position = geng_utils::pixel::pixel_perfect_aabb(
                 camera.project_f32(*actor.collider.position),
+                vec2::splat(0.5),
                 sprite.size(),
                 camera,
+                framebuffer.size().as_f32(),
             );
 
             let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
@@ -344,10 +352,12 @@ impl WorldRender {
 
             if let ActorKind::BossBody = actor.kind {
                 let eye_sprite = &self.assets.sprites.boss_eye;
-                let position = super::pixel_perfect_aabb(
+                let position = geng_utils::pixel::pixel_perfect_aabb(
                     camera.project_f32(*actor.collider.position),
+                    vec2::splat(0.5),
                     eye_sprite.size(),
                     camera,
+                    framebuffer.size().as_f32(),
                 );
                 self.geng.draw2d().draw2d_transformed(
                     framebuffer,
@@ -385,10 +395,12 @@ impl WorldRender {
                 ProjectileKind::WheelPizza => &self.assets.sprites.projectile_wheel_pizza,
             };
 
-            let position = super::pixel_perfect_aabb(
+            let position = geng_utils::pixel::pixel_perfect_aabb(
                 camera.project_f32(*proj.collider.position),
+                vec2::splat(0.5),
                 sprite.size(),
                 camera,
+                framebuffer.size().as_f32(),
             );
 
             self.geng.draw2d().draw2d_transformed(
@@ -521,7 +533,13 @@ impl WorldRender {
 
             let angle = delta.arg();
             let pos = camera.center.to_world_f32() + vec2(x, y);
-            let pos = super::pixel_perfect_aabb(pos, texture.size(), camera);
+            let pos = geng_utils::pixel::pixel_perfect_aabb(
+                pos,
+                vec2::splat(0.5),
+                texture.size(),
+                camera,
+                framebuffer.size().as_f32(),
+            );
             let color = Color::WHITE;
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,

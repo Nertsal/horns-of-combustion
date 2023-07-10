@@ -174,10 +174,8 @@ impl geng::State for Game {
         self.framebuffer_size = framebuffer.size();
         self.model.camera.framebuffer_size = self.framebuffer_size;
 
-        let mut screen_framebuffer = ugli::Framebuffer::new_color(
-            self.geng.ugli(),
-            ugli::ColorAttachment::Texture(&mut self.screen_texture),
-        );
+        let mut screen_framebuffer =
+            geng_utils::texture::attach_texture(&mut self.screen_texture, self.geng.ugli());
 
         // Draw pixelated world
         self.render
@@ -189,26 +187,21 @@ impl geng::State for Game {
             PlayerState::Barrel { .. } => &self.assets.sprites.crosshair_barrel,
         };
         let pos = self.model.camera.cursor_pos_relative().as_f32();
-        let pos = crate::render::pixel_perfect_aabb(pos, texture.size(), &self.model.camera);
-        self.geng.draw2d().textured_quad(
-            &mut screen_framebuffer,
-            &self.model.camera,
-            pos,
+        geng_utils::texture::draw_pixel_perfect(
             texture,
-            Rgba::WHITE,
+            pos,
+            vec2::splat(0.5),
+            &self.model.camera,
+            &self.geng,
+            &mut screen_framebuffer,
         );
 
         // Draw texture to actual screen
-        let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = crate::SCREEN_SIZE.as_f32();
-        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
-        let texture_size = texture_size * ratio;
-        self.geng.draw2d().textured_quad(
-            framebuffer,
-            &geng::PixelPerfectCamera,
-            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+        geng_utils::texture::draw_texture_fit_screen(
             &self.screen_texture,
-            Rgba::WHITE,
+            vec2::splat(0.5),
+            &self.geng,
+            framebuffer,
         );
 
         // Draw ui (not pixelated)
