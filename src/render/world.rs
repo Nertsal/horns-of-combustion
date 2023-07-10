@@ -148,7 +148,8 @@ impl WorldRender {
         let camera = &model.camera;
         let color = self.theme.fire;
         for (_, fire) in query!(model.fire, FireRef { collider, lifetime }) {
-            let scale = ((fire.lifetime.max_hp - fire.lifetime.hp).as_f32() / 0.3).clamp(0.0, 1.0);
+            let scale =
+                ((fire.lifetime.max() - fire.lifetime.value()).as_f32() / 0.3).clamp(0.0, 1.0);
             self.draw_collider_transformed(
                 &fire.collider.clone(),
                 color,
@@ -172,7 +173,7 @@ impl WorldRender {
                 lifetime
             }
         ) {
-            let radius = (1.0 - expl.lifetime.ratio().as_f32()) * expl.max_radius.as_f32();
+            let radius = (1.0 - expl.lifetime.get_ratio().as_f32()) * expl.max_radius.as_f32();
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
@@ -428,7 +429,7 @@ impl WorldRender {
                 ParticleKind::Heal => self.theme.health_fg_player,
                 ParticleKind::Projectile => self.theme.gasoline,
             };
-            let alpha = particle.lifetime.ratio().as_f32();
+            let alpha = particle.lifetime.get_ratio().as_f32();
             color.a *= alpha;
 
             let pos = camera.project_f32(*particle.position);
@@ -463,7 +464,7 @@ impl WorldRender {
             let mut color = match pickup.kind {
                 PickUpKind::Heal { .. } => self.theme.pickups.heal,
             };
-            color.a *= (2.0 * pickup.lifetime.ratio().as_f32()).clamp(0.0, 1.0);
+            color.a *= (2.0 * pickup.lifetime.get_ratio().as_f32()).clamp(0.0, 1.0);
             self.draw_collider(&pickup.collider.clone(), color, camera, framebuffer);
         }
     }
@@ -538,7 +539,7 @@ impl WorldRender {
             .draw2d()
             .draw2d(framebuffer, camera, &draw2d::Quad::new(aabb, Rgba::BLACK));
 
-        let t = model.player.gasoline.ratio().as_f32();
+        let t = model.player.gasoline.get_ratio().as_f32();
         let aabb = Aabb2::point(aabb.bottom_left())
             .extend_positive(vec2(aabb.width(), aabb.height() * t))
             .extend_uniform(-1.0);
@@ -565,7 +566,7 @@ impl WorldRender {
                 fraction
             }
         ) {
-            if actor.health.is_full() {
+            if actor.health.is_max() {
                 continue;
             }
 
@@ -591,7 +592,7 @@ impl WorldRender {
                 health: &health.Get.Some
             }
         ) {
-            if actor.health.is_full() {
+            if actor.health.is_max() {
                 continue;
             }
 
@@ -627,7 +628,7 @@ impl WorldRender {
             &super::unit_geometry(self.geng.ugli()),
             (
                 ugli::uniforms! {
-                    u_health: health.ratio().as_f32(),
+                    u_health: health.get_ratio().as_f32(),
                     u_color: color,
                     u_color_bg: self.theme.health_bg,
                     u_model_matrix: transform,

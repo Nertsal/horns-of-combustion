@@ -97,7 +97,7 @@ impl Actor {
         Self {
             fraction,
             body,
-            health: Health::new(hp),
+            health: Health::new_max(hp),
             gun: None,
             stats,
             controller: Controller {

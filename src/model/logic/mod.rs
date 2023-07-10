@@ -56,8 +56,8 @@ impl Model {
                     lifetime: &mut lifetime
                 }
             ) {
-                expl.lifetime.damage(delta_time);
-                if expl.lifetime.is_dead() {
+                expl.lifetime.change(-delta_time);
+                if expl.lifetime.is_min() {
                     to_remove.push(id);
                 }
             }
@@ -74,7 +74,7 @@ impl Model {
         // Actors
 
         let mut dead_actors: Vec<Id> = query!(self.actors, (&health))
-            .filter(|(_, (health,))| health.is_dead())
+            .filter(|(_, (health,))| health.is_min())
             .map(|(id, _)| id)
             .collect();
 
@@ -83,7 +83,7 @@ impl Model {
             let actor = self.actors.remove(id).unwrap();
 
             // TODO: drop gasoline tank
-            self.player.gasoline.heal(r32(20.0));
+            self.player.gasoline.change(r32(20.0));
 
             // Explode
             if let Some(config) = self.config.death_explosion.clone() {
@@ -125,7 +125,7 @@ impl Model {
                         Position::zero(self.config.world_size),
                         Shape::Circle { radius: r32(10.0) },
                     ),
-                    lifetime: Lifetime::new(gas_config.lifetime),
+                    lifetime: Lifetime::new_max(gas_config.lifetime),
                     ignite_timer: gas_config.ignite_timer,
                     fire_radius: r32(50.0),
                     explosion: gas_config.explosion.clone(),
@@ -160,7 +160,7 @@ impl Model {
                     kind: PickUpKind::Heal {
                         hp: config.heal_amount,
                     },
-                    lifetime: Lifetime::new(20.0),
+                    lifetime: Lifetime::new_max(r32(20.0)),
                 });
             }
         }
@@ -172,7 +172,7 @@ impl Model {
 
         // Blocks
         let dead_blocks: Vec<Id> = query!(self.blocks, (&health.Get.Some))
-            .filter(|(_, (health,))| health.is_dead())
+            .filter(|(_, (health,))| health.is_min())
             .map(|(id, _)| id)
             .collect();
         for id in dead_blocks {
@@ -187,7 +187,7 @@ impl Model {
                                 radius: config.radius / r32(3.0),
                             },
                         ),
-                        lifetime: Lifetime::new(gas_config.lifetime),
+                        lifetime: Lifetime::new_max(gas_config.lifetime),
                         ignite_timer: gas_config.ignite_timer,
                         fire_radius: config.radius / r32(3.0),
                         explosion: gas_config.explosion.clone(),
@@ -220,7 +220,7 @@ impl Model {
                         radius: gas.fire_radius,
                     },
                 ),
-                lifetime: Lifetime::new(5.0),
+                lifetime: Lifetime::new_max(r32(5.0)),
                 config: gas.fire,
             });
         }
@@ -286,8 +286,8 @@ impl Model {
                     lifetime: &mut lifetime
                 }
             ) {
-                gas.lifetime.damage(delta_time);
-                if gas.lifetime.is_dead() {
+                gas.lifetime.change(-delta_time);
+                if gas.lifetime.is_min() {
                     expired.push(id);
                 }
             }
@@ -312,8 +312,8 @@ impl Model {
                     lifetime: &mut lifetime
                 }
             ) {
-                fire.lifetime.damage(delta_time);
-                if fire.lifetime.is_dead() {
+                fire.lifetime.change(delta_time);
+                if fire.lifetime.is_min() {
                     expired.push(id);
                 }
             }
@@ -346,8 +346,8 @@ impl Model {
             let Some(actor) = actor else { continue; };
 
             if let Some(on_fire) = actor.on_fire {
-                actor.health.damage(
-                    on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
+                actor.health.change(
+                    -on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
                 );
 
                 self.queued_effects.push_back(QueuedEffect {
@@ -392,7 +392,7 @@ impl Model {
             if let Some(on_fire) = block.on_fire {
                 block
                     .health
-                    .damage(on_fire.damage_per_second * block.vulnerability.fire * delta_time);
+                    .change(-on_fire.damage_per_second * block.vulnerability.fire * delta_time);
 
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Particles {
@@ -438,9 +438,9 @@ impl Model {
             );
             let Some(pickup) = pickup else { continue; };
 
-            pickup.lifetime.damage(delta_time);
+            pickup.lifetime.change(-delta_time);
 
-            if pickup.lifetime.is_dead() {
+            if pickup.lifetime.is_min() {
                 dead_pickups.push(pickup_id);
                 continue;
             }
@@ -465,7 +465,7 @@ impl Model {
                     velocity: vec2::UNIT_Y,
                     size: r32(0.2),
                     lifetime: r32(1.0),
-                    intensity: r32(0.5) * pickup.lifetime.ratio().min(r32(0.5)) / r32(0.5),
+                    intensity: r32(0.5) * pickup.lifetime.get_ratio().min(r32(0.5)) / r32(0.5),
                     kind: ParticleKind::Heal,
                 },
             });

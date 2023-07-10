@@ -92,13 +92,13 @@ impl Model {
                 last_gas = position;
                 last_dist -= config.distance_period;
 
-                if self.player.gasoline.hp < config.cost {
+                if self.player.gasoline.value() < config.cost {
                     break;
                 }
-                self.player.gasoline.damage(config.cost);
+                self.player.gasoline.change(-config.cost);
                 self.gasoline.insert(Gasoline {
                     collider: Collider::new(position, config.shape),
-                    lifetime: Lifetime::new(config.lifetime),
+                    lifetime: Lifetime::new_max(config.lifetime),
                     ignite_timer: config.ignite_timer,
                     fire_radius: config.fire_radius,
                     explosion: config.explosion.clone(),

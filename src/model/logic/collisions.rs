@@ -48,12 +48,12 @@ impl Model {
             }
 
             for id in picked_up {
-                if player.health.hp < player.health.max_hp {
+                if player.health.value() < player.health.max() {
                     let pickup = self.pickups.remove(id).unwrap();
                     // TODO: as effect
                     match pickup.kind {
                         PickUpKind::Heal { hp } => {
-                            player.health.heal(hp);
+                            player.health.change(hp);
                             self.queued_effects.push_back(QueuedEffect {
                                 effect: Effect::Particles {
                                     position: *player.collider.position,
@@ -121,12 +121,12 @@ impl Model {
                         .unwrap_or(Correction {
                             position: *player.collider.position,
                             velocity: *player.velocity,
-                            health: player.health.clone(),
+                            health: *player.health,
                         });
                 let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
                     position: *actor.collider.position,
                     velocity: *actor.velocity,
-                    health: actor.health.clone(),
+                    health: *actor.health,
                 });
 
                 let relative_vel = player_cor.velocity - *actor.velocity;
@@ -159,8 +159,8 @@ impl Model {
                         * actor.stats.vulnerability.physical;
                     let damage_player = actor.stats.contact_damage
                         * self.config.player.stats.vulnerability.physical;
-                    player_cor.health.damage(damage_player);
-                    actor_cor.health.damage(damage_actor);
+                    player_cor.health.change(-damage_player);
+                    actor_cor.health.change(-damage_actor);
 
                     self.queued_effects.push_back(QueuedEffect {
                         effect: Effect::particles_damage(player_cor.position, damage_player),
@@ -252,13 +252,13 @@ impl Model {
                             position: *player.collider.position,
                             velocity: *player.velocity,
                             stun: None,
-                            health: player.health.clone(),
+                            health: *player.health,
                         });
                 let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
                     position: *actor.collider.position,
                     velocity: *actor.velocity,
                     stun: None,
-                    health: actor.health.clone(),
+                    health: *actor.health,
                 });
 
                 let relative_vel = player_cor.velocity - *actor.velocity;
@@ -280,7 +280,7 @@ impl Model {
                 let damage = self.config.player.barrel_state.runover_damage
                     + self.config.player.barrel_state.runover_damage_scale * relative_vel.len();
                 let actor_damage = damage * actor.stats.vulnerability.physical;
-                actor_cor.health.damage(actor_damage);
+                actor_cor.health.change(-actor_damage);
 
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::particles_damage(actor_cor.position, actor_damage),
@@ -456,7 +456,7 @@ impl Model {
                     proj_hits.push(proj_id);
                     actor
                         .health
-                        .damage(*proj.damage * actor.stats.vulnerability.projectile);
+                        .change(-*proj.damage * actor.stats.vulnerability.projectile);
 
                     // If player is hit, switch back to human state
                     if *actor.fraction == Fraction::Player {
@@ -567,7 +567,7 @@ impl Model {
                 if proj.collider.clone().check(&block.collider.clone()) {
                     hit_projs.push(proj_id);
                     if let Some(health) = block.health {
-                        health.damage(*proj.damage * block.vulnerability.physical);
+                        health.change(-*proj.damage * block.vulnerability.physical);
                     }
                     break;
                 }

@@ -84,7 +84,7 @@ fn generate_blocks(
 
         result.insert(Block {
             color,
-            health: block.health.map(Health::new),
+            health: block.health.map(Health::new_max),
             on_fire: None,
             vulnerability: block.vulnerability,
             kind: block.kind,

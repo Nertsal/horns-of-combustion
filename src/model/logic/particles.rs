@@ -24,8 +24,8 @@ impl Model {
             let Some(particle) = particle else { continue };
 
             // Update lifetime
-            particle.lifetime.damage(delta_time);
-            if particle.lifetime.is_dead() {
+            particle.lifetime.change(-delta_time);
+            if particle.lifetime.is_min() {
                 to_remove.push(id);
                 continue;
             }
@@ -33,8 +33,8 @@ impl Model {
             // Control
             match particle.kind {
                 ParticleKind::Fire => {
-                    let amplitude = particle.lifetime.ratio();
-                    let t = particle.lifetime.hp.sin();
+                    let amplitude = particle.lifetime.get_ratio();
+                    let t = particle.lifetime.value().sin();
                     let angle = Angle::from_radians(t * amplitude);
                     let dir = angle.unit_vec().rotate_90();
                     *particle.velocity = dir * particle.velocity.len();

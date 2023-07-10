@@ -17,7 +17,7 @@ impl Model {
                 self.explosions.insert(Explosion {
                     position,
                     max_radius: config.radius,
-                    lifetime: Lifetime::new(0.2),
+                    lifetime: Lifetime::new_max(r32(0.2)),
                 });
 
                 let check = |body_position: Position| -> bool {
@@ -74,7 +74,7 @@ impl Model {
                             continue;
                         }
                         *actor.velocity += apply_velocity(*actor.position);
-                        actor.health.damage(calculate_damage(
+                        actor.health.change(-calculate_damage(
                             *actor.position,
                             actor.stats.vulnerability.explosive,
                         ));
@@ -124,7 +124,7 @@ impl Model {
                         if !check(*block.position) {
                             continue;
                         }
-                        block.health.damage(calculate_damage(
+                        block.health.change(-calculate_damage(
                             *block.position,
                             block.vulnerability.explosive,
                         ));
@@ -202,7 +202,7 @@ impl Model {
                         position: pos,
                         size,
                         velocity,
-                        lifetime: Lifetime::new(lifetime),
+                        lifetime: Lifetime::new_max(lifetime),
                         kind: ai,
                     });
                 }

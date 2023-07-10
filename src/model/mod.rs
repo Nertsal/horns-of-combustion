@@ -3,7 +3,6 @@ mod camera;
 mod components;
 mod effect;
 mod gen;
-mod health;
 mod logic;
 mod player;
 mod position;
@@ -12,8 +11,8 @@ mod waves;
 mod weapons;
 
 pub use self::{
-    action::*, camera::*, components::*, effect::*, health::*, player::*, position::*, shake::*,
-    waves::*, weapons::*,
+    action::*, camera::*, components::*, effect::*, player::*, position::*, shake::*, waves::*,
+    weapons::*,
 };
 
 use crate::{
@@ -24,11 +23,15 @@ use crate::{
 
 use std::collections::VecDeque;
 
+use geng_utils::bounded::Bounded;
+
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
 pub type Id = ecs::storage::arena::Index;
-pub type Lifetime = Health;
+pub type Lifetime = Bounded<Time>;
+pub type Hp = R32;
+pub type Health = Bounded<Hp>;
 
 pub struct Model {
     pub theme: Theme,

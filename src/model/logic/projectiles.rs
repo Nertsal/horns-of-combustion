@@ -33,8 +33,8 @@ impl Model {
             let Some(proj) = proj else { continue };
 
             // Update lifetime
-            proj.lifetime.damage(delta_time);
-            if proj.lifetime.is_dead() {
+            proj.lifetime.change(-delta_time);
+            if proj.lifetime.is_min() {
                 kill_projs.push(proj_id);
                 continue;
             }
