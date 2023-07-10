@@ -1,5 +1,7 @@
 (
-    shape: Circle( radius: 2.5 ),
+    body: BodyConfig(
+        shape: Circle( radius: 2.5 ),
+    ),
     stats: Stats(
         contact_damage: 10.0,
         move_speed: 20.0,
@@ -30,7 +32,9 @@
                 speed: 25.0,
                 damage: 15.0,
                 knockback: 1.0,
-                shape: Circle( radius: 0.2 ),
+                body: BodyConfig(
+                    shape: Circle( radius: 0.2 ),
+                ),
                 ai: ConstantTurn ( degrees_per_second: 90.0 ),
                 kind: SquidLike,
             ),
