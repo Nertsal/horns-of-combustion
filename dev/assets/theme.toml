@@ -1,0 +1,31 @@
+background = "#1b1b1b"
+gasoline = "#edab50"
+
+health_fg_player = "#8f974a"
+health_fg_enemy = "#c42430"
+health_bg = "#0e071b"
+
+fire = "#c42430"
+fire_particles = "#c42430"
+
+outline_color = "#0e071b"
+collider_color = "#6D545D"
+
+spawn_circle_color = "#571c27"
+
+whiteish = "#f9e6cf"
+
+[pickups]
+heal = "#99e65f"
+
+[palette]
+fg_blue = "#0069aa"
+fg_red = "#7c2d2b"
+fg_green = "#33984b"
+
+bg_gray = "#272727"
+bg_dark_gray = "#131313"
+
+[level]
+foreground = ["fg_blue", "fg_red", "fg_green"]
+background = ["bg_gray", "bg_gray", "bg_dark_gray"]

@@ -1,0 +1,107 @@
+Config(
+    world_size: (200.0, 200.0),
+    explosions_affect_projectiles: false,
+    death_explosion: Some(ExplosionConfig(
+        radius: 5.0,
+        knockback: 10.0,
+        damage: 10.0,
+        ignite: Some((
+            duration: 1.0,
+            damage_per_second: 10.0,
+        )),
+    )),
+    death_drop_heal_chance: 0.3,
+    pickups: PickupConfig(
+        size: 0.5,
+        heal_amount: 20.0,
+        attract_radius: 10.0,
+        attract_strength: 5.0,
+        max_speed: 5.0,
+    ),
+    camera: CameraConfig(
+        fov: 70.0,
+        speed: 6.0,
+        dead_zone: 0.5,
+    ),
+    player: PlayerConfig(
+        stats: Stats(
+            move_speed: 20.0,
+            contact_damage: 5.0,
+            vulnerability: VulnerabilityStats(
+                physical: 1.0,
+                fire: 0.0,
+                explosive: 0.0,
+            ),
+        ),
+        acceleration: 3.0,
+        dash_burst: 30.0,
+        hp: 200.0,
+        human_state: HumanStateConfig(
+            body: BodyConfig(
+                shape: Circle( radius: 1.2 ),
+            ),
+        ),
+        barrel_state: BarrelStateConfig(
+            steering: 1.0,
+            speed: 40.0,
+            dash_speed: 40.0,
+            dash_explosion: ExplosionConfig(
+                radius: 5.0,
+                knockback: 5.0,
+                damage: 5.0,
+                ignite: Some(OnFire(
+                    duration: 1.0,
+                    damage_per_second: 10.0,
+                )),
+            ),
+            runover_damage: 0.0,
+            runover_damage_scale: 0.2,
+            self_explosion_strength: 50.0,
+            body: BodyConfig(
+                shape: Rectangle(
+                    width: 1.75,
+                    height: 2.5,
+                ),
+            ),
+            gasoline: (
+                can_control: false,
+                cost: 0.0,
+                lifetime: 10.0,
+                distance_period: 1.5,
+                ignite_timer: 0.2,
+                fire_radius: 5.0,
+                explosion: ExplosionConfig(
+                    radius: 15.0,
+                    knockback: 10.0,
+                    damage: 10.0,
+                    ignite: Some(OnFire(
+                        duration: 10.0,
+                        damage_per_second: 10.0,
+                    )),
+                ),
+                shape: Circle( radius: 1.5 ),
+                fire: FireConfig(
+                    duration: 5.0,
+                    damage_per_second: 10.0,
+                ),
+            ),
+        ),
+        gun: GunConfig(
+            ammo: 6,
+            reload_time: 3.0,
+            shot_delay: 0.1,
+            recoil: 1.0,
+            shot: ShotConfig(
+                projectile: ProjectileConfig(
+                    lifetime: 2.0,
+                    speed: 50.0,
+                    damage: 10.0,
+                    knockback: 1.0,
+                    body: BodyConfig(
+                        shape: Circle( radius: 0.2 ),
+                    ),
+                ),
+            ),
+        ),
+    ),
+)
