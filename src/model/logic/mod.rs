@@ -343,7 +343,9 @@ impl Model {
                     stats,
                 }
             );
-            let Some(actor) = actor else { continue; };
+            let Some(actor) = actor else {
+                continue;
+            };
 
             if let Some(on_fire) = actor.on_fire {
                 actor.health.change(
@@ -387,7 +389,9 @@ impl Model {
                     vulnerability,
                 }
             );
-            let Some(block) = block else { continue; };
+            let Some(block) = block else {
+                continue;
+            };
 
             if let Some(on_fire) = block.on_fire {
                 block
@@ -436,7 +440,9 @@ impl Model {
                     lifetime: &mut lifetime,
                 }
             );
-            let Some(pickup) = pickup else { continue; };
+            let Some(pickup) = pickup else {
+                continue;
+            };
 
             pickup.lifetime.change(-delta_time);
 
