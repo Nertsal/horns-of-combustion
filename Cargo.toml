@@ -10,8 +10,8 @@ edition = "2021"
 dynamic-linking = { path = "dynamic-linking", optional = true }
 clap = { version = "4.3.2", features = ["derive"] }
 ecs = { git = "https://github.com/geng-engine/ecs" }
-geng = { git = "https://github.com/geng-engine/geng" }
-geng_utils = { git = "https://github.com/Nertsal/geng_utils" }
+geng = "0.15.0"
+geng-utils = "0.1.0"
 image = "0.24.6"
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }

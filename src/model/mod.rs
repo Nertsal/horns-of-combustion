@@ -64,7 +64,7 @@ impl Model {
         enemies: HashMap<String, EnemyConfig>,
         waves: WavesConfig,
     ) -> Self {
-        let mut actors = StructOf::new();
+        let mut actors = StructOf::<Arena<Actor>>::default();
         let mut model = Self {
             theme,
             time: Time::ZERO,
@@ -73,14 +73,14 @@ impl Model {
             camera: Camera::new(config.camera.fov, config.world_size),
             player: Player::init(config.player.clone(), config.world_size, &mut actors),
             actors,
-            blocks: StructOf::new(),
-            background_blocks: StructOf::new(),
-            projectiles: StructOf::new(),
-            gasoline: StructOf::new(),
-            fire: StructOf::new(),
-            explosions: StructOf::new(),
-            particles: StructOf::new(),
-            pickups: StructOf::new(),
+            blocks: default(),
+            background_blocks: default(),
+            projectiles: default(),
+            gasoline: default(),
+            fire: default(),
+            explosions: default(),
+            particles: default(),
+            pickups: default(),
             wave_manager: WaveManager::new(waves.clone(), config.world_size),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),
