@@ -3,17 +3,15 @@ use super::util::UtilRender;
 use crate::{
     assets::{theme::Theme, Assets},
     model::*,
-    util::{Mat3RealConversions, Vec2RealConversions},
+    prelude::*,
 };
-
-use ecs::{arena::Arena, prelude::*};
-use geng::prelude::*;
 
 pub struct WorldRender {
     geng: Geng,
     assets: Rc<Assets>,
     theme: Theme,
     util: UtilRender,
+    unit_quad: ugli::VertexBuffer<draw2d::TexturedVertex>,
 }
 
 impl WorldRender {
@@ -23,6 +21,7 @@ impl WorldRender {
             assets: assets.clone(),
             theme,
             util: UtilRender::new(geng),
+            unit_quad: geng_utils::geometry::unit_quad_geometry(geng.ugli()),
         }
     }
 
@@ -32,7 +31,7 @@ impl WorldRender {
         // Draw a circle at the center of the world.
         let pos = model
             .camera
-            .project_f32(Position::ZERO, model.config.world_size);
+            .project_f32(Position::zero(model.config.world_size));
         self.util.draw_shape(
             Shape::Circle { radius: r32(10.0) },
             mat3::translate(pos),
@@ -59,22 +58,10 @@ impl WorldRender {
     }
 
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct GasRef<'a> {
-            collider: &'a Collider,
-        }
-
         let camera = &model.camera;
         let color = self.theme.gasoline;
-        for (_, gas) in &query_gas_ref!(model.gasoline) {
-            self.draw_collider(
-                &gas.collider.clone(),
-                color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+        for (_, (collider,)) in query!(model.gasoline, (&collider)) {
+            self.draw_collider(&collider.clone(), color, camera, framebuffer);
         }
     }
 
@@ -86,17 +73,21 @@ impl WorldRender {
         with_outline: bool,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(nested)]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             color: &'a Color,
             kind: &'a BlockKind,
         }
 
         let camera = &model.camera;
-        for (_, block) in &query_block_ref!(blocks) {
+        for (_, block) in query!(
+            blocks,
+            BlockRef {
+                collider,
+                color,
+                kind
+            }
+        ) {
             let collider = block.collider.clone();
 
             match block.kind {
@@ -121,7 +112,6 @@ impl WorldRender {
                             },
                             outline_color,
                             camera,
-                            model.config.world_size,
                             framebuffer,
                         );
                     }
@@ -129,19 +119,19 @@ impl WorldRender {
                     // Fill
                     let mut color = *block.color;
                     color.a *= alpha;
-                    self.draw_collider(
-                        &collider,
-                        color,
-                        camera,
-                        model.config.world_size,
-                        framebuffer,
-                    );
+                    self.draw_collider(&collider, color, camera, framebuffer);
                 }
                 BlockKind::Barrel => {
                     let sprite = &self.assets.sprites.barrel;
 
-                    let pos = camera.project_f32(*block.collider.position, model.config.world_size);
-                    let position = super::pixel_perfect_aabb(pos, sprite.size(), camera);
+                    let pos = camera.project_f32(*block.collider.position);
+                    let position = geng_utils::pixel::pixel_perfect_aabb(
+                        pos,
+                        vec2::splat(0.5),
+                        sprite.size(),
+                        camera,
+                        framebuffer.size().as_f32(),
+                    );
 
                     self.geng.draw2d().draw2d_transformed(
                         framebuffer,
@@ -149,7 +139,7 @@ impl WorldRender {
                         &draw2d::TexturedQuad::new(position, sprite),
                         mat3::rotate_around(
                             position.center(),
-                            block.collider.rotation.as_radians().as_f32(),
+                            block.collider.rotation.map(R32::as_f32),
                         ),
                     );
                 }
@@ -158,42 +148,45 @@ impl WorldRender {
     }
 
     pub fn draw_fire(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct FireRef<'a> {
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
         let color = self.theme.fire;
-        for (_, fire) in &query_fire_ref!(model.fire) {
-            let scale = ((fire.lifetime.max_hp - fire.lifetime.hp).as_f32() / 0.3).clamp(0.0, 1.0);
+        for (_, fire) in query!(model.fire, FireRef { collider, lifetime }) {
+            let scale =
+                ((fire.lifetime.max() - fire.lifetime.value()).as_f32() / 0.3).clamp(0.0, 1.0);
             self.draw_collider_transformed(
                 &fire.collider.clone(),
                 color,
                 camera,
-                model.config.world_size,
                 mat3::scale_uniform(scale),
                 framebuffer,
             );
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ExplRef<'a> {
             position: &'a Position,
             max_radius: &'a Coord,
             lifetime: &'a Lifetime,
         }
 
-        for (_, expl) in &query_expl_ref!(model.explosions) {
-            let radius = (1.0 - expl.lifetime.ratio().as_f32()) * expl.max_radius.as_f32();
+        for (_, expl) in query!(
+            model.explosions,
+            ExplRef {
+                position,
+                max_radius,
+                lifetime
+            }
+        ) {
+            let radius = (1.0 - expl.lifetime.get_ratio().as_f32()) * expl.max_radius.as_f32();
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
                 &draw2d::Ellipse::circle_with_cut(vec2::ZERO, radius - 0.5, radius, color),
-                mat3::translate(camera.project_f32(*expl.position, model.config.world_size)),
+                mat3::translate(camera.project_f32(*expl.position)),
             );
         }
 
@@ -212,7 +205,7 @@ impl WorldRender {
                 framebuffer,
                 camera,
                 &draw2d::Ellipse::circle(
-                    camera.project_f32(*player_position, model.config.world_size),
+                    camera.project_f32(*player_position),
                     radius,
                     Color::BLACK,
                 ),
@@ -221,19 +214,21 @@ impl WorldRender {
     }
 
     fn draw_actors(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
-            #[query(storage = ".body")]
+            collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
-            ai: &'a Option<ActorAI>,
             kind: &'a ActorKind,
         }
 
         let camera = &model.camera;
-        for (_, actor) in &query_actor_ref!(model.actors) {
+        for (_, actor) in query!(
+            model.actors,
+            ActorRef {
+                collider: &body.collider,
+                velocity: &body.velocity,
+                kind
+            }
+        ) {
             let mut mirror = false;
             let sprite = match actor.kind {
                 ActorKind::Player => match model.player.state {
@@ -246,30 +241,32 @@ impl WorldRender {
                 ActorKind::EnemyHuge => &self.assets.sprites.enemy_huge,
                 ActorKind::BossFoot { leg_offset } => {
                     // Leg
-                    let delta = actor.collider.position.direction(
-                        Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size),
+                    let delta = actor.collider.position.delta_to(Position::from_world(
+                        vec2(0.0, -5.0).as_r32(),
                         model.config.world_size,
-                    );
+                    ));
                     let dir = delta.normalize_or_zero();
-                    let mut angle = dir.arg().as_f32() / 3.0;
+                    let mut angle = dir.arg().map(R32::as_f32) / 3.0;
                     let position = *leg_offset;
                     let position = Position::from_world(position, model.config.world_size);
                     let sprite = &self.assets.sprites.boss_leg;
-                    let mut position = super::pixel_perfect_aabb(
-                        camera.project_f32(position, model.config.world_size),
+                    let mut position = geng_utils::pixel::pixel_perfect_aabb(
+                        camera.project_f32(position),
+                        vec2::splat(0.5),
                         sprite.size(),
                         camera,
+                        framebuffer.size().as_f32(),
                     );
                     let dir =
-                        Position::ZERO.direction(*actor.collider.position, model.config.world_size);
+                        Position::zero(model.config.world_size).delta_to(*actor.collider.position);
                     mirror = dir.x > Coord::ZERO;
                     if mirror {
                         std::mem::swap(&mut position.min.x, &mut position.max.x);
                         let dir =
                             Position::from_world(vec2(0.0, -5.0).as_r32(), model.config.world_size)
-                                .direction(*actor.collider.position, model.config.world_size)
+                                .delta_to(*actor.collider.position)
                                 .normalize_or_zero();
-                        angle = dir.arg().as_f32() / 3.0;
+                        angle = dir.arg().map(R32::as_f32) / 3.0;
                     }
                     self.geng.draw2d().draw2d_transformed(
                         framebuffer,
@@ -283,19 +280,19 @@ impl WorldRender {
                 ActorKind::BossBody => &self.assets.sprites.boss_body,
             };
 
-            // let position = Aabb2::point(actor.collider.position.as_f32())
-            //     .extend_symmetric(sprite_size / 2.0);
-            let position = super::pixel_perfect_aabb(
-                camera.project_f32(*actor.collider.position, model.config.world_size),
+            let position = geng_utils::pixel::pixel_perfect_aabb(
+                camera.project_f32(*actor.collider.position),
+                vec2::splat(0.5),
                 sprite.size(),
                 camera,
+                framebuffer.size().as_f32(),
             );
 
             let circle_radius = r32(1.5) * actor.velocity.len() / r32(30.0);
-            let xoff = circle_radius * (model.time * r32(10.0)).cos();
-            let yoff = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
+            let x_off = circle_radius * (model.time * r32(10.0)).cos();
+            let y_off = -(circle_radius * (model.time * r32(6.0)).sin()).abs();
 
-            let new_size = position.size() + vec2(xoff.as_f32(), yoff.as_f32());
+            let new_size = position.size() + vec2(x_off.as_f32(), y_off.as_f32());
             let mut position = Aabb2 {
                 min: vec2(position.center().x - new_size.x / 2.0, position.min.y),
                 max: vec2(
@@ -316,27 +313,51 @@ impl WorldRender {
             //     &actor.collider.clone(),
             //     color,
             //     camera,
-            //     model.config.world_size,
             //     framebuffer,
             // );
+
+            // Draw player direction hint (DEV ONLY)
+            #[cfg(debug_assertions)]
+            if let ActorKind::Player = actor.kind {
+                let cursor_world_pos = model.camera.cursor_pos_world();
+                self.geng.draw2d().draw2d(
+                    framebuffer,
+                    camera,
+                    &draw2d::Segment::new(
+                        Segment(
+                            position.center(),
+                            position.center()
+                                + Position::from_world(
+                                    position.center().as_r32(),
+                                    model.config.world_size,
+                                )
+                                .delta_to(cursor_world_pos)
+                                .as_f32()
+                                .normalize()
+                                    * 20.0,
+                        ),
+                        0.05,
+                        Color::RED,
+                    ),
+                )
+            }
 
             let blend_colour = Color::new(1.0, 1.0, 1.0, 1.0);
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
                 &draw2d::TexturedQuad::colored(position, sprite, blend_colour),
-                mat3::rotate_around(
-                    position.center(),
-                    actor.collider.rotation.as_radians().as_f32(),
-                ),
+                mat3::rotate_around(position.center(), actor.collider.rotation.map(R32::as_f32)),
             );
 
             if let ActorKind::BossBody = actor.kind {
                 let eye_sprite = &self.assets.sprites.boss_eye;
-                let position = super::pixel_perfect_aabb(
-                    camera.project_f32(*actor.collider.position, model.config.world_size),
+                let position = geng_utils::pixel::pixel_perfect_aabb(
+                    camera.project_f32(*actor.collider.position),
+                    vec2::splat(0.5),
                     eye_sprite.size(),
                     camera,
+                    framebuffer.size().as_f32(),
                 );
                 self.geng.draw2d().draw2d_transformed(
                     framebuffer,
@@ -344,7 +365,7 @@ impl WorldRender {
                     &draw2d::TexturedQuad::colored(position, eye_sprite, blend_colour),
                     mat3::rotate_around(
                         position.center(),
-                        actor.collider.rotation.as_radians().as_f32(),
+                        actor.collider.rotation.map(R32::as_f32),
                     ),
                 );
             }
@@ -352,16 +373,19 @@ impl WorldRender {
     }
 
     fn draw_projectiles(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ProjRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             kind: &'a ProjectileKind,
         }
 
         let camera = &model.camera;
-        for (_id, proj) in &query_proj_ref!(model.projectiles) {
+        for (_id, proj) in query!(
+            model.projectiles,
+            ProjRef {
+                collider: &body.collider,
+                kind
+            }
+        ) {
             let sprite = match proj.kind {
                 ProjectileKind::Default => &self.assets.sprites.projectile_default,
                 ProjectileKind::Orb => &self.assets.sprites.projectile_orb,
@@ -371,27 +395,24 @@ impl WorldRender {
                 ProjectileKind::WheelPizza => &self.assets.sprites.projectile_wheel_pizza,
             };
 
-            let position = super::pixel_perfect_aabb(
-                camera.project_f32(*proj.collider.position, model.config.world_size),
+            let position = geng_utils::pixel::pixel_perfect_aabb(
+                camera.project_f32(*proj.collider.position),
+                vec2::splat(0.5),
                 sprite.size(),
                 camera,
+                framebuffer.size().as_f32(),
             );
 
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
                 camera,
                 &draw2d::TexturedQuad::new(position, sprite),
-                mat3::rotate_around(
-                    position.center(),
-                    proj.collider.rotation.as_radians().as_f32(),
-                ),
+                mat3::rotate_around(position.center(), proj.collider.rotation.map(R32::as_f32)),
             );
         }
     }
 
     fn draw_particles(&self, model: &Model, fire: bool, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ParticleRef<'a> {
             position: &'a Position,
             size: &'a Coord,
@@ -400,7 +421,15 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, particle) in &query_particle_ref!(model.particles) {
+        for (_, particle) in query!(
+            model.particles,
+            ParticleRef {
+                position,
+                size,
+                lifetime,
+                kind
+            }
+        ) {
             if let ParticleKind::Fire = particle.kind {
                 if !fire {
                     continue;
@@ -414,10 +443,10 @@ impl WorldRender {
                 ParticleKind::Heal => self.theme.health_fg_player,
                 ParticleKind::Projectile => self.theme.gasoline,
             };
-            let alpha = particle.lifetime.ratio().as_f32();
+            let alpha = particle.lifetime.get_ratio().as_f32();
             color.a *= alpha;
 
-            let pos = camera.project_f32(*particle.position, model.config.world_size);
+            let pos = camera.project_f32(*particle.position);
             self.util.draw_shape(
                 Shape::Circle {
                     radius: *particle.size,
@@ -431,28 +460,26 @@ impl WorldRender {
     }
 
     fn draw_pickups(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PickupRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             kind: &'a PickUpKind,
             lifetime: &'a Lifetime,
         }
 
         let camera = &model.camera;
-        for (_, pickup) in &query_pickup_ref!(model.pickups) {
+        for (_, pickup) in query!(
+            model.pickups,
+            PickupRef {
+                collider: &body.collider,
+                kind,
+                lifetime
+            }
+        ) {
             let mut color = match pickup.kind {
                 PickUpKind::Heal { .. } => self.theme.pickups.heal,
             };
-            color.a *= (2.0 * pickup.lifetime.ratio().as_f32()).clamp(0.0, 1.0);
-            self.draw_collider(
-                &pickup.collider.clone(),
-                color,
-                camera,
-                model.config.world_size,
-                framebuffer,
-            );
+            color.a *= (2.0 * pickup.lifetime.get_ratio().as_f32()).clamp(0.0, 1.0);
+            self.draw_collider(&pickup.collider.clone(), color, camera, framebuffer);
         }
     }
 
@@ -461,17 +488,9 @@ impl WorldRender {
         collider: &Collider,
         color: Color,
         camera: &Camera,
-        world_size: vec2<Coord>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        self.draw_collider_transformed(
-            collider,
-            color,
-            camera,
-            world_size,
-            mat3::identity(),
-            framebuffer,
-        )
+        self.draw_collider_transformed(collider, color, camera, mat3::identity(), framebuffer)
     }
 
     fn draw_collider_transformed(
@@ -479,11 +498,10 @@ impl WorldRender {
         collider: &Collider,
         color: Color,
         camera: &Camera,
-        world_size: vec2<Coord>,
         transform: mat3<f32>,
         framebuffer: &mut ugli::Framebuffer,
     ) {
-        let transform = collider.transform_mat(camera, world_size).as_f32() * transform;
+        let transform = collider.transform_mat(camera).as_f32() * transform;
         self.util.draw_shape(
             collider.shape,
             transform.as_f32(),
@@ -494,24 +512,14 @@ impl WorldRender {
     }
 
     fn draw_enemy_arrows(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
         let camera = &model.camera;
         let camera_view = vec2(
             framebuffer.size().as_f32().aspect() * camera.fov.as_f32(),
             camera.fov.as_f32(),
         ) / 2.0;
 
-        for (_id, actor) in &query_actor_ref!(model.actors) {
-            let delta = camera
-                .center
-                .direction(*actor.position, model.config.world_size)
-                .as_f32();
+        for (_id, (&position,)) in query!(model.actors, (&body.collider.position)) {
+            let delta = camera.center.delta_to(position).as_f32();
             if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
                 // In view
                 continue;
@@ -525,7 +533,13 @@ impl WorldRender {
 
             let angle = delta.arg();
             let pos = camera.center.to_world_f32() + vec2(x, y);
-            let pos = super::pixel_perfect_aabb(pos, texture.size(), camera);
+            let pos = geng_utils::pixel::pixel_perfect_aabb(
+                pos,
+                vec2::splat(0.5),
+                texture.size(),
+                camera,
+                framebuffer.size().as_f32(),
+            );
             let color = Color::WHITE;
             self.geng.draw2d().draw2d_transformed(
                 framebuffer,
@@ -545,7 +559,7 @@ impl WorldRender {
             .draw2d()
             .draw2d(framebuffer, camera, &draw2d::Quad::new(aabb, Rgba::BLACK));
 
-        let t = model.player.gasoline.ratio().as_f32();
+        let t = model.player.gasoline.get_ratio().as_f32();
         let aabb = Aabb2::point(aabb.bottom_left())
             .extend_positive(vec2(aabb.width(), aabb.height() * t))
             .extend_uniform(-1.0);
@@ -557,24 +571,28 @@ impl WorldRender {
     }
 
     fn draw_health(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(nested, storage = ".body")]
-            collider: &'a Collider,
+            collider: ColliderRef<'a>,
             health: &'a Health,
             fraction: &'a Fraction,
         }
 
         let camera = &model.camera;
-        for (_id, actor) in &query_actor_ref!(model.actors) {
-            if actor.health.ratio().as_f32() == 1.0 {
+        for (_id, actor) in query!(
+            model.actors,
+            ActorRef {
+                collider: &body.collider,
+                health,
+                fraction
+            }
+        ) {
+            if actor.health.is_max() {
                 continue;
             }
 
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
-            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            let pos = camera.project_f32(*actor.collider.position);
             let color = match actor.fraction {
                 Fraction::Player => self.theme.health_fg_player,
                 Fraction::Enemy => self.theme.health_fg_enemy,
@@ -582,23 +600,25 @@ impl WorldRender {
             self.draw_health_arc(pos, radius, actor.health, color, camera, framebuffer);
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(nested)]
-            collider: &'a Collider,
-            #[query(optic = "._Some")]
+            collider: ColliderRef<'a>,
             health: &'a Health,
         }
 
-        for (_id, actor) in &query_block_ref!(model.blocks) {
-            if actor.health.ratio().as_f32() == 1.0 {
+        for (_id, actor) in query!(
+            model.blocks,
+            BlockRef {
+                collider,
+                health: &health.Get.Some
+            }
+        ) {
+            if actor.health.is_max() {
                 continue;
             }
 
             let aabb = actor.collider.clone().compute_aabb();
             let radius = aabb.width().max(aabb.height()).as_f32() + 0.2;
-            let pos = camera.project_f32(*actor.collider.position, model.config.world_size);
+            let pos = camera.project_f32(*actor.collider.position);
             self.draw_health_arc(
                 pos,
                 radius,
@@ -625,10 +645,10 @@ impl WorldRender {
             framebuffer,
             &self.assets.shaders.health_arc,
             ugli::DrawMode::TriangleFan,
-            &super::unit_geometry(self.geng.ugli()),
+            &self.unit_quad,
             (
                 ugli::uniforms! {
-                    u_health: health.ratio().as_f32(),
+                    u_health: health.get_ratio().as_f32(),
                     u_color: color,
                     u_color_bg: self.theme.health_bg,
                     u_model_matrix: transform,

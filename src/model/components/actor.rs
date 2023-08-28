@@ -68,13 +68,13 @@ pub struct OnFire {
     pub damage_per_second: Hp,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Actor {
     pub fraction: Fraction,
-    #[structof(nested)]
+    #[split(nested)]
     pub body: Body,
     pub health: Health,
-    // #[structof(nested)] // TODO: optional nesting
+    // #[split(nested)] // TODO: optional nesting
     pub gun: Option<Gun>,
     pub stats: Stats,
     pub controller: Controller,
@@ -97,7 +97,7 @@ impl Actor {
         Self {
             fraction,
             body,
-            health: Health::new(hp),
+            health: Health::new_max(hp),
             gun: None,
             stats,
             controller: Controller {
@@ -114,7 +114,7 @@ impl Actor {
 
     pub fn new_enemy(pos: Position, config: EnemyConfig) -> Self {
         let mut enemy = Self::new(
-            Body::new(pos, config.shape),
+            Body::new(pos, config.body),
             config.hp,
             config.acceleration,
             Fraction::Enemy,

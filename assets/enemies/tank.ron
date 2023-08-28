@@ -1,5 +1,7 @@
 EnemyConfig(
-    shape: Circle( radius: 3.0 ),
+    body: BodyConfig(
+        shape: Circle( radius: 3.0 ),
+    ),
     stats: Stats(
         contact_damage: 50.0,
         move_speed: 10.0,
@@ -24,7 +26,9 @@ EnemyConfig(
                 speed: 40.0,
                 damage: 10.0,
                 knockback: 20.0,
-                shape: Circle( radius: 0.2 ),
+                body: BodyConfig(
+                    shape: Circle( radius: 0.2 ),
+                ),
                 ai: Straight,
                 kind: WheelPizza
             ),

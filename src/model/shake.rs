@@ -31,13 +31,8 @@ impl ScreenShake {
         dir.unit_vec() * amplitude
     }
 
-    pub fn apply_to_camera(
-        &mut self,
-        camera: &mut Camera,
-        world_size: vec2<Coord>,
-        delta_time: Time,
-    ) {
+    pub fn apply_to_camera(&mut self, camera: &mut Camera, delta_time: Time) {
         let velocity = self.get();
-        camera.center.shift(velocity * delta_time, world_size);
+        camera.center.shift(velocity * delta_time);
     }
 }

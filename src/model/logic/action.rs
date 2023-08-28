@@ -5,27 +5,28 @@ impl Model {
         match action {
             PlayerAction::Shoot { target_pos } => {
                 if let PlayerState::Human = self.player.state {
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
                     struct PlayerRef<'a> {
-                        #[query(storage = ".body.collider")]
                         position: &'a Position,
-                        #[query(storage = ".body")]
                         velocity: &'a mut vec2<Coord>,
-                        #[query(optic = "._Some")]
                         gun: &'a mut Gun,
                     }
 
-                    let mut query = query_player_ref!(self.actors);
-                    let Some(player) = query.get_mut(self.player.actor) else {
-                        return ;
-                    };
+                    let player = get!(
+                        self.actors,
+                        self.player.actor,
+                        PlayerRef {
+                            position: &body.collider.position,
+                            velocity: &mut body.velocity,
+                            gun: &mut gun.Get.Some,
+                        }
+                    );
+                    let Some(player) = player else { return };
 
                     if player.gun.shot_delay <= Time::ZERO {
                         let pos = *player.position;
                         player.gun.shot_delay = player.gun.config.shot_delay;
                         let config = player.gun.config.shot.clone();
-                        let dir = pos.direction(target_pos, self.config.world_size);
+                        let dir = pos.delta_to(target_pos);
                         *player.velocity -= dir.normalize_or_zero() * player.gun.config.recoil;
                         self.shoot(pos, target_pos, Fraction::Player, config);
                     }
@@ -34,19 +35,20 @@ impl Model {
             PlayerAction::SwitchState => {
                 self.player.state = match self.player.state {
                     PlayerState::Human => {
-                        #[allow(dead_code)]
-                        #[derive(StructQuery)]
                         struct PlayerRef<'a> {
-                            #[query(storage = ".body.collider")]
                             position: &'a Position,
-                            #[query(storage = ".body")]
                             velocity: &'a mut vec2<Coord>,
                         }
 
-                        let mut query = query_player_ref!(self.actors);
-                        let Some(player) = query.get_mut(self.player.actor) else {
-                            return ;
-                        };
+                        let player = get!(
+                            self.actors,
+                            self.player.actor,
+                            PlayerRef {
+                                position: &body.collider.position,
+                                velocity: &mut body.velocity,
+                            }
+                        );
+                        let Some(player) = player else { return };
 
                         // let input_direction =
                         //     (self.player.aim_at - *player.position).normalize_or_zero();
@@ -68,19 +70,18 @@ impl Model {
                 if let PlayerState::Barrel { last_gas } = self.player.state {
                     self.player.state = PlayerState::Human;
 
-                    #[allow(dead_code)]
-                    #[derive(StructQuery)]
                     struct PlayerRef<'a> {
-                        #[query(storage = ".body.collider")]
-                        position: &'a Position,
-                        #[query(storage = ".body")]
                         velocity: &'a mut vec2<Coord>,
                     }
 
-                    let mut query = query_player_ref!(self.actors);
-                    let Some(player) = query.get_mut(self.player.actor) else {
-                        return;
-                    };
+                    let player = get!(
+                        self.actors,
+                        self.player.actor,
+                        PlayerRef {
+                            velocity: &mut body.velocity,
+                        }
+                    );
+                    let Some(player) = player else { return };
 
                     // let dir = player.velocity.normalize_or_zero();
                     let dir = self.player.input.direction;

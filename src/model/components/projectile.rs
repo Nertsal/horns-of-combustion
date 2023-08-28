@@ -22,11 +22,11 @@ pub enum ProjectileKind {
     WheelPizza,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Projectile {
     pub lifetime: Lifetime,
     pub fraction: Fraction,
-    #[structof(nested)]
+    #[split(nested)]
     pub body: Body,
     pub damage: Hp,
     pub target_pos: Option<Position>,
@@ -44,8 +44,8 @@ impl Projectile {
     ) -> Self {
         Self {
             fraction,
-            body: Body::new(pos, config.shape).with_velocity(direction.unit_vec() * config.speed),
-            lifetime: Lifetime::new(config.lifetime),
+            body: Body::new(pos, config.body).with_velocity(direction.unit_vec() * config.speed),
+            lifetime: Lifetime::new_max(config.lifetime),
             damage: config.damage,
             target_pos: None,
             ai: config.ai,

@@ -3,35 +3,33 @@ mod camera;
 mod components;
 mod effect;
 mod gen;
-mod health;
 mod logic;
 mod player;
-mod position;
 mod shake;
 mod waves;
 mod weapons;
 
 pub use self::{
-    action::*, camera::*, components::*, effect::*, health::*, player::*, position::*, shake::*,
-    waves::*, weapons::*,
+    action::*, camera::*, components::*, effect::*, player::*, shake::*, waves::*, weapons::*,
 };
 
 use crate::{
     assets::{config::*, theme::Theme, waves::*},
     game::{GameEvent, Sound},
-    util::{RealConversions, Vec2RealConversions},
+    prelude::*,
 };
 
 use std::collections::VecDeque;
 
-use ecs::{arena::Arena, prelude::*};
-use geng::prelude::*;
+use geng_utils::bounded::Bounded;
 
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
-pub type Id = ecs::arena::Index;
-pub type Lifetime = Health;
+pub type Id = ecs::storage::arena::Index;
+pub type Lifetime = Bounded<Time>;
+pub type Hp = R32;
+pub type Health = Bounded<Hp>;
 
 pub struct Model {
     pub theme: Theme,
@@ -66,24 +64,24 @@ impl Model {
         enemies: HashMap<String, EnemyConfig>,
         waves: WavesConfig,
     ) -> Self {
-        let mut actors = StructOf::new();
+        let mut actors = StructOf::<Arena<Actor>>::default();
         let mut model = Self {
             theme,
             time: Time::ZERO,
             time_alive: Time::ZERO,
             screen_shake: ScreenShake::new(),
-            camera: Camera::new(config.camera.fov),
-            player: Player::init(config.player.clone(), &mut actors),
+            camera: Camera::new(config.camera.fov, config.world_size),
+            player: Player::init(config.player.clone(), config.world_size, &mut actors),
             actors,
-            blocks: StructOf::new(),
-            background_blocks: StructOf::new(),
-            projectiles: StructOf::new(),
-            gasoline: StructOf::new(),
-            fire: StructOf::new(),
-            explosions: StructOf::new(),
-            particles: StructOf::new(),
-            pickups: StructOf::new(),
-            wave_manager: WaveManager::new(waves.clone()),
+            blocks: default(),
+            background_blocks: default(),
+            projectiles: default(),
+            gasoline: default(),
+            fire: default(),
+            explosions: default(),
+            particles: default(),
+            pickups: default(),
+            wave_manager: WaveManager::new(waves.clone(), config.world_size),
             enemies_list: enemies,
             queued_effects: VecDeque::new(),
             game_events: Vec::new(),
@@ -102,7 +100,11 @@ impl Model {
 
     /// Revive the player.
     pub fn revive(&mut self) {
-        self.player = Player::init(self.config.player.clone(), &mut self.actors);
+        self.player = Player::init(
+            self.config.player.clone(),
+            self.config.world_size,
+            &mut self.actors,
+        );
     }
 
     /// Restart the whole game.

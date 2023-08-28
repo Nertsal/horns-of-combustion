@@ -3,7 +3,9 @@ pub mod controls;
 pub mod theme;
 pub mod waves;
 
-use geng::prelude::*;
+use geng_utils::gif::GifFrame;
+
+use crate::prelude::*;
 
 #[derive(geng::asset::Load)]
 pub struct Assets {
@@ -24,7 +26,8 @@ pub struct SoundAssets {
 
 #[derive(geng::asset::Load)]
 pub struct SpriteAssets {
-    pub game_logo: Animation,
+    #[load(load_with = "load_gif(&manager, &base_path.join(\"game_logo.gif\"))")]
+    pub game_logo: Vec<GifFrame>,
 
     #[load(postprocess = "pixel")]
     pub barrel: ugli::Texture,
@@ -85,39 +88,6 @@ pub struct ShaderAssets {
     pub health_arc: ugli::Program,
 }
 
-#[derive(Deref)]
-pub struct Animation {
-    #[deref]
-    pub frames: Vec<(ugli::Texture, f32)>,
-}
-
-impl geng::asset::Load for Animation {
-    fn load(manager: &geng::asset::Manager, path: &std::path::Path) -> geng::asset::Future<Self> {
-        let data = <Vec<u8> as geng::asset::Load>::load(manager, path);
-        let manager = manager.clone();
-        async move {
-            let data = data.await?;
-            use image::AnimationDecoder;
-            Ok(Self {
-                frames: image::codecs::gif::GifDecoder::new(data.as_slice())
-                    .unwrap()
-                    .into_frames()
-                    .map(|frame| {
-                        let frame = frame.unwrap();
-                        let (n, d) = frame.delay().numer_denom_ms();
-                        let mut texture =
-                            ugli::Texture::from_image_image(manager.ugli(), frame.into_buffer());
-                        pixel(&mut texture);
-                        (texture, n as f32 / d as f32 / 1000.0)
-                    })
-                    .collect(),
-            })
-        }
-        .boxed_local()
-    }
-    const DEFAULT_EXT: Option<&'static str> = Some("gif");
-}
-
 /// Use in Assets as `#[load(postprocess = "looping")]`
 fn looping(sfx: &mut geng::Sound) {
     sfx.set_looped(true)
@@ -135,10 +105,32 @@ fn wrap_around(texture: &mut ugli::Texture) {
 
 impl Assets {
     pub async fn load(manager: &geng::asset::Manager) -> anyhow::Result<Self> {
-        geng::asset::Load::load(manager, &run_dir().join("assets"))
+        geng::asset::Load::load(manager, &run_dir().join("assets"), &())
             .await
             .context("failed to load assets")
     }
+}
+
+fn load_gif(
+    manager: &geng::asset::Manager,
+    path: &std::path::Path,
+) -> geng::asset::Future<Vec<GifFrame>> {
+    let manager = manager.clone();
+    let path = path.to_owned();
+    async move {
+        geng_utils::gif::load_gif(
+            &manager,
+            &path,
+            geng_utils::gif::GifOptions {
+                frame: geng::asset::TextureOptions {
+                    filter: ugli::Filter::Nearest,
+                    ..Default::default()
+                },
+            },
+        )
+        .await
+    }
+    .boxed_local()
 }
 
 fn load_font(
@@ -148,16 +140,17 @@ fn load_font(
     let manager = manager.clone();
     let path = path.to_owned();
     async move {
-        let data = <Vec<u8> as geng::asset::Load>::load(&manager, &path).await?;
-        Ok(Rc::new(geng::Font::new(
-            manager.ugli(),
-            &data,
-            geng::font::Options {
+        let font = <geng::Font as geng::asset::Load>::load(
+            &manager,
+            &path,
+            &geng::font::Options {
                 pixel_size: 128.0,
                 max_distance: 1.0,
                 antialias: false,
             },
-        )?))
+        )
+        .await?;
+        Ok(Rc::new(font))
     }
     .boxed_local()
 }

@@ -6,12 +6,12 @@ pub struct Player {
     pub input: PlayerInput,
     pub out_of_view: bool,
     pub state: PlayerState,
-    pub gasoline: Health,
+    pub gasoline: Bounded<R32>,
 }
 
 #[derive(Debug)]
 pub struct PlayerInput {
-    pub aim_at: vec2<Coord>,
+    pub aim_at: Position,
     pub direction: vec2<Coord>,
     pub drip_gas: bool,
 }
@@ -23,27 +23,28 @@ pub enum PlayerState {
 }
 
 impl Player {
-    pub fn new(actor: Id) -> Self {
+    pub fn new(actor: Id, world_size: vec2<Coord>) -> Self {
         Self {
             actor,
             input: PlayerInput {
-                aim_at: vec2::ZERO,
+                aim_at: Position::zero(world_size),
                 direction: vec2::ZERO,
                 drip_gas: false,
             },
             out_of_view: false,
             state: PlayerState::Human,
-            gasoline: Health {
-                hp: r32(0.0),
-                max_hp: r32(100.0),
-            },
+            gasoline: Bounded::new(R32::ZERO, R32::ZERO..=r32(100.0)),
         }
     }
 
-    pub fn init(config: PlayerConfig, actors: &mut StructOf<Arena<Actor>>) -> Self {
+    pub fn init(
+        config: PlayerConfig,
+        world_size: vec2<Coord>,
+        actors: &mut StructOf<Arena<Actor>>,
+    ) -> Self {
         let actor = actors.insert(
             Actor::new(
-                Body::new(Position::ZERO, Shape::Circle { radius: r32(1.0) }),
+                Body::new(Position::zero(world_size), config.human_state.body),
                 config.hp,
                 config.acceleration,
                 Fraction::Player,
@@ -52,6 +53,6 @@ impl Player {
             )
             .with_gun(config.gun),
         );
-        Self::new(actor)
+        Self::new(actor, world_size)
     }
 }

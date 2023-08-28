@@ -7,8 +7,9 @@ pub use self::{actor::*, body::*, collider::*, projectile::*};
 
 use super::*;
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Gasoline {
+    #[split(nested)]
     pub collider: Collider,
     pub lifetime: Lifetime,
     /// Ignites after being in contact with fire for that time.
@@ -18,21 +19,22 @@ pub struct Gasoline {
     pub fire: FireConfig,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Fire {
+    #[split(nested)]
     pub collider: Collider,
     pub lifetime: Lifetime,
     pub config: FireConfig,
 }
 
-#[derive(StructOf, Debug, Clone)]
+#[derive(SplitFields, Debug, Clone)]
 pub struct Explosion {
     pub position: Position,
     pub max_radius: Coord,
     pub lifetime: Lifetime,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Particle {
     pub position: Position,
     pub size: Coord,
@@ -49,9 +51,9 @@ pub enum ParticleKind {
     Projectile,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct Block {
-    #[structof(nested)]
+    #[split(nested)]
     pub collider: Collider,
     pub health: Option<Health>,
     pub on_fire: Option<OnFire>,
@@ -67,9 +69,9 @@ pub enum BlockKind {
     Barrel,
 }
 
-#[derive(StructOf, Debug)]
+#[derive(SplitFields, Debug)]
 pub struct PickUp {
-    #[structof(nested)]
+    #[split(nested)]
     pub body: Body,
     pub kind: PickUpKind,
     pub lifetime: Lifetime,

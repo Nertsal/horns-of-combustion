@@ -7,11 +7,9 @@ use crate::{
         Assets,
     },
     model::*,
+    prelude::*,
     render::GameRender,
-    util::{is_event_down, is_event_up, is_key_pressed, Vec2RealConversions},
 };
-
-use geng::prelude::*;
 
 #[derive(Debug)]
 pub enum GameEvent {
@@ -82,16 +80,16 @@ impl Game {
 
         // Change player velocity based on input.
         let mut player_direction: vec2<f32> = vec2::ZERO;
-        if is_key_pressed(window, &self.controls.up) {
+        if key_utils::is_key_pressed(window, &self.controls.up) {
             player_direction.y += 1.0;
         }
-        if is_key_pressed(window, &self.controls.down) {
+        if key_utils::is_key_pressed(window, &self.controls.down) {
             player_direction.y -= 1.0;
         }
-        if is_key_pressed(window, &self.controls.right) {
+        if key_utils::is_key_pressed(window, &self.controls.right) {
             player_direction.x += 1.0;
         }
-        if is_key_pressed(window, &self.controls.left) {
+        if key_utils::is_key_pressed(window, &self.controls.left) {
             player_direction.x -= 1.0;
         }
 
@@ -99,28 +97,23 @@ impl Game {
         player.input.direction = player_direction.normalize_or_zero().as_r32();
 
         // Aim
-        let cursor_pos = window.cursor_position().as_f32();
-        let aim_position = self
-            .model
-            .camera
-            .screen_to_world(self.framebuffer_size.as_f32(), cursor_pos);
-        player.input.aim_at = aim_position.as_r32();
+        player.input.aim_at = self.model.camera.cursor_pos_world();
 
         // Drip gasoline
-        player.input.drip_gas = is_key_pressed(window, &self.controls.gas);
+        player.input.drip_gas = key_utils::is_key_pressed(window, &self.controls.gas);
 
         // Transform state
-        if is_event_down(event, &self.controls.transform) {
+        if key_utils::is_event_press(event, &self.controls.transform) {
             self.model.player_action(PlayerAction::SwitchState);
         }
 
         // Barrel dash
         if let PlayerState::Barrel { .. } = self.model.player.state {
-            if is_event_down(event, &self.controls.barrel_dash) {
+            if key_utils::is_event_press(event, &self.controls.barrel_dash) {
                 self.model.player_action(PlayerAction::BarrelDash);
                 self.can_shoot = false;
             }
-        } else if is_event_up(event, &self.controls.barrel_dash) {
+        } else if key_utils::is_event_release(event, &self.controls.barrel_dash) {
             self.can_shoot = true;
         };
     }
@@ -152,14 +145,37 @@ impl Game {
 }
 
 impl geng::State for Game {
+    fn update(&mut self, delta_time: f64) {
+        // Update cursor position within a camera
+        if let Some(pos) = self.geng.window().cursor_position() {
+            self.model.camera.cursor_pos = pos;
+        }
+
+        let delta_time = delta_time as f32;
+        self.explosion_timeout -= delta_time;
+
+        let delta_time = Time::new(delta_time);
+        self.delta_time = delta_time;
+
+        let window = self.geng.window();
+        if self.can_shoot && key_utils::is_key_pressed(window, &self.controls.shoot) {
+            let target_pos = self.model.camera.cursor_pos_world();
+            self.model.player_action(PlayerAction::Shoot { target_pos });
+        }
+
+        for event in self.model.update(delta_time) {
+            self.handle_game_event(event);
+        }
+    }
+
     fn draw(&mut self, framebuffer: &mut ugli::Framebuffer) {
         ugli::clear(framebuffer, Some(Rgba::BLACK), None, None);
 
         self.framebuffer_size = framebuffer.size();
-        let mut screen_framebuffer = ugli::Framebuffer::new_color(
-            self.geng.ugli(),
-            ugli::ColorAttachment::Texture(&mut self.screen_texture),
-        );
+        self.model.camera.framebuffer_size = self.framebuffer_size;
+
+        let mut screen_framebuffer =
+            geng_utils::texture::attach_texture(&mut self.screen_texture, self.geng.ugli());
 
         // Draw pixelated world
         self.render
@@ -170,31 +186,22 @@ impl geng::State for Game {
             PlayerState::Human => &self.assets.sprites.crosshair,
             PlayerState::Barrel { .. } => &self.assets.sprites.crosshair_barrel,
         };
-        let pos = self.geng.window().cursor_position().as_f32();
-        let pos = self
-            .model
-            .camera
-            .screen_to_world(self.framebuffer_size.as_f32(), pos);
-        let pos = crate::render::pixel_perfect_aabb(pos, texture.size(), &self.model.camera);
-        self.geng.draw2d().textured_quad(
-            &mut screen_framebuffer,
-            &self.model.camera,
-            pos,
+        let pos = self.model.camera.cursor_pos_relative().as_f32();
+        geng_utils::texture::draw_pixel_perfect(
             texture,
-            Rgba::WHITE,
+            pos,
+            vec2::splat(0.5),
+            &self.model.camera,
+            &self.geng,
+            &mut screen_framebuffer,
         );
 
         // Draw texture to actual screen
-        let framebuffer_size = framebuffer.size().as_f32();
-        let texture_size = crate::SCREEN_SIZE.as_f32();
-        let ratio = (framebuffer_size.x / texture_size.x).min(framebuffer_size.y / texture_size.y);
-        let texture_size = texture_size * ratio;
-        self.geng.draw2d().textured_quad(
-            framebuffer,
-            &geng::PixelPerfectCamera,
-            Aabb2::point(framebuffer_size / 2.0).extend_symmetric(texture_size / 2.0),
+        geng_utils::texture::draw_texture_fit_screen(
             &self.screen_texture,
-            Rgba::WHITE,
+            vec2::splat(0.5),
+            &self.geng,
+            framebuffer,
         );
 
         // Draw ui (not pixelated)
@@ -202,44 +209,19 @@ impl geng::State for Game {
     }
 
     fn handle_event(&mut self, event: geng::Event) {
-        if is_event_down(&event, &self.controls.fullscreen) {
+        if key_utils::is_event_press(&event, &self.controls.fullscreen) {
             let window = self.geng.window();
             window.set_fullscreen(!window.is_fullscreen());
         }
 
-        if is_event_down(&event, &self.controls.reset) {
+        if key_utils::is_event_press(&event, &self.controls.reset) {
             let player_alive = self.model.time_alive == self.model.time;
-            if !player_alive || self.geng.window().is_key_pressed(geng::Key::LCtrl) {
+            if !player_alive || self.geng.window().is_key_pressed(geng::Key::ControlLeft) {
                 self.reset()
             }
         }
 
         self.update_player(&event);
-    }
-
-    fn update(&mut self, delta_time: f64) {
-        let delta_time = delta_time as f32;
-        self.explosion_timeout -= delta_time;
-
-        let delta_time = Time::new(delta_time);
-        self.delta_time = delta_time;
-
-        let window = self.geng.window();
-        if self.can_shoot && is_key_pressed(window, &self.controls.shoot) {
-            let position = window.cursor_position();
-            let world_pos = self
-                .model
-                .camera
-                .screen_to_world(self.framebuffer_size.as_f32(), position.as_f32())
-                .as_r32();
-            self.model.player_action(PlayerAction::Shoot {
-                target_pos: Position::from_world(world_pos, self.model.config.world_size),
-            });
-        }
-
-        for event in self.model.update(delta_time) {
-            self.handle_game_event(event);
-        }
     }
 }
 
@@ -250,7 +232,7 @@ pub fn run(geng: &Geng, opts: crate::Opts) -> impl geng::State {
             let manager = geng.asset_manager();
             let assets = Assets::load(manager).await.unwrap();
             let config = Config::load(&opts.config).await.unwrap();
-            let level: LevelConfig = file::load_detect(&opts.level).await.unwrap();
+            let level: LevelConfig = crate::util::load_file(&opts.level).await.unwrap();
             let enemies = Config::load_enemies(&opts.enemies).await.unwrap();
             let waves = WavesConfig::load(&opts.waves).await.unwrap();
             let theme = Theme::load(&opts.theme).await.unwrap();

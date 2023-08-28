@@ -28,9 +28,10 @@ impl Model {
             .first()
             .expect("No foreground objects found") // TODO: better
             .clone();
-        if !matches!(barrel.kind, BlockKind::Barrel) {
-            panic!("First block in level foreground config expected to be a barrel");
-        }
+        assert!(
+            matches!(barrel.kind, BlockKind::Barrel),
+            "First block in level foreground config expected to be a barrel"
+        );
         let config = ProcGenConfig {
             spacing: self.level.foreground.spacing,
             blocks_number: amount,
@@ -61,7 +62,7 @@ fn generate_blocks(
             .collider
             .position
             .iter()
-            .any(|(_, pos)| pos.distance(position, world_size) < config.spacing)
+            .any(|(_, pos)| pos.distance(position) < config.spacing)
         {
             // Too close to another block
             continue;
@@ -83,7 +84,7 @@ fn generate_blocks(
 
         result.insert(Block {
             color,
-            health: block.health.map(Health::new),
+            health: block.health.map(Health::new_max),
             on_fire: None,
             vulnerability: block.vulnerability,
             kind: block.kind,

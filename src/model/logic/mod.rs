@@ -43,20 +43,23 @@ impl Model {
     }
 
     fn update_explosions(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ExplRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_expl_ref!(self.explosions);
-
         let mut to_remove: Vec<Id> = Vec::new();
-        let mut iter = query.iter_mut();
-        while let Some((id, expl)) = iter.next() {
-            expl.lifetime.damage(delta_time);
-            if expl.lifetime.is_dead() {
-                to_remove.push(id);
+        for id in self.explosions.ids() {
+            if let Some(expl) = get!(
+                self.explosions,
+                id,
+                ExplRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                expl.lifetime.change(-delta_time);
+                if expl.lifetime.is_min() {
+                    to_remove.push(id);
+                }
             }
         }
 
@@ -66,28 +69,21 @@ impl Model {
     }
 
     fn check_deaths(&mut self, _delta_time: Time) {
-        // Actors
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct ActorRef<'a> {
-            health: &'a Health,
-            kind: &'a ActorKind,
-        }
-
         let mut rng = thread_rng();
 
-        // let mut to_be_spawned: Vec<Projectile> = Vec::new();
+        // Actors
 
-        let mut dead_actors: Vec<Id> = query_actor_ref!(self.actors)
-            .iter()
-            .filter(|(_, actor)| actor.health.is_dead())
+        let mut dead_actors: Vec<Id> = query!(self.actors, (&health))
+            .filter(|(_, (health,))| health.is_min())
             .map(|(id, _)| id)
             .collect();
+
+        // let mut to_be_spawned: Vec<Projectile> = Vec::new();
         while let Some(id) = dead_actors.pop() {
             let actor = self.actors.remove(id).unwrap();
 
             // TODO: drop gasoline tank
-            self.player.gasoline.heal(r32(20.0));
+            self.player.gasoline.change(r32(20.0));
 
             // Explode
             if let Some(config) = self.config.death_explosion.clone() {
@@ -119,15 +115,17 @@ impl Model {
 
             if let ActorKind::BossBody = actor.kind {
                 dead_actors.extend(
-                    query_actor_ref!(self.actors)
-                        .iter()
-                        .filter(|(_, actor)| matches!(actor.kind, ActorKind::BossFoot { .. }))
+                    query!(self.actors, (&kind))
+                        .filter(|(_, (kind,))| matches!(kind, ActorKind::BossFoot { .. }))
                         .map(|(id, _)| id),
                 );
                 let gas_config = &self.config.player.barrel_state.gasoline;
                 self.gasoline.insert(Gasoline {
-                    collider: Collider::new(Position::ZERO, Shape::Circle { radius: r32(10.0) }),
-                    lifetime: Lifetime::new(gas_config.lifetime),
+                    collider: Collider::new(
+                        Position::zero(self.config.world_size),
+                        Shape::Circle { radius: r32(10.0) },
+                    ),
+                    lifetime: Lifetime::new_max(gas_config.lifetime),
                     ignite_timer: gas_config.ignite_timer,
                     fire_radius: r32(50.0),
                     explosion: gas_config.explosion.clone(),
@@ -135,7 +133,7 @@ impl Model {
                 });
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Explosion {
-                        position: Position::ZERO,
+                        position: Position::zero(self.config.world_size),
                         config: ExplosionConfig {
                             radius: r32(100.0),
                             knockback: r32(200.0),
@@ -152,14 +150,17 @@ impl Model {
                 self.pickups.insert(PickUp {
                     body: Body::new(
                         actor.body.collider.position,
-                        Shape::Circle {
-                            radius: config.size,
+                        BodyConfig {
+                            shape: Shape::Circle {
+                                radius: config.size,
+                            },
+                            mass: R32::ONE,
                         },
                     ),
                     kind: PickUpKind::Heal {
                         hp: config.heal_amount,
                     },
-                    lifetime: Lifetime::new(20.0),
+                    lifetime: Lifetime::new_max(r32(20.0)),
                 });
             }
         }
@@ -170,16 +171,8 @@ impl Model {
         // }
 
         // Blocks
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct BlockRef<'a> {
-            #[query(optic = "._Some")]
-            health: &'a mut Health,
-        }
-
-        let dead_blocks: Vec<Id> = query_block_ref!(self.blocks)
-            .iter()
-            .filter(|(_, block)| block.health.is_dead())
+        let dead_blocks: Vec<Id> = query!(self.blocks, (&health.Get.Some))
+            .filter(|(_, (health,))| health.is_min())
             .map(|(id, _)| id)
             .collect();
         for id in dead_blocks {
@@ -194,7 +187,7 @@ impl Model {
                                 radius: config.radius / r32(3.0),
                             },
                         ),
-                        lifetime: Lifetime::new(gas_config.lifetime),
+                        lifetime: Lifetime::new_max(gas_config.lifetime),
                         ignite_timer: gas_config.ignite_timer,
                         fire_radius: config.radius / r32(3.0),
                         explosion: gas_config.explosion.clone(),
@@ -227,35 +220,25 @@ impl Model {
                         radius: gas.fire_radius,
                     },
                 ),
-                lifetime: Lifetime::new(5.0),
+                lifetime: Lifetime::new_max(r32(5.0)),
                 config: gas.fire,
             });
         }
     }
 
     fn update_camera(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
+        let scale = 0.15;
 
-        let camera = &mut self.camera;
-
-        let query = query_player_ref!(self.actors);
-        if let Some(player) = query.get(self.player.actor) {
+        if let Some(player_pos) = self.get_player_pos() {
             // Zoom out if player is moving fast.
             // let player_velocity = self.bodies.get(self.player.body).unwrap().velocity;
             // let player_speed = player_velocity.len();
             // camera.fov = TODO: interpolate fov to player speed.
 
             // Do not follow player if it is inside the bounds of the camera.
-            let direction = camera
-                .center
-                .direction(*player.position, self.config.world_size);
+            let direction = self.camera.center.delta_to(player_pos);
             let distance = direction.len();
-            if distance > camera.fov / r32(3.0) {
+            if distance > self.camera.fov / r32(3.0) {
                 self.player.out_of_view = true;
             }
 
@@ -266,41 +249,47 @@ impl Model {
                     // camera.target_position = *player_position;
                 } else {
                     // Update the target position
-                    camera.target_position = *player.position;
+                    self.camera.target_position = player_pos;
+                    //scale = 0.15;
                 }
             }
         }
 
+        // Offset camera towards cursor position
+        let cursor_pos_world = self.camera.cursor_pos_world();
+        self.camera.offset_center = self.camera.center.delta_to(cursor_pos_world) * r32(scale);
+
         // Interpolate camera position to the target
         // Take min to not overshoot the target
-        camera.center.shift(
-            (camera
-                .center
-                .direction(camera.target_position, self.config.world_size))
+        self.camera.center.shift(
+            (self.camera.center.delta_to(self.camera.target_position))
                 * (self.config.camera.speed * delta_time).min(Coord::ONE),
-            self.config.world_size,
         );
 
         // Screen shake
         self.screen_shake
-            .apply_to_camera(camera, self.config.world_size, delta_time);
+            .apply_to_camera(&mut self.camera, delta_time);
         self.screen_shake.update(delta_time);
     }
 
     fn update_gas(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct GasRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_gas_ref!(self.gasoline);
-        let mut iter = query.iter_mut();
         let mut expired: Vec<Id> = Vec::new();
-        while let Some((id, gas)) = iter.next() {
-            gas.lifetime.damage(delta_time);
-            if gas.lifetime.is_dead() {
-                expired.push(id);
+        for id in self.gasoline.ids() {
+            if let Some(gas) = get!(
+                self.gasoline,
+                id,
+                GasRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                gas.lifetime.change(-delta_time);
+                if gas.lifetime.is_min() {
+                    expired.push(id);
+                }
             }
         }
 
@@ -310,19 +299,23 @@ impl Model {
     }
 
     fn update_fire(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct FireRef<'a> {
             lifetime: &'a mut Lifetime,
         }
 
-        let mut query = query_fire_ref!(self.fire);
-        let mut iter = query.iter_mut();
         let mut expired: Vec<Id> = Vec::new();
-        while let Some((id, fire)) = iter.next() {
-            fire.lifetime.damage(delta_time);
-            if fire.lifetime.is_dead() {
-                expired.push(id);
+        for id in self.fire.ids() {
+            if let Some(fire) = get!(
+                self.fire,
+                id,
+                FireRef {
+                    lifetime: &mut lifetime
+                }
+            ) {
+                fire.lifetime.change(-delta_time);
+                if fire.lifetime.is_min() {
+                    expired.push(id);
+                }
             }
         }
 
@@ -332,22 +325,31 @@ impl Model {
     }
 
     fn update_on_fire(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct ActorRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a Position,
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
             stats: &'a Stats,
         }
 
-        let mut query = query_actor_ref!(self.actors);
-        let mut iter = query.iter_mut();
-        while let Some((_, actor)) = iter.next() {
+        for id in self.actors.ids() {
+            let actor = get!(
+                self.actors,
+                id,
+                ActorRef {
+                    position: &body.collider.position,
+                    health: &mut health,
+                    on_fire: &mut on_fire,
+                    stats,
+                }
+            );
+            let Some(actor) = actor else {
+                continue;
+            };
+
             if let Some(on_fire) = actor.on_fire {
-                actor.health.damage(
-                    on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
+                actor.health.change(
+                    -on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
                 );
 
                 self.queued_effects.push_back(QueuedEffect {
@@ -369,24 +371,32 @@ impl Model {
             }
         }
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct BlockRef<'a> {
-            #[query(storage = ".collider")]
             position: &'a Position,
-            #[query(optic = "._Some")]
             health: &'a mut Health,
             on_fire: &'a mut Option<OnFire>,
             vulnerability: &'a VulnerabilityStats,
         }
 
-        let mut query = query_block_ref!(self.blocks);
-        let mut iter = query.iter_mut();
-        while let Some((_, block)) = iter.next() {
+        for id in self.blocks.ids() {
+            let block = get!(
+                self.blocks,
+                id,
+                BlockRef {
+                    position: &collider.position,
+                    health: &mut health.Get.Some,
+                    on_fire: &mut on_fire,
+                    vulnerability,
+                }
+            );
+            let Some(block) = block else {
+                continue;
+            };
+
             if let Some(on_fire) = block.on_fire {
                 block
                     .health
-                    .damage(on_fire.damage_per_second * block.vulnerability.fire * delta_time);
+                    .change(-on_fire.damage_per_second * block.vulnerability.fire * delta_time);
 
                 self.queued_effects.push_back(QueuedEffect {
                     effect: Effect::Particles {
@@ -409,44 +419,40 @@ impl Model {
     }
 
     fn update_pickups(&mut self, delta_time: Time) {
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
         struct PickupRef<'a> {
-            #[query(storage = ".body.collider")]
             position: &'a Position,
-            #[query(storage = ".body")]
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
         }
 
-        let player_query = query_player_ref!(self.actors);
-        let player = player_query.get(self.player.actor);
-
-        let mut pickup_query = query_pickup_ref!(self.pickups);
-        let mut pickup_iter = pickup_query.iter_mut();
+        let player_pos = self.get_player_pos();
 
         let mut dead_pickups = Vec::new();
 
         let config = &self.config.pickups;
-        while let Some((pickup_id, pickup)) = pickup_iter.next() {
-            pickup.lifetime.damage(delta_time);
+        for pickup_id in self.pickups.ids() {
+            let pickup = get!(
+                self.pickups,
+                pickup_id,
+                PickupRef {
+                    position: &body.collider.position,
+                    velocity: &mut body.velocity,
+                    lifetime: &mut lifetime,
+                }
+            );
+            let Some(pickup) = pickup else {
+                continue;
+            };
 
-            if pickup.lifetime.is_dead() {
+            pickup.lifetime.change(-delta_time);
+
+            if pickup.lifetime.is_min() {
                 dead_pickups.push(pickup_id);
                 continue;
             }
 
-            if let Some(player) = &player {
-                let delta = pickup
-                    .position
-                    .direction(*player.position, self.config.world_size);
+            if let Some(player_pos) = player_pos {
+                let delta = pickup.position.delta_to(player_pos);
                 let dist = delta.len();
                 if dist <= config.attract_radius {
                     let dir = delta.normalize_or_zero();
@@ -465,7 +471,7 @@ impl Model {
                     velocity: vec2::UNIT_Y,
                     size: r32(0.2),
                     lifetime: r32(1.0),
-                    intensity: r32(0.5) * pickup.lifetime.ratio().min(r32(0.5)) / r32(0.5),
+                    intensity: r32(0.5) * pickup.lifetime.get_ratio().min(r32(0.5)) / r32(0.5),
                     kind: ParticleKind::Heal,
                 },
             });
@@ -488,7 +494,7 @@ impl Model {
 
     fn get_volume_from(&self, position: Position) -> R32 {
         let player_pos = self.get_player_pos().unwrap_or(self.camera.center);
-        let distance = position.distance(player_pos, self.config.world_size);
+        let distance = position.distance(player_pos);
         (Coord::ONE / (distance.max(Coord::ONE) / r32(20.0)).sqr()).min(Coord::ONE)
     }
 }

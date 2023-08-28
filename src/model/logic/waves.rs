@@ -32,10 +32,7 @@ impl Model {
                 .unwrap_or_else(|| panic!("Enemy {:?} not found", enemy_name))
                 .clone();
             let pos = rng.gen_circle(vec2::ZERO, self.wave_manager.config.spawn_circle_radius);
-            let pos = self
-                .wave_manager
-                .spawn_point
-                .shifted(pos, self.config.world_size);
+            let pos = self.wave_manager.spawn_point.shifted(pos);
             let _enemy = self.actors.insert(Actor::new_enemy(pos, enemy_config));
             // self.wave_manager.current_enemies.push(enemy);
             self.wave_manager.spawn_delay = self.wave_manager.current_wave.spawn_delay;
@@ -52,16 +49,8 @@ impl Model {
             //     return;
             // }
 
-            #[allow(dead_code)]
-            #[derive(StructQuery)]
-            struct ActorRef<'a> {
-                fraction: &'a Fraction,
-            }
-
-            let query = query_actor_ref!(self.actors);
-            if query
-                .iter()
-                .any(|(_, actor)| *actor.fraction != Fraction::Player)
+            if query!(self.actors, (&fraction))
+                .any(|(_, (fraction,))| *fraction != Fraction::Player)
             {
                 // Some enemies haven't died yet
                 return;
@@ -97,13 +86,13 @@ impl Model {
             let mut points = self.wave_manager.difficulty;
             while points > R32::ZERO {
                 let Some((enemy, enemy_config)) = config
-                .enemies
-                .iter()
-                .filter(|(_, config)| config.cost <= points)
-                .choose(&mut rng)
-            else {
-                break;
-            };
+                    .enemies
+                    .iter()
+                    .filter(|(_, config)| config.cost <= points)
+                    .choose(&mut rng)
+                else {
+                    break;
+                };
                 points -= enemy_config.cost;
                 wave.enemies.push_back(enemy.clone());
             }
@@ -128,24 +117,14 @@ impl Model {
 
         self.wave_manager.wave_delay = wave.wave_delay;
 
-        #[allow(dead_code)]
-        #[derive(StructQuery)]
-        struct PlayerRef<'a> {
-            #[query(storage = ".body.collider")]
-            position: &'a Position,
-        }
-
-        let query = query_player_ref!(self.actors);
-        let Some(player) = query.get(self.player.actor) else {
+        let Some(player_pos) = self.get_player_pos() else {
             return;
         };
-        let player_pos = *player.position;
 
         let config = &self.wave_manager.config;
         let angle = Angle::from_degrees(r32(rng.gen_range(0.0..=360.0)));
         let distance = rng.gen_range(config.min_spawn_distance..=config.max_spawn_distance);
-        self.wave_manager.spawn_point =
-            player_pos.shifted(angle.unit_vec() * distance, self.config.world_size);
+        self.wave_manager.spawn_point = player_pos.shifted(angle.unit_vec() * distance);
 
         self.wave_manager.current_wave = wave;
         self.wave_manager.wave_number += 1;
@@ -157,7 +136,7 @@ impl Model {
         // Explode
         self.queued_effects.push_back(QueuedEffect {
             effect: Effect::Explosion {
-                position: Position::ZERO,
+                position: Position::zero(self.config.world_size),
                 config: ExplosionConfig {
                     radius: r32(50.0),
                     knockback: r32(100.0),
@@ -174,11 +153,7 @@ impl Model {
             .collider
             .position
             .iter()
-            .filter(|(_, pos)| {
-                pos.distance(Position::ZERO, self.config.world_size)
-                    .as_f32()
-                    <= 50.0
-            })
+            .filter(|(_, pos)| pos.as_dir().len().as_f32() <= 50.0)
             .map(|(id, _)| id)
             .collect();
         for id in to_remove {
@@ -193,9 +168,12 @@ impl Model {
             self.actors.insert(Actor::new_enemy(
                 position,
                 EnemyConfig {
-                    shape: Shape::Rectangle {
-                        width: r32(8.0),
-                        height: r32(5.0),
+                    body: BodyConfig {
+                        shape: Shape::Rectangle {
+                            width: r32(8.0),
+                            height: r32(5.0),
+                        },
+                        mass: r32(1e6),
                     },
                     stats: Stats {
                         contact_damage: r32(50.0),
@@ -223,7 +201,10 @@ impl Model {
         self.actors.insert(Actor::new_enemy(
             Position::from_world(vec2(0.0, 0.0).as_r32(), self.config.world_size),
             EnemyConfig {
-                shape: Shape::Circle { radius: r32(5.0) },
+                body: BodyConfig {
+                    shape: Shape::Circle { radius: r32(5.0) },
+                    mass: r32(1e6),
+                },
                 stats: Stats {
                     contact_damage: r32(100.0),
                     move_speed: r32(0.0),
