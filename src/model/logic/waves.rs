@@ -86,13 +86,13 @@ impl Model {
             let mut points = self.wave_manager.difficulty;
             while points > R32::ZERO {
                 let Some((enemy, enemy_config)) = config
-                .enemies
-                .iter()
-                .filter(|(_, config)| config.cost <= points)
-                .choose(&mut rng)
-            else {
-                break;
-            };
+                    .enemies
+                    .iter()
+                    .filter(|(_, config)| config.cost <= points)
+                    .choose(&mut rng)
+                else {
+                    break;
+                };
                 points -= enemy_config.cost;
                 wave.enemies.push_back(enemy.clone());
             }
