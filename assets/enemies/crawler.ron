@@ -1,5 +1,7 @@
 (
-    shape: Circle( radius: 1.25 ),
+    body: BodyConfig(
+        shape: Circle( radius: 1.25 ),
+    ),
     stats: Stats(
         contact_damage: 20.0,
         move_speed: 25.0,
