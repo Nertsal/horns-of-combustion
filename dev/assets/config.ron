@@ -25,15 +25,6 @@ Config(
         dead_zone: 0.5,
     ),
     player: PlayerConfig(
-        stats: Stats(
-            move_speed: 20.0,
-            contact_damage: 5.0,
-            vulnerability: VulnerabilityStats(
-                physical: 1.0,
-                fire: 0.0,
-                explosive: 0.0,
-            ),
-        ),
         acceleration: 3.0,
         dash_burst: 30.0,
         hp: 200.0,
@@ -41,10 +32,27 @@ Config(
             body: BodyConfig(
                 shape: Circle( radius: 1.2 ),
             ),
+            stats: Stats(
+                move_speed: 20.0,
+                contact_damage: 5.0,
+                vulnerability: VulnerabilityStats(
+                    physical: 1.0,
+                    fire: 0.0,
+                    explosive: 0.0,
+                ),
+            ),
         ),
         barrel_state: BarrelStateConfig(
+            stats: Stats(
+                move_speed: 40.0,
+                contact_damage: 20.0,
+                vulnerability: VulnerabilityStats(
+                    physical: 0.2,
+                    fire: 0.0,
+                    explosive: 0.0,
+                ),
+            ),
             steering: 1.0,
-            speed: 40.0,
             dash_speed: 40.0,
             dash_explosion: ExplosionConfig(
                 radius: 5.0,
