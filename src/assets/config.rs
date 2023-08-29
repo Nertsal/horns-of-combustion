@@ -79,7 +79,6 @@ pub struct PlayerConfig {
     pub barrel_state: BarrelStateConfig,
     /// Increase in speed from a barrel dash.
     pub dash_burst: Coord,
-    pub stats: Stats,
     pub acceleration: Coord,
     pub hp: Hp,
     pub gun: GunConfig,
@@ -88,12 +87,12 @@ pub struct PlayerConfig {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct HumanStateConfig {
     pub body: BodyConfig,
+    pub stats: Stats,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct BarrelStateConfig {
-    /// Max possible speed.
-    pub speed: Coord,
+    pub stats: Stats,
     pub dash_speed: Coord,
     pub dash_explosion: ExplosionConfig,
     pub steering: R32,

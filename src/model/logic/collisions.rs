@@ -155,10 +155,10 @@ impl Model {
 
                 if dot > r32(10.0) {
                     // Contact damage
-                    let damage_actor = self.config.player.stats.contact_damage
-                        * actor.stats.vulnerability.physical;
-                    let damage_player = actor.stats.contact_damage
-                        * self.config.player.stats.vulnerability.physical;
+                    let damage_actor =
+                        player.stats.contact_damage * actor.stats.vulnerability.physical;
+                    let damage_player =
+                        actor.stats.contact_damage * player.stats.vulnerability.physical;
                     player_cor.health.change(-damage_player);
                     actor_cor.health.change(-damage_actor);
 
@@ -450,6 +450,7 @@ impl Model {
                 let Some(actor) = actor else { continue };
 
                 if proj.fraction == actor.fraction {
+                    // Friendly fire
                     continue;
                 }
                 if proj.collider.clone().check(&actor.collider.clone()) {
@@ -459,9 +460,9 @@ impl Model {
                         .change(-*proj.damage * actor.stats.vulnerability.projectile);
 
                     // If player is hit, switch back to human state
-                    if *actor.fraction == Fraction::Player {
-                        self.player.state = PlayerState::Human;
-                    }
+                    // if *actor.fraction == Fraction::Player {
+                    //     self.player.state = PlayerState::Human;
+                    // }
 
                     let relative_vel = *proj.velocity - *actor.velocity;
                     // let dot = vec2::dot(relative_vel, collision.normal);
