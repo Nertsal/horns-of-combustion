@@ -2,9 +2,21 @@ use super::*;
 
 impl Model {
     pub(super) fn control_player(&mut self, delta_time: Time) {
+        let mut update_stats = |stats: &Stats| {
+            if let Some(old_stats) = self.actors.stats.get_mut(self.player.actor) {
+                *old_stats = stats.clone();
+            }
+        };
+
         match self.player.state {
-            PlayerState::Human => self.human_control(delta_time),
-            PlayerState::Barrel { last_gas } => self.barrel_control(last_gas, delta_time),
+            PlayerState::Human => {
+                update_stats(&self.config.player.human_state.stats);
+                self.human_control(delta_time);
+            }
+            PlayerState::Barrel { last_gas } => {
+                update_stats(&self.config.player.barrel_state.stats);
+                self.barrel_control(last_gas, delta_time);
+            }
         };
     }
 
@@ -74,7 +86,7 @@ impl Model {
             .body
             .velocity
             .rotate(delta_angle)
-            .clamp_len(..=self.config.player.barrel_state.speed);
+            .clamp_len(..=self.config.player.barrel_state.stats.move_speed);
         player.controller.acceleration = r32(100.0);
 
         // Look in the direction of travel

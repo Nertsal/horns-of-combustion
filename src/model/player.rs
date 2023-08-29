@@ -48,7 +48,7 @@ impl Player {
                 config.hp,
                 config.acceleration,
                 Fraction::Player,
-                config.stats,
+                config.human_state.stats,
                 ActorKind::Player,
             )
             .with_gun(config.gun),

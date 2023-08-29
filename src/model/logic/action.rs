@@ -56,7 +56,7 @@ impl Model {
                         let dash_speed = (vec2::dot(*player.velocity, input_direction)
                             .max(Coord::ZERO)
                             + self.config.player.dash_burst)
-                            .min(self.config.player.barrel_state.speed);
+                            .min(self.config.player.barrel_state.stats.move_speed);
                         *player.velocity = input_direction * dash_speed;
 
                         PlayerState::Barrel {
