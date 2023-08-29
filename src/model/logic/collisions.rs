@@ -594,24 +594,15 @@ impl Model {
 
     /// Projectiles ignite gas when passing over it.
     fn projectile_gas(&mut self, _delta_time: Time) {
-        struct ProjRef<'a> {
-            collider: ColliderRef<'a>,
-        }
-
-        struct GasRef<'a> {
-            collider: ColliderRef<'a>,
+        if !self.config.bullets_ignite_on_hover {
+            return;
         }
 
         let mut gas_ignited: Vec<Id> = Vec::new();
 
-        for (gas_id, gas) in query!(self.gasoline, GasRef { collider }) {
-            for (_proj_id, proj) in query!(
-                self.projectiles,
-                ProjRef {
-                    collider: &body.collider
-                }
-            ) {
-                if proj.collider.clone().check(&gas.collider.clone()) {
+        for (gas_id, (gas,)) in query!(self.gasoline, (&collider)) {
+            for (_proj_id, (proj,)) in query!(self.projectiles, (&body.collider)) {
+                if proj.clone().check(&gas.clone()) {
                     gas_ignited.push(gas_id);
                     break;
                 }

@@ -6,6 +6,9 @@
 ### Barrel
 - Static areas of damage - hard to get enemies to walk into them
 - **Dashing into enemies doesn't work**
+  - explode bullets in a radius upon dashing
+  - enemies dont ignite oil
+  - barrel does not explode in fire
 
 ## Control
 - Cursor (make it move with the player, like in Hotline Miami)
