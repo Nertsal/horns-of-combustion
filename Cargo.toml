@@ -9,10 +9,13 @@ edition = "2021"
 # NOTE: make sure to update dependencies in `dynamic-linking/Cargo.toml`
 dynamic-linking = { path = "dynamic-linking", optional = true }
 clap = { version = "4.3.2", features = ["derive"] }
-ecs = { git = "https://github.com/geng-engine/ecs" }
-geng = "0.15.0"
-geng-utils = "0.1.0"
+ecs = { git = "https://github.com/geng-engine/ecs", rev = "210343f375d29c281664e9b7f4f10798153471e3" }
+geng = "0.17.0"
+geng-utils = "0.3.0"
 image = "0.24.6"
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
 toml = "0.7.4"
+
+# [patch.crates-io]
+# glutin-winit = { git = "https://github.com/rust-windowing/glutin", rev = "42949fb34bd8287fab7ea162e962fbcd3eaec9ea" }

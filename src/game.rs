@@ -187,22 +187,19 @@ impl geng::State for Game {
             PlayerState::Barrel { .. } => &self.assets.sprites.crosshair_barrel,
         };
         let pos = self.model.camera.cursor_pos_relative().as_f32();
-        geng_utils::texture::draw_pixel_perfect(
-            texture,
-            pos,
-            vec2::splat(0.5),
-            &self.model.camera,
-            &self.geng,
-            &mut screen_framebuffer,
-        );
+        geng_utils::texture::DrawTexture::new(texture)
+            .pixel_perfect(
+                pos,
+                vec2::splat(0.5),
+                &self.model.camera,
+                &mut screen_framebuffer,
+            )
+            .draw(&self.model.camera, &self.geng, &mut screen_framebuffer);
 
         // Draw texture to actual screen
-        geng_utils::texture::draw_texture_fit_screen(
-            &self.screen_texture,
-            vec2::splat(0.5),
-            &self.geng,
-            framebuffer,
-        );
+        geng_utils::texture::DrawTexture::new(&self.screen_texture)
+            .fit_screen(vec2::splat(0.5), framebuffer)
+            .draw(&geng::PixelPerfectCamera, &self.geng, framebuffer);
 
         // Draw ui (not pixelated)
         self.render.draw_ui(&self.model, framebuffer);

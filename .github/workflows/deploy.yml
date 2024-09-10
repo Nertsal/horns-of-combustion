@@ -8,11 +8,11 @@ jobs:
   build-web:
     name: Build (Web)
     runs-on: ubuntu-latest
-    container: kuviman/geng
+    container: ghcr.io/geng-engine/cargo-geng
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - run: cargo geng build --release --target wasm32-unknown-unknown
+      - run: cargo geng build --release --platform wasm32-unknown-unknown
       - name: Upload artifacts (web)
         uses: actions/upload-artifact@v2
         with:
