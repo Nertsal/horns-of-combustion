@@ -17,5 +17,5 @@ parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
 toml = "0.7.4"
 
-# [patch.crates-io]
-# glutin-winit = { git = "https://github.com/rust-windowing/glutin", rev = "42949fb34bd8287fab7ea162e962fbcd3eaec9ea" }
+[patch.crates-io]
+async-broadcast = { git = "https://github.com/kuviman/async-broadcast", branch = "fix-wasm" }
