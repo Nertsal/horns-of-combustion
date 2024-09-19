@@ -69,6 +69,7 @@ pub struct OnFire {
 }
 
 #[derive(SplitFields, Debug)]
+#[split(debug, clone)]
 pub struct Actor {
     pub fraction: Fraction,
     #[split(nested)]

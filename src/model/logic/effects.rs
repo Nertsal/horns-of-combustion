@@ -56,20 +56,16 @@ impl Model {
                         stats: &'a Stats,
                     }
 
-                    for actor_id in self.actors.ids() {
-                        let actor = get!(
-                            self.actors,
-                            actor_id,
-                            ActorRef {
-                                position: &body.collider.position,
-                                velocity: &mut body.velocity,
-                                health: &mut health,
-                                on_fire: &mut on_fire,
-                                stats,
-                            }
-                        );
-                        let Some(actor) = actor else { continue };
-
+                    for (_actor_id, actor) in query!(
+                        self.actors,
+                        ActorRef {
+                            position: &body.collider.position,
+                            velocity: &mut body.velocity,
+                            health: &mut health,
+                            on_fire: &mut on_fire,
+                            stats,
+                        }
+                    ) {
                         if !check(*actor.position) {
                             continue;
                         }
@@ -108,19 +104,15 @@ impl Model {
                         vulnerability: &'a VulnerabilityStats,
                     }
 
-                    for block_id in self.blocks.ids() {
-                        let block = get!(
-                            self.blocks,
-                            block_id,
-                            BlockRef {
-                                position: &collider.position,
-                                health: &mut health.Get.Some,
-                                on_fire: &mut on_fire,
-                                vulnerability,
-                            }
-                        );
-                        let Some(block) = block else { continue };
-
+                    for (_block_id, block) in query!(
+                        self.blocks,
+                        BlockRef {
+                            position: &collider.position,
+                            health: &mut health.Get.Some,
+                            on_fire: &mut on_fire,
+                            vulnerability,
+                        }
+                    ) {
                         if !check(*block.position) {
                             continue;
                         }
@@ -142,27 +134,24 @@ impl Model {
                         velocity: &'a mut vec2<Coord>,
                     }
 
-                    for proj_id in self.projectiles.ids() {
-                        if let Some(proj) = get!(
-                            self.projectiles,
-                            proj_id,
-                            ProjRef {
-                                position: &body.collider.position,
-                                velocity: &mut body.velocity,
-                            }
-                        ) {
-                            if !check(*proj.position) {
-                                continue;
-                            }
-                            *proj.velocity += apply_velocity(*proj.position);
+                    for (_proj_id, proj) in query!(
+                        self.projectiles,
+                        ProjRef {
+                            position: &body.collider.position,
+                            velocity: &mut body.velocity,
                         }
+                    ) {
+                        if !check(*proj.position) {
+                            continue;
+                        }
+                        *proj.velocity += apply_velocity(*proj.position);
                     }
                 }
 
                 if config.ignite_gasoline {
                     // Ignite gasoline
                     let to_ignite: Vec<Id> = query!(self.gasoline, (&collider.position))
-                        .filter(|(_, (&pos,))| check(pos))
+                        .filter(|(_, &pos)| check(pos))
                         .map(|(id, _)| id)
                         .collect();
                     for id in to_ignite {

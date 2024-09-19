@@ -11,10 +11,13 @@ crate-type = ["dylib"]
 [dependencies]
 # NOTE: should match the dependencies in `Cargo.toml`
 clap = { version = "4.3.2", features = ["derive"] }
-ecs = { git = "https://github.com/geng-engine/ecs" }
-geng = "0.15.0"
-geng-utils = "0.1.0"
+ecs = { git = "https://github.com/geng-engine/ecs", rev = "ec087d2f409d50f3719ed9ad0cb52bed9a15c951" }
+geng = "0.17.0"
+geng-utils = "0.3.0"
 image = "0.24.6"
 parry2d = "0.13.4"
 serde = { version = "1.0.164", features = ["derive"] }
 toml = "0.7.4"
+
+[patch.crates-io]
+async-broadcast = { git = "https://github.com/kuviman/async-broadcast", branch = "fix-wasm" } # TODO: until https://github.com/smol-rs/async-broadcast/pull/47 is merged

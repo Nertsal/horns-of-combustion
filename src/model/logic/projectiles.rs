@@ -16,22 +16,18 @@ impl Model {
         let mut kill_projs: Vec<Id> = Vec::new();
         let mut to_be_spawned: Vec<Projectile> = Vec::new();
 
-        for proj_id in self.projectiles.ids() {
-            let proj = get!(
-                self.projectiles,
-                proj_id,
-                ProjRef {
-                    lifetime: &mut lifetime,
-                    fraction,
-                    position: &body.collider.position,
-                    rotation: &mut body.collider.rotation,
-                    velocity: &mut body.velocity,
-                    target_pos,
-                    ai: &mut ai,
-                }
-            );
-            let Some(proj) = proj else { continue };
-
+        for (proj_id, proj) in query!(
+            self.projectiles,
+            ProjRef {
+                lifetime: &mut lifetime,
+                fraction,
+                position: &body.collider.position,
+                rotation: &mut body.collider.rotation,
+                velocity: &mut body.velocity,
+                target_pos,
+                ai: &mut ai,
+            }
+        ) {
             // Update lifetime
             proj.lifetime.change(-delta_time);
             if proj.lifetime.is_min() {
@@ -96,7 +92,7 @@ impl Model {
         let mut ignite: Vec<Id> = Vec::new();
         for proj_id in grounded_projs {
             let proj = self.projectiles.remove(proj_id).unwrap();
-            for (gas_id, (gas_collider,)) in query!(self.gasoline, (&collider)) {
+            for (gas_id, gas_collider) in query!(self.gasoline, (&collider)) {
                 if proj.body.collider.check(&gas_collider.clone()) {
                     // Ignite gasoline
                     ignite.push(gas_id);

@@ -10,19 +10,15 @@ impl Model {
         }
 
         let mut to_remove: Vec<Id> = Vec::new();
-        for id in self.particles.ids() {
-            let particle = get!(
-                self.particles,
-                id,
-                ParticleRef {
-                    position: &mut position,
-                    velocity: &mut velocity,
-                    lifetime: &mut lifetime,
-                    kind,
-                }
-            );
-            let Some(particle) = particle else { continue };
-
+        for (id, particle) in query!(
+            self.particles,
+            ParticleRef {
+                position: &mut position,
+                velocity: &mut velocity,
+                lifetime: &mut lifetime,
+                kind,
+            }
+        ) {
             // Update lifetime
             particle.lifetime.change(-delta_time);
             if particle.lifetime.is_min() {

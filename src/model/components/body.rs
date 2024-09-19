@@ -1,6 +1,7 @@
 use super::*;
 
 #[derive(SplitFields, Debug)]
+#[split(debug, clone)]
 pub struct Body {
     #[split(nested)]
     pub collider: Collider,
