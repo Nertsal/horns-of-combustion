@@ -48,18 +48,15 @@ impl Model {
         }
 
         let mut to_remove: Vec<Id> = Vec::new();
-        for id in self.explosions.ids() {
-            if let Some(expl) = get!(
-                self.explosions,
-                id,
-                ExplRef {
-                    lifetime: &mut lifetime
-                }
-            ) {
-                expl.lifetime.change(-delta_time);
-                if expl.lifetime.is_min() {
-                    to_remove.push(id);
-                }
+        for (id, expl) in query!(
+            self.explosions,
+            ExplRef {
+                lifetime: &mut lifetime
+            }
+        ) {
+            expl.lifetime.change(-delta_time);
+            if expl.lifetime.is_min() {
+                to_remove.push(id);
             }
         }
 
@@ -74,7 +71,7 @@ impl Model {
         // Actors
 
         let mut dead_actors: Vec<Id> = query!(self.actors, (&health))
-            .filter(|(_, (health,))| health.is_min())
+            .filter(|(_, health)| health.is_min())
             .map(|(id, _)| id)
             .collect();
 
@@ -116,7 +113,7 @@ impl Model {
             if let ActorKind::BossBody = actor.kind {
                 dead_actors.extend(
                     query!(self.actors, (&kind))
-                        .filter(|(_, (kind,))| matches!(kind, ActorKind::BossFoot { .. }))
+                        .filter(|(_, kind)| matches!(kind, ActorKind::BossFoot { .. }))
                         .map(|(id, _)| id),
                 );
                 let gas_config = &self.config.player.barrel_state.gasoline;
@@ -172,7 +169,7 @@ impl Model {
 
         // Blocks
         let dead_blocks: Vec<Id> = query!(self.blocks, (&health.Get.Some))
-            .filter(|(_, (health,))| health.is_min())
+            .filter(|(_, health)| health.is_min())
             .map(|(id, _)| id)
             .collect();
         for id in dead_blocks {
@@ -278,18 +275,15 @@ impl Model {
         }
 
         let mut expired: Vec<Id> = Vec::new();
-        for id in self.gasoline.ids() {
-            if let Some(gas) = get!(
-                self.gasoline,
-                id,
-                GasRef {
-                    lifetime: &mut lifetime
-                }
-            ) {
-                gas.lifetime.change(-delta_time);
-                if gas.lifetime.is_min() {
-                    expired.push(id);
-                }
+        for (id, gas) in query!(
+            self.gasoline,
+            GasRef {
+                lifetime: &mut lifetime
+            }
+        ) {
+            gas.lifetime.change(-delta_time);
+            if gas.lifetime.is_min() {
+                expired.push(id);
             }
         }
 
@@ -304,18 +298,15 @@ impl Model {
         }
 
         let mut expired: Vec<Id> = Vec::new();
-        for id in self.fire.ids() {
-            if let Some(fire) = get!(
-                self.fire,
-                id,
-                FireRef {
-                    lifetime: &mut lifetime
-                }
-            ) {
-                fire.lifetime.change(-delta_time);
-                if fire.lifetime.is_min() {
-                    expired.push(id);
-                }
+        for (id, fire) in query!(
+            self.fire,
+            FireRef {
+                lifetime: &mut lifetime
+            }
+        ) {
+            fire.lifetime.change(-delta_time);
+            if fire.lifetime.is_min() {
+                expired.push(id);
             }
         }
 
@@ -332,21 +323,15 @@ impl Model {
             stats: &'a Stats,
         }
 
-        for id in self.actors.ids() {
-            let actor = get!(
-                self.actors,
-                id,
-                ActorRef {
-                    position: &body.collider.position,
-                    health: &mut health,
-                    on_fire: &mut on_fire,
-                    stats,
-                }
-            );
-            let Some(actor) = actor else {
-                continue;
-            };
-
+        for (_id, actor) in query!(
+            self.actors,
+            ActorRef {
+                position: &body.collider.position,
+                health: &mut health,
+                on_fire: &mut on_fire,
+                stats,
+            }
+        ) {
             if let Some(on_fire) = actor.on_fire {
                 actor.health.change(
                     -on_fire.damage_per_second * actor.stats.vulnerability.fire * delta_time,
@@ -378,21 +363,15 @@ impl Model {
             vulnerability: &'a VulnerabilityStats,
         }
 
-        for id in self.blocks.ids() {
-            let block = get!(
-                self.blocks,
-                id,
-                BlockRef {
-                    position: &collider.position,
-                    health: &mut health.Get.Some,
-                    on_fire: &mut on_fire,
-                    vulnerability,
-                }
-            );
-            let Some(block) = block else {
-                continue;
-            };
-
+        for (_id, block) in query!(
+            self.blocks,
+            BlockRef {
+                position: &collider.position,
+                health: &mut health.Get.Some,
+                on_fire: &mut on_fire,
+                vulnerability,
+            }
+        ) {
             if let Some(on_fire) = block.on_fire {
                 block
                     .health
@@ -430,20 +409,14 @@ impl Model {
         let mut dead_pickups = Vec::new();
 
         let config = &self.config.pickups;
-        for pickup_id in self.pickups.ids() {
-            let pickup = get!(
-                self.pickups,
-                pickup_id,
-                PickupRef {
-                    position: &body.collider.position,
-                    velocity: &mut body.velocity,
-                    lifetime: &mut lifetime,
-                }
-            );
-            let Some(pickup) = pickup else {
-                continue;
-            };
-
+        for (pickup_id, pickup) in query!(
+            self.pickups,
+            PickupRef {
+                position: &body.collider.position,
+                velocity: &mut body.velocity,
+                lifetime: &mut lifetime,
+            }
+        ) {
             pickup.lifetime.change(-delta_time);
 
             if pickup.lifetime.is_min() {

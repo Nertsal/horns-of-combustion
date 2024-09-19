@@ -60,7 +60,7 @@ impl WorldRender {
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         let camera = &model.camera;
         let color = self.theme.gasoline;
-        for (_, (collider,)) in query!(model.gasoline, (&collider)) {
+        for (_, collider) in query!(model.gasoline, (&collider)) {
             self.draw_collider(&collider.clone(), color, camera, framebuffer);
         }
     }
@@ -518,7 +518,7 @@ impl WorldRender {
             camera.fov.as_f32(),
         ) / 2.0;
 
-        for (_id, (&position,)) in query!(model.actors, (&body.collider.position)) {
+        for (_id, &position) in query!(model.actors, (&body.collider.position)) {
             let delta = camera.center.delta_to(position).as_f32();
             if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
                 // In view

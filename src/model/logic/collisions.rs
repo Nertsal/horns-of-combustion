@@ -41,7 +41,7 @@ impl Model {
             let player_collider = player.collider.clone();
 
             let mut picked_up: Vec<Id> = Vec::new();
-            for (pickup_id, (collider,)) in query!(self.pickups, (&body.collider)) {
+            for (pickup_id, collider) in query!(self.pickups, (&body.collider)) {
                 if player_collider.check(&collider.clone()) {
                     picked_up.push(pickup_id);
                 }
@@ -421,34 +421,26 @@ impl Model {
         }
 
         let mut proj_hits: Vec<Id> = Vec::new();
-        for proj_id in self.projectiles.ids() {
-            let proj = get!(
-                self.projectiles,
-                proj_id,
-                ProjRef {
+        for (proj_id, proj) in query!(
+            self.projectiles,
+            ProjRef {
+                fraction,
+                collider: &body.collider,
+                velocity: &mut body.velocity,
+                damage,
+                knockback,
+            }
+        ) {
+            for (_actor_id, actor) in query!(
+                self.actors,
+                ActorRef {
                     fraction,
                     collider: &body.collider,
                     velocity: &mut body.velocity,
-                    damage,
-                    knockback,
+                    health: &mut health,
+                    stats,
                 }
-            );
-            let Some(proj) = proj else { continue };
-
-            for actor_id in self.actors.ids() {
-                let actor = get!(
-                    self.actors,
-                    actor_id,
-                    ActorRef {
-                        fraction,
-                        collider: &body.collider,
-                        velocity: &mut body.velocity,
-                        health: &mut health,
-                        stats,
-                    }
-                );
-                let Some(actor) = actor else { continue };
-
+            ) {
                 if proj.fraction == actor.fraction {
                     // Friendly fire
                     continue;
@@ -498,29 +490,21 @@ impl Model {
             velocity: &'a mut vec2<Coord>,
         }
 
-        for actor_id in self.actors.ids() {
-            let actor = get!(
-                self.actors,
-                actor_id,
-                ActorRef {
-                    collider: &mut body.collider,
-                    velocity: &mut body.velocity,
+        for (_actor_id, actor) in query!(
+            self.actors,
+            ActorRef {
+                collider: &mut body.collider,
+                velocity: &mut body.velocity,
+            }
+        ) {
+            for (_block_id, block) in query!(
+                self.blocks,
+                BlockRef {
+                    collider,
+                    health: &mut health,
+                    vulnerability,
                 }
-            );
-            let Some(actor) = actor else { continue };
-
-            for block_id in self.blocks.ids() {
-                let block = get!(
-                    self.blocks,
-                    block_id,
-                    BlockRef {
-                        collider,
-                        health: &mut health,
-                        vulnerability,
-                    }
-                );
-                let Some(block) = block else { continue };
-
+            ) {
                 if let Some(collision) = actor.collider.clone().collide(&block.collider.clone()) {
                     actor
                         .collider
@@ -542,29 +526,21 @@ impl Model {
         }
 
         let mut hit_projs: Vec<Id> = Vec::new();
-        for proj_id in self.projectiles.ids() {
-            let proj = get!(
-                self.projectiles,
-                proj_id,
-                ProjRef {
-                    collider: &mut body.collider,
-                    damage,
+        for (proj_id, proj) in query!(
+            self.projectiles,
+            ProjRef {
+                collider: &mut body.collider,
+                damage,
+            }
+        ) {
+            for (_block_id, block) in query!(
+                self.blocks,
+                BlockRef {
+                    collider,
+                    health: &mut health,
+                    vulnerability,
                 }
-            );
-            let Some(proj) = proj else { continue };
-
-            for block_id in self.blocks.ids() {
-                let block = get!(
-                    self.blocks,
-                    block_id,
-                    BlockRef {
-                        collider,
-                        health: &mut health,
-                        vulnerability,
-                    }
-                );
-                let Some(block) = block else { continue };
-
+            ) {
                 if proj.collider.clone().check(&block.collider.clone()) {
                     hit_projs.push(proj_id);
                     if let Some(health) = block.health {
@@ -601,8 +577,8 @@ impl Model {
 
         let mut gas_ignited: Vec<Id> = Vec::new();
 
-        for (gas_id, (gas,)) in query!(self.gasoline, (&collider)) {
-            for (_proj_id, (proj,)) in query!(self.projectiles, (&body.collider)) {
+        for (gas_id, gas) in query!(self.gasoline, (&collider)) {
+            for (_proj_id, proj) in query!(self.projectiles, (&body.collider)) {
                 if proj.clone().check(&gas.clone()) {
                     gas_ignited.push(gas_id);
                     break;
@@ -626,17 +602,13 @@ impl Model {
         }
 
         let mut to_ignite: Vec<Id> = Vec::new();
-        for gas_id in self.gasoline.ids() {
-            let gas = get!(
-                self.gasoline,
-                gas_id,
-                GasRef {
-                    collider,
-                    ignite_timer: &mut ignite_timer
-                }
-            );
-            let Some(gas) = gas else { continue };
-
+        for (gas_id, gas) in query!(
+            self.gasoline,
+            GasRef {
+                collider,
+                ignite_timer: &mut ignite_timer
+            }
+        ) {
             for (_, fire) in query!(self.fire, FireRef { collider }) {
                 if fire.collider.clone().check(&gas.collider.clone()) {
                     *gas.ignite_timer -= delta_time;
@@ -666,19 +638,15 @@ impl Model {
             on_fire: &'a mut Option<OnFire>,
         }
 
-        for actor_id in self.actors.ids() {
-            let actor = get!(
-                self.actors,
-                actor_id,
-                ActorRef {
-                    collider: &body.collider,
-                    velocity: &mut body.velocity,
-                    stats,
-                    on_fire: &mut on_fire,
-                }
-            );
-            let Some(actor) = actor else { continue };
-
+        for (actor_id, actor) in query!(
+            self.actors,
+            ActorRef {
+                collider: &body.collider,
+                velocity: &mut body.velocity,
+                stats,
+                on_fire: &mut on_fire,
+            }
+        ) {
             for (_, fire) in query!(self.fire, FireRef { collider, config }) {
                 if actor.collider.clone().check(&fire.collider.clone()) {
                     if actor.stats.vulnerability.fire > R32::ZERO {

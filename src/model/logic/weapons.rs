@@ -44,10 +44,8 @@ impl Model {
     }
 
     fn update_actors(&mut self, delta_time: Time) {
-        for id in self.actors.ids() {
-            if let Some((gun,)) = get!(self.actors, id, (&mut gun.Get.Some)) {
-                update_weapon(&mut gun.shot_delay, delta_time);
-            }
+        for (_id, gun) in query!(self.actors, (&mut gun.Get.Some)) {
+            update_weapon(&mut gun.shot_delay, delta_time);
         }
     }
 }

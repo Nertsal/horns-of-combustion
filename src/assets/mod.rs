@@ -147,6 +147,7 @@ fn load_font(
                 pixel_size: 128.0,
                 max_distance: 1.0,
                 antialias: false,
+                distance_mode: geng::font::DistanceMode::Euclid,
             },
         )
         .await?;

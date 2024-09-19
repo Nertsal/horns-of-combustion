@@ -49,9 +49,7 @@ impl Model {
             //     return;
             // }
 
-            if query!(self.actors, (&fraction))
-                .any(|(_, (fraction,))| *fraction != Fraction::Player)
-            {
+            if query!(self.actors, (&fraction)).any(|(_, fraction)| *fraction != Fraction::Player) {
                 // Some enemies haven't died yet
                 return;
             }

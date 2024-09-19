@@ -200,12 +200,9 @@ impl geng::State for StartMenu {
             .draw(&self.model, self.delta_time, &mut game_framebuffer);
 
         // Draw game to screen
-        geng_utils::texture::draw_texture_fit_screen(
-            &self.game_texture,
-            vec2::splat(0.5),
-            &self.geng,
-            framebuffer,
-        );
+        geng_utils::texture::DrawTexture::new(&self.game_texture)
+            .fit_screen(vec2::splat(0.5), framebuffer)
+            .draw(&geng::PixelPerfectCamera, &self.geng, framebuffer);
 
         let mut screen_framebuffer = ugli::Framebuffer::new_color(
             self.geng.ugli(),
@@ -226,25 +223,24 @@ impl geng::State for StartMenu {
 
         let screen_size = screen_framebuffer.size().as_f32();
         let offset = screen_size.x * 0.1;
-        geng_utils::texture::draw_texture_fit_width(
-            texture,
-            Aabb2 {
-                min: vec2(offset, 0.0),
-                max: vec2(screen_size.x - offset, screen_size.y),
-            },
-            1.0,
-            &geng::PixelPerfectCamera,
-            &self.geng,
-            &mut screen_framebuffer,
-        );
+        geng_utils::texture::DrawTexture::new(texture)
+            .fit_width(
+                Aabb2 {
+                    min: vec2(offset, 0.0),
+                    max: vec2(screen_size.x - offset, screen_size.y),
+                },
+                1.0,
+            )
+            .draw(
+                &geng::PixelPerfectCamera,
+                &self.geng,
+                &mut screen_framebuffer,
+            );
 
         // Draw texture to actual screen
-        geng_utils::texture::draw_texture_fit_screen(
-            &self.screen_texture,
-            vec2(0.5, 0.5),
-            &self.geng,
-            framebuffer,
-        );
+        geng_utils::texture::DrawTexture::new(&self.screen_texture)
+            .fit_screen(vec2(0.5, 0.5), framebuffer)
+            .draw(&geng::PixelPerfectCamera, &self.geng, framebuffer);
 
         self.draw_button(self.play_button, "Play", framebuffer);
         self.draw_button(self.exit_button, "Exit", framebuffer);

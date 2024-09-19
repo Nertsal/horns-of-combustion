@@ -13,6 +13,7 @@ pub struct Collision {
 }
 
 #[derive(SplitFields, Debug, Clone, Serialize, Deserialize)]
+#[split(debug, clone)]
 pub struct Collider {
     pub position: Position,
     pub rotation: Angle<Coord>,

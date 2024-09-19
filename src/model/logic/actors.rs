@@ -21,24 +21,20 @@ impl Model {
 
         let mut shots = Vec::new();
 
-        for actor_id in self.actors.ids() {
-            let actor = get!(
-                self.actors,
-                actor_id,
-                ActorRef {
-                    position: &mut body.collider.position,
-                    rotation: &mut body.collider.rotation,
-                    velocity: &mut body.velocity,
-                    stats,
-                    controller: &mut controller,
-                    ai: &mut ai.Get.Some,
-                    kind: &mut kind,
-                    gun: &mut gun,
-                    stunned,
-                }
-            );
-            let Some(actor) = actor else { continue };
-
+        for (_actor_id, actor) in query!(
+            self.actors,
+            ActorRef {
+                position: &mut body.collider.position,
+                rotation: &mut body.collider.rotation,
+                velocity: &mut body.velocity,
+                stats,
+                controller: &mut controller,
+                ai: &mut ai.Get.Some,
+                kind: &mut kind,
+                gun: &mut gun,
+                stunned,
+            }
+        ) {
             if actor.stunned.is_some() {
                 continue;
             }
@@ -141,18 +137,14 @@ impl Model {
             stunned: &'a mut Option<Time>,
         }
 
-        for id in self.actors.ids() {
-            let actor = get!(
-                self.actors,
-                id,
-                ActorRef {
-                    velocity: &mut body.velocity,
-                    controller,
-                    stunned: &mut stunned,
-                }
-            );
-            let Some(actor) = actor else { continue };
-
+        for (_id, actor) in query!(
+            self.actors,
+            ActorRef {
+                velocity: &mut body.velocity,
+                controller,
+                stunned: &mut stunned,
+            }
+        ) {
             let target_velocity = if let Some(time) = actor.stunned {
                 *time -= delta_time;
                 if *time <= Time::ZERO {

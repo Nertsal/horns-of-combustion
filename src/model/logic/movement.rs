@@ -8,41 +8,34 @@ impl Model {
             velocity: &'a vec2<Coord>,
         }
 
-        let process = |body: Option<MoveRef<'_>>| {
-            if let Some(body) = body {
-                body.position.shift(*body.velocity * delta_time);
-            }
+        let process = |body: MoveRef<'_>| {
+            body.position.shift(*body.velocity * delta_time);
         };
 
-        for id in self.actors.ids() {
-            process(get!(
-                self.actors,
-                id,
-                MoveRef {
-                    position: &mut body.collider.position,
-                    velocity: &body.velocity,
-                }
-            ));
-        }
-        for id in self.projectiles.ids() {
-            process(get!(
-                self.projectiles,
-                id,
-                MoveRef {
-                    position: &mut body.collider.position,
-                    velocity: &body.velocity,
-                }
-            ));
-        }
-        for id in self.pickups.ids() {
-            process(get!(
-                self.pickups,
-                id,
-                MoveRef {
-                    position: &mut body.collider.position,
-                    velocity: &body.velocity,
-                }
-            ));
+        // TODO: global query
+        let actors = query!(
+            self.actors,
+            MoveRef {
+                position: &mut body.collider.position,
+                velocity: &body.velocity,
+            }
+        );
+        let projectiles = query!(
+            self.projectiles,
+            MoveRef {
+                position: &mut body.collider.position,
+                velocity: &body.velocity,
+            }
+        );
+        let pickups = query!(
+            self.pickups,
+            MoveRef {
+                position: &mut body.collider.position,
+                velocity: &body.velocity,
+            }
+        );
+        for (_id, body) in actors.chain(projectiles).chain(pickups) {
+            process(body);
         }
     }
 }
