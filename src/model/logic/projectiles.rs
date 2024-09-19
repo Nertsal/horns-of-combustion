@@ -3,6 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn control_projectiles(&mut self, delta_time: Time) {
         struct ProjRef<'a> {
+            id: Index,
             lifetime: &'a mut Lifetime,
             fraction: &'a Fraction,
             position: &'a Position,
@@ -16,9 +17,10 @@ impl Model {
         let mut kill_projs: Vec<Id> = Vec::new();
         let mut to_be_spawned: Vec<Projectile> = Vec::new();
 
-        for (proj_id, proj) in query!(
+        for proj in query!(
             self.projectiles,
             ProjRef {
+                id,
                 lifetime: &mut lifetime,
                 fraction,
                 position: &body.collider.position,
@@ -31,7 +33,7 @@ impl Model {
             // Update lifetime
             proj.lifetime.change(-delta_time);
             if proj.lifetime.is_min() {
-                kill_projs.push(proj_id);
+                kill_projs.push(proj.id);
                 continue;
             }
 
@@ -43,7 +45,7 @@ impl Model {
                 let target_dir = proj.position.delta_to(target_pos);
                 if vec2::dot(target_dir, *proj.velocity) < Coord::ZERO {
                     // The projectile is travelling away from the target
-                    grounded_projs.push(proj_id);
+                    grounded_projs.push(proj.id);
                 }
             }
 
@@ -63,7 +65,7 @@ impl Model {
                         *delay -= delta_time;
                     } else {
                         // Explode!
-                        kill_projs.push(proj_id);
+                        kill_projs.push(proj.id);
 
                         // Create a circle of projectiles
                         for i in 0..18 {
@@ -92,7 +94,7 @@ impl Model {
         let mut ignite: Vec<Id> = Vec::new();
         for proj_id in grounded_projs {
             let proj = self.projectiles.remove(proj_id).unwrap();
-            for (gas_id, gas_collider) in query!(self.gasoline, (&collider)) {
+            for (gas_id, gas_collider) in query!(self.gasoline, (id, &collider)) {
                 if proj.body.collider.check(&gas_collider.clone()) {
                     // Ignite gasoline
                     ignite.push(gas_id);

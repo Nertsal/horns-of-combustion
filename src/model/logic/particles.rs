@@ -3,6 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn update_particles(&mut self, delta_time: Time) {
         struct ParticleRef<'a> {
+            id: Index,
             position: &'a mut Position,
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
@@ -10,9 +11,10 @@ impl Model {
         }
 
         let mut to_remove: Vec<Id> = Vec::new();
-        for (id, particle) in query!(
+        for particle in query!(
             self.particles,
             ParticleRef {
+                id,
                 position: &mut position,
                 velocity: &mut velocity,
                 lifetime: &mut lifetime,
@@ -22,7 +24,7 @@ impl Model {
             // Update lifetime
             particle.lifetime.change(-delta_time);
             if particle.lifetime.is_min() {
-                to_remove.push(id);
+                to_remove.push(particle.id);
                 continue;
             }
 

@@ -60,7 +60,7 @@ impl WorldRender {
     fn draw_gasoline(&self, model: &Model, framebuffer: &mut ugli::Framebuffer) {
         let camera = &model.camera;
         let color = self.theme.gasoline;
-        for (_, collider) in query!(model.gasoline, (&collider)) {
+        for collider in query!(model.gasoline, (&collider)) {
             self.draw_collider(&collider.clone(), color, camera, framebuffer);
         }
     }
@@ -80,7 +80,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, block) in query!(
+        for block in query!(
             blocks,
             BlockRef {
                 collider,
@@ -155,7 +155,7 @@ impl WorldRender {
 
         let camera = &model.camera;
         let color = self.theme.fire;
-        for (_, fire) in query!(model.fire, FireRef { collider, lifetime }) {
+        for fire in query!(model.fire, FireRef { collider, lifetime }) {
             let scale =
                 ((fire.lifetime.max() - fire.lifetime.value()).as_f32() / 0.3).clamp(0.0, 1.0);
             self.draw_collider_transformed(
@@ -173,7 +173,7 @@ impl WorldRender {
             lifetime: &'a Lifetime,
         }
 
-        for (_, expl) in query!(
+        for expl in query!(
             model.explosions,
             ExplRef {
                 position,
@@ -221,7 +221,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, actor) in query!(
+        for actor in query!(
             model.actors,
             ActorRef {
                 collider: &body.collider,
@@ -379,7 +379,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_id, proj) in query!(
+        for proj in query!(
             model.projectiles,
             ProjRef {
                 collider: &body.collider,
@@ -421,7 +421,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, particle) in query!(
+        for particle in query!(
             model.particles,
             ParticleRef {
                 position,
@@ -467,7 +467,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_, pickup) in query!(
+        for pickup in query!(
             model.pickups,
             PickupRef {
                 collider: &body.collider,
@@ -518,7 +518,7 @@ impl WorldRender {
             camera.fov.as_f32(),
         ) / 2.0;
 
-        for (_id, &position) in query!(model.actors, (&body.collider.position)) {
+        for &position in query!(model.actors, (&body.collider.position)) {
             let delta = camera.center.delta_to(position).as_f32();
             if delta.x.abs() < camera_view.x && delta.y.abs() < camera_view.y {
                 // In view
@@ -578,7 +578,7 @@ impl WorldRender {
         }
 
         let camera = &model.camera;
-        for (_id, actor) in query!(
+        for actor in query!(
             model.actors,
             ActorRef {
                 collider: &body.collider,
@@ -605,7 +605,7 @@ impl WorldRender {
             health: &'a Health,
         }
 
-        for (_id, actor) in query!(
+        for actor in query!(
             model.blocks,
             BlockRef {
                 collider,

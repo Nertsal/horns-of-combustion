@@ -8,7 +8,7 @@ impl Model {
             velocity: &'a vec2<Coord>,
         }
 
-        for (_id, body) in query!(
+        for body in query!(
             [self.actors, self.projectiles, self.pickups],
             MoveRef {
                 position: &mut body.collider.position,
