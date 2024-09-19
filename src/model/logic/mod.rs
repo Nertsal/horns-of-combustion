@@ -44,19 +44,21 @@ impl Model {
 
     fn update_explosions(&mut self, delta_time: Time) {
         struct ExplRef<'a> {
+            id: Index,
             lifetime: &'a mut Lifetime,
         }
 
         let mut to_remove: Vec<Id> = Vec::new();
-        for (id, expl) in query!(
+        for expl in query!(
             self.explosions,
             ExplRef {
+                id,
                 lifetime: &mut lifetime
             }
         ) {
             expl.lifetime.change(-delta_time);
             if expl.lifetime.is_min() {
-                to_remove.push(id);
+                to_remove.push(expl.id);
             }
         }
 
@@ -70,7 +72,7 @@ impl Model {
 
         // Actors
 
-        let mut dead_actors: Vec<Id> = query!(self.actors, (&health))
+        let mut dead_actors: Vec<Id> = query!(self.actors, (id, &health))
             .filter(|(_, health)| health.is_min())
             .map(|(id, _)| id)
             .collect();
@@ -112,7 +114,7 @@ impl Model {
 
             if let ActorKind::BossBody = actor.kind {
                 dead_actors.extend(
-                    query!(self.actors, (&kind))
+                    query!(self.actors, (id, &kind))
                         .filter(|(_, kind)| matches!(kind, ActorKind::BossFoot { .. }))
                         .map(|(id, _)| id),
                 );
@@ -168,7 +170,7 @@ impl Model {
         // }
 
         // Blocks
-        let dead_blocks: Vec<Id> = query!(self.blocks, (&health.Get.Some))
+        let dead_blocks: Vec<Id> = query!(self.blocks, (id, &health.Get.Some))
             .filter(|(_, health)| health.is_min())
             .map(|(id, _)| id)
             .collect();
@@ -271,19 +273,21 @@ impl Model {
 
     fn update_gas(&mut self, delta_time: Time) {
         struct GasRef<'a> {
+            id: Index,
             lifetime: &'a mut Lifetime,
         }
 
         let mut expired: Vec<Id> = Vec::new();
-        for (id, gas) in query!(
+        for gas in query!(
             self.gasoline,
             GasRef {
+                id,
                 lifetime: &mut lifetime
             }
         ) {
             gas.lifetime.change(-delta_time);
             if gas.lifetime.is_min() {
-                expired.push(id);
+                expired.push(gas.id);
             }
         }
 
@@ -294,19 +298,21 @@ impl Model {
 
     fn update_fire(&mut self, delta_time: Time) {
         struct FireRef<'a> {
+            id: Index,
             lifetime: &'a mut Lifetime,
         }
 
         let mut expired: Vec<Id> = Vec::new();
-        for (id, fire) in query!(
+        for fire in query!(
             self.fire,
             FireRef {
+                id,
                 lifetime: &mut lifetime
             }
         ) {
             fire.lifetime.change(-delta_time);
             if fire.lifetime.is_min() {
-                expired.push(id);
+                expired.push(fire.id);
             }
         }
 
@@ -323,7 +329,7 @@ impl Model {
             stats: &'a Stats,
         }
 
-        for (_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
                 position: &body.collider.position,
@@ -363,7 +369,7 @@ impl Model {
             vulnerability: &'a VulnerabilityStats,
         }
 
-        for (_id, block) in query!(
+        for block in query!(
             self.blocks,
             BlockRef {
                 position: &collider.position,
@@ -399,6 +405,7 @@ impl Model {
 
     fn update_pickups(&mut self, delta_time: Time) {
         struct PickupRef<'a> {
+            id: Index,
             position: &'a Position,
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
@@ -409,9 +416,10 @@ impl Model {
         let mut dead_pickups = Vec::new();
 
         let config = &self.config.pickups;
-        for (pickup_id, pickup) in query!(
+        for pickup in query!(
             self.pickups,
             PickupRef {
+                id,
                 position: &body.collider.position,
                 velocity: &mut body.velocity,
                 lifetime: &mut lifetime,
@@ -420,7 +428,7 @@ impl Model {
             pickup.lifetime.change(-delta_time);
 
             if pickup.lifetime.is_min() {
-                dead_pickups.push(pickup_id);
+                dead_pickups.push(pickup.id);
                 continue;
             }
 

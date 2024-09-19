@@ -24,7 +24,10 @@ mod render;
 mod util;
 
 mod prelude {
-    pub use ecs::{prelude::*, storage::arena::Arena};
+    pub use ecs::{
+        prelude::*,
+        storage::arena::{Arena, Index},
+    };
     pub use geng::prelude::*;
     pub use geng_utils::{
         conversions::*,

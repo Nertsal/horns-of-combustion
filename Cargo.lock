@@ -1367,7 +1367,7 @@ dependencies = [
 [[package]]
 name = "ecs"
 version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs?rev=5bee27bbfb259c2d3eda0416f5d82e6d04d437c5#5bee27bbfb259c2d3eda0416f5d82e6d04d437c5"
+source = "git+https://github.com/geng-engine/ecs?rev=c1546e52f398d5133f6dcaca11b3eae783613ddd#c1546e52f398d5133f6dcaca11b3eae783613ddd"
 dependencies = [
  "ecs-derive",
  "generational-arena",
@@ -1376,7 +1376,7 @@ dependencies = [
 [[package]]
 name = "ecs-derive"
 version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs?rev=5bee27bbfb259c2d3eda0416f5d82e6d04d437c5#5bee27bbfb259c2d3eda0416f5d82e6d04d437c5"
+source = "git+https://github.com/geng-engine/ecs?rev=c1546e52f398d5133f6dcaca11b3eae783613ddd#c1546e52f398d5133f6dcaca11b3eae783613ddd"
 dependencies = [
  "darling 0.14.4",
  "proc-macro2",

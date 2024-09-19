@@ -56,7 +56,7 @@ impl Model {
                         stats: &'a Stats,
                     }
 
-                    for (_actor_id, actor) in query!(
+                    for actor in query!(
                         self.actors,
                         ActorRef {
                             position: &body.collider.position,
@@ -104,7 +104,7 @@ impl Model {
                         vulnerability: &'a VulnerabilityStats,
                     }
 
-                    for (_block_id, block) in query!(
+                    for block in query!(
                         self.blocks,
                         BlockRef {
                             position: &collider.position,
@@ -134,7 +134,7 @@ impl Model {
                         velocity: &'a mut vec2<Coord>,
                     }
 
-                    for (_proj_id, proj) in query!(
+                    for proj in query!(
                         self.projectiles,
                         ProjRef {
                             position: &body.collider.position,
@@ -150,7 +150,7 @@ impl Model {
 
                 if config.ignite_gasoline {
                     // Ignite gasoline
-                    let to_ignite: Vec<Id> = query!(self.gasoline, (&collider.position))
+                    let to_ignite: Vec<Id> = query!(self.gasoline, (id, &collider.position))
                         .filter(|(_, &pos)| check(pos))
                         .map(|(id, _)| id)
                         .collect();

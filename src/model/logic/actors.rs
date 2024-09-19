@@ -21,7 +21,7 @@ impl Model {
 
         let mut shots = Vec::new();
 
-        for (_actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
                 position: &mut body.collider.position,
@@ -137,7 +137,7 @@ impl Model {
             stunned: &'a mut Option<Time>,
         }
 
-        for (_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
                 velocity: &mut body.velocity,

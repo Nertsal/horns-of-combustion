@@ -41,7 +41,7 @@ impl Model {
             let player_collider = player.collider.clone();
 
             let mut picked_up: Vec<Id> = Vec::new();
-            for (pickup_id, collider) in query!(self.pickups, (&body.collider)) {
+            for (pickup_id, collider) in query!(self.pickups, (id, &body.collider)) {
                 if player_collider.check(&collider.clone()) {
                     picked_up.push(pickup_id);
                 }
@@ -74,6 +74,7 @@ impl Model {
 
     fn collide_player_human(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
+            id: Index,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
             stats: &'a Stats,
@@ -84,6 +85,7 @@ impl Model {
             self.actors,
             self.player.actor,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &body.velocity,
                 stats,
@@ -101,16 +103,17 @@ impl Model {
         }
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
 
-        for (actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &body.velocity,
                 stats,
                 health,
             }
         ) {
-            if actor_id == self.player.actor {
+            if actor.id == self.player.actor {
                 continue;
             }
             if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
@@ -123,7 +126,7 @@ impl Model {
                             velocity: *player.velocity,
                             health: *player.health,
                         });
-                let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+                let mut actor_cor = corrections.get(&actor.id).cloned().unwrap_or(Correction {
                     position: *actor.collider.position,
                     velocity: *actor.velocity,
                     health: *actor.health,
@@ -171,7 +174,7 @@ impl Model {
                 }
 
                 corrections.insert(self.player.actor, player_cor);
-                corrections.insert(actor_id, actor_cor);
+                corrections.insert(actor.id, actor_cor);
             }
         }
 
@@ -200,6 +203,7 @@ impl Model {
 
     fn collide_player_barrel(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
+            id: Index,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
             stats: &'a Stats,
@@ -211,6 +215,7 @@ impl Model {
             self.actors,
             self.player.actor,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &body.velocity,
                 stats,
@@ -230,9 +235,10 @@ impl Model {
         }
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
 
-        for (actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &body.velocity,
                 stats,
@@ -240,7 +246,7 @@ impl Model {
                 health,
             }
         ) {
-            if actor_id == self.player.actor {
+            if actor.id == self.player.actor {
                 continue;
             }
             if let Some(collision) = player_collider.collide(&actor.collider.clone()) {
@@ -254,7 +260,7 @@ impl Model {
                             stun: None,
                             health: *player.health,
                         });
-                let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+                let mut actor_cor = corrections.get(&actor.id).cloned().unwrap_or(Correction {
                     position: *actor.collider.position,
                     velocity: *actor.velocity,
                     stun: None,
@@ -294,7 +300,7 @@ impl Model {
                 };
 
                 corrections.insert(self.player.actor, player_cor);
-                corrections.insert(actor_id, actor_cor);
+                corrections.insert(actor.id, actor_cor);
             }
         }
 
@@ -326,6 +332,7 @@ impl Model {
 
     fn collide_actors(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
+            id: Index,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
         }
@@ -338,36 +345,38 @@ impl Model {
 
         let mut corrections: HashMap<Id, Correction> = HashMap::new();
 
-        for (actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &body.velocity,
             }
         ) {
-            if actor_id == self.player.actor {
+            if actor.id == self.player.actor {
                 continue;
             }
 
             let mut actor_collider = actor.collider.clone();
-            let mut actor_cor = corrections.get(&actor_id).cloned().unwrap_or(Correction {
+            let mut actor_cor = corrections.get(&actor.id).cloned().unwrap_or(Correction {
                 position: *actor.collider.position,
                 velocity: *actor.velocity,
             });
 
-            for (other_id, other) in query!(
+            for other in query!(
                 self.actors,
                 ActorRef {
+                    id,
                     collider: &body.collider,
                     velocity: &body.velocity,
                 }
             ) {
-                if other_id == self.player.actor || other_id <= actor_id {
+                if other.id == self.player.actor || other.id <= actor.id {
                     continue;
                 }
 
                 let mut other_collider = other.collider.clone();
-                let mut other_cor = corrections.get(&other_id).cloned().unwrap_or(Correction {
+                let mut other_cor = corrections.get(&other.id).cloned().unwrap_or(Correction {
                     position: *other.collider.position,
                     velocity: *other.velocity,
                 });
@@ -383,11 +392,11 @@ impl Model {
                         .position
                         .shift(collision.normal * collision.penetration / r32(2.0));
 
-                    corrections.insert(other_id, other_cor);
+                    corrections.insert(other.id, other_cor);
                 }
             }
 
-            corrections.insert(actor_id, actor_cor);
+            corrections.insert(actor.id, actor_cor);
         }
 
         for (actor, correction) in corrections {
@@ -405,6 +414,7 @@ impl Model {
 
     fn collide_projectiles(&mut self, _delta_time: Time) {
         struct ProjRef<'a> {
+            id: Index,
             fraction: &'a Fraction,
             collider: ColliderRef<'a>,
             velocity: &'a mut vec2<Coord>,
@@ -421,9 +431,10 @@ impl Model {
         }
 
         let mut proj_hits: Vec<Id> = Vec::new();
-        for (proj_id, proj) in query!(
+        for proj in query!(
             self.projectiles,
             ProjRef {
+                id,
                 fraction,
                 collider: &body.collider,
                 velocity: &mut body.velocity,
@@ -431,7 +442,7 @@ impl Model {
                 knockback,
             }
         ) {
-            for (_actor_id, actor) in query!(
+            for actor in query!(
                 self.actors,
                 ActorRef {
                     fraction,
@@ -446,7 +457,7 @@ impl Model {
                     continue;
                 }
                 if proj.collider.clone().check(&actor.collider.clone()) {
-                    proj_hits.push(proj_id);
+                    proj_hits.push(proj.id);
                     actor
                         .health
                         .change(-*proj.damage * actor.stats.vulnerability.projectile);
@@ -490,14 +501,14 @@ impl Model {
             velocity: &'a mut vec2<Coord>,
         }
 
-        for (_actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
                 collider: &mut body.collider,
                 velocity: &mut body.velocity,
             }
         ) {
-            for (_block_id, block) in query!(
+            for block in query!(
                 self.blocks,
                 BlockRef {
                     collider,
@@ -521,19 +532,21 @@ impl Model {
         // Projectiles
 
         struct ProjRef<'a> {
+            id: Index,
             collider: ColliderRefMut<'a>,
             damage: &'a Hp,
         }
 
         let mut hit_projs: Vec<Id> = Vec::new();
-        for (proj_id, proj) in query!(
+        for proj in query!(
             self.projectiles,
             ProjRef {
+                id,
                 collider: &mut body.collider,
                 damage,
             }
         ) {
-            for (_block_id, block) in query!(
+            for block in query!(
                 self.blocks,
                 BlockRef {
                     collider,
@@ -542,7 +555,7 @@ impl Model {
                 }
             ) {
                 if proj.collider.clone().check(&block.collider.clone()) {
-                    hit_projs.push(proj_id);
+                    hit_projs.push(proj.id);
                     if let Some(health) = block.health {
                         health.change(-*proj.damage * block.vulnerability.physical);
                     }
@@ -577,8 +590,8 @@ impl Model {
 
         let mut gas_ignited: Vec<Id> = Vec::new();
 
-        for (gas_id, gas) in query!(self.gasoline, (&collider)) {
-            for (_proj_id, proj) in query!(self.projectiles, (&body.collider)) {
+        for (gas_id, gas) in query!(self.gasoline, (id, &collider)) {
+            for proj in query!(self.projectiles, (&body.collider)) {
                 if proj.clone().check(&gas.clone()) {
                     gas_ignited.push(gas_id);
                     break;
@@ -597,23 +610,25 @@ impl Model {
         }
 
         struct GasRef<'a> {
+            id: Index,
             collider: ColliderRef<'a>,
             ignite_timer: &'a mut Time,
         }
 
         let mut to_ignite: Vec<Id> = Vec::new();
-        for (gas_id, gas) in query!(
+        for gas in query!(
             self.gasoline,
             GasRef {
+                id,
                 collider,
                 ignite_timer: &mut ignite_timer
             }
         ) {
-            for (_, fire) in query!(self.fire, FireRef { collider }) {
+            for fire in query!(self.fire, FireRef { collider }) {
                 if fire.collider.clone().check(&gas.collider.clone()) {
                     *gas.ignite_timer -= delta_time;
                     if *gas.ignite_timer <= Time::ZERO {
-                        to_ignite.push(gas_id);
+                        to_ignite.push(gas.id);
                         break;
                     }
                 }
@@ -632,22 +647,24 @@ impl Model {
         }
 
         struct ActorRef<'a> {
+            id: Index,
             collider: ColliderRef<'a>,
             velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
             on_fire: &'a mut Option<OnFire>,
         }
 
-        for (actor_id, actor) in query!(
+        for actor in query!(
             self.actors,
             ActorRef {
+                id,
                 collider: &body.collider,
                 velocity: &mut body.velocity,
                 stats,
                 on_fire: &mut on_fire,
             }
         ) {
-            for (_, fire) in query!(self.fire, FireRef { collider, config }) {
+            for fire in query!(self.fire, FireRef { collider, config }) {
                 if actor.collider.clone().check(&fire.collider.clone()) {
                     if actor.stats.vulnerability.fire > R32::ZERO {
                         *actor.on_fire = Some(update_on_fire(
@@ -658,7 +675,7 @@ impl Model {
                             },
                         ));
                     }
-                    if actor_id == self.player.actor {
+                    if actor.id == self.player.actor {
                         if let PlayerState::Barrel { .. } = self.player.state {
                             // Explode the barrel
                             // let dir = fire
