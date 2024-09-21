@@ -3,7 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn control_projectiles(&mut self, delta_time: Time) {
         struct ProjRef<'a> {
-            id: Index,
+            id: Id,
             lifetime: &'a mut Lifetime,
             fraction: &'a Fraction,
             position: &'a Position,

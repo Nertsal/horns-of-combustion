@@ -3,7 +3,7 @@ use super::*;
 impl Model {
     pub(super) fn update_particles(&mut self, delta_time: Time) {
         struct ParticleRef<'a> {
-            id: Index,
+            id: Id,
             position: &'a mut Position,
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,

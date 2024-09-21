@@ -26,7 +26,6 @@ use geng_utils::bounded::Bounded;
 pub type Color = Rgba<f32>;
 pub type Time = R32;
 pub type Coord = R32;
-pub type Id = ecs::storage::arena::Index;
 pub type Lifetime = Bounded<Time>;
 pub type Hp = R32;
 pub type Health = Bounded<Hp>;

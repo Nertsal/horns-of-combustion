@@ -44,7 +44,7 @@ impl Model {
 
     fn update_explosions(&mut self, delta_time: Time) {
         struct ExplRef<'a> {
-            id: Index,
+            id: Id,
             lifetime: &'a mut Lifetime,
         }
 
@@ -273,7 +273,7 @@ impl Model {
 
     fn update_gas(&mut self, delta_time: Time) {
         struct GasRef<'a> {
-            id: Index,
+            id: Id,
             lifetime: &'a mut Lifetime,
         }
 
@@ -298,7 +298,7 @@ impl Model {
 
     fn update_fire(&mut self, delta_time: Time) {
         struct FireRef<'a> {
-            id: Index,
+            id: Id,
             lifetime: &'a mut Lifetime,
         }
 
@@ -405,7 +405,7 @@ impl Model {
 
     fn update_pickups(&mut self, delta_time: Time) {
         struct PickupRef<'a> {
-            id: Index,
+            id: Id,
             position: &'a Position,
             velocity: &'a mut vec2<Coord>,
             lifetime: &'a mut Lifetime,
