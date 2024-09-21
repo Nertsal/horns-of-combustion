@@ -11,7 +11,7 @@ crate-type = ["dylib"]
 [dependencies]
 # NOTE: should match the dependencies in `Cargo.toml`
 clap = { version = "4.3.2", features = ["derive"] }
-ecs = { git = "https://github.com/geng-engine/ecs", rev = "c1546e52f398d5133f6dcaca11b3eae783613ddd" }
+ecs = { git = "https://github.com/geng-engine/ecs", rev = "b1a3e021f1fa29e37c02acc5963f84083547943b" }
 geng = "0.17.0"
 geng-utils = "0.3.0"
 image = "0.24.6"

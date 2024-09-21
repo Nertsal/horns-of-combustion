@@ -26,7 +26,7 @@ mod util;
 mod prelude {
     pub use ecs::{
         prelude::*,
-        storage::arena::{Arena, Index},
+        storage::arena::{Arena, ArenaId as Id},
     };
     pub use geng::prelude::*;
     pub use geng_utils::{

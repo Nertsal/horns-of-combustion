@@ -74,7 +74,7 @@ impl Model {
 
     fn collide_player_human(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
             stats: &'a Stats,
@@ -203,7 +203,7 @@ impl Model {
 
     fn collide_player_barrel(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
             stats: &'a Stats,
@@ -332,7 +332,7 @@ impl Model {
 
     fn collide_actors(&mut self, _delta_time: Time) {
         struct ActorRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRef<'a>,
             velocity: &'a vec2<Coord>,
         }
@@ -414,7 +414,7 @@ impl Model {
 
     fn collide_projectiles(&mut self, _delta_time: Time) {
         struct ProjRef<'a> {
-            id: Index,
+            id: Id,
             fraction: &'a Fraction,
             collider: ColliderRef<'a>,
             velocity: &'a mut vec2<Coord>,
@@ -532,7 +532,7 @@ impl Model {
         // Projectiles
 
         struct ProjRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRefMut<'a>,
             damage: &'a Hp,
         }
@@ -610,7 +610,7 @@ impl Model {
         }
 
         struct GasRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRef<'a>,
             ignite_timer: &'a mut Time,
         }
@@ -647,7 +647,7 @@ impl Model {
         }
 
         struct ActorRef<'a> {
-            id: Index,
+            id: Id,
             collider: ColliderRef<'a>,
             velocity: &'a mut vec2<Coord>,
             stats: &'a Stats,
