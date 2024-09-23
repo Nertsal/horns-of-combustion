@@ -24,7 +24,7 @@ mod render;
 mod util;
 
 mod prelude {
-    pub use ecs::{
+    pub use stecs::{
         prelude::*,
         storage::arena::{Arena, ArenaId as Id},
     };

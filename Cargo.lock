@@ -530,7 +530,7 @@ version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bdd836e3e560bed24a5c0b18837b678d448b0c7deb7541cb9f18c984f6034ed6"
 dependencies = [
- "darling 0.20.10",
+ "darling",
  "proc-macro2",
  "quote",
  "syn 2.0.77",
@@ -565,7 +565,7 @@ version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fcfc57c4538dbcf2720a5dc4b4693dc586ef5bf3db25e7d4242548e1568b588a"
 dependencies = [
- "darling 0.20.10",
+ "darling",
  "proc-macro2",
  "quote",
  "syn 2.0.77",
@@ -981,7 +981,7 @@ dependencies = [
  "anstream",
  "anstyle",
  "clap_lex",
- "strsim 0.11.1",
+ "strsim",
 ]
 
 [[package]]
@@ -1195,36 +1195,12 @@ checksum = "96a6ac251f4a2aca6b3f91340350eab87ae57c3f127ffeb585e92bd336717991"
 
 [[package]]
 name = "darling"
-version = "0.14.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b750cb3417fd1b327431a470f388520309479ab0bf5e323505daf0290cd3850"
-dependencies = [
- "darling_core 0.14.4",
- "darling_macro 0.14.4",
-]
-
-[[package]]
-name = "darling"
 version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6f63b86c8a8826a49b8c21f08a2d07338eec8d900540f8630dc76284be802989"
 dependencies = [
- "darling_core 0.20.10",
- "darling_macro 0.20.10",
-]
-
-[[package]]
-name = "darling_core"
-version = "0.14.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "109c1ca6e6b7f82cc233a97004ea8ed7ca123a9af07a8230878fcfda9b158bf0"
-dependencies = [
- "fnv",
- "ident_case",
- "proc-macro2",
- "quote",
- "strsim 0.10.0",
- "syn 1.0.109",
+ "darling_core",
+ "darling_macro",
 ]
 
 [[package]]
@@ -1237,19 +1213,8 @@ dependencies = [
  "ident_case",
  "proc-macro2",
  "quote",
- "strsim 0.11.1",
+ "strsim",
  "syn 2.0.77",
-]
-
-[[package]]
-name = "darling_macro"
-version = "0.14.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4aab4dbc9f7611d8b55048a3a16d2d010c2c8334e46304b40ac1cc14bf3b48e"
-dependencies = [
- "darling_core 0.14.4",
- "quote",
- "syn 1.0.109",
 ]
 
 [[package]]
@@ -1258,7 +1223,7 @@ version = "0.20.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d336a2a514f6ccccaa3e09b02d41d35330c07ddf03a62165fcec10bb561c7806"
 dependencies = [
- "darling_core 0.20.10",
+ "darling_core",
  "quote",
  "syn 2.0.77",
 ]
@@ -1355,33 +1320,13 @@ name = "dynamic-linking"
 version = "0.1.0"
 dependencies = [
  "clap",
- "ecs",
  "geng",
  "geng-utils",
  "image",
  "parry2d",
  "serde",
+ "stecs",
  "toml 0.7.8",
-]
-
-[[package]]
-name = "ecs"
-version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs?rev=b1a3e021f1fa29e37c02acc5963f84083547943b#b1a3e021f1fa29e37c02acc5963f84083547943b"
-dependencies = [
- "ecs-derive",
- "slotmap",
-]
-
-[[package]]
-name = "ecs-derive"
-version = "0.1.0"
-source = "git+https://github.com/geng-engine/ecs?rev=b1a3e021f1fa29e37c02acc5963f84083547943b#b1a3e021f1fa29e37c02acc5963f84083547943b"
-dependencies = [
- "darling 0.14.4",
- "proc-macro2",
- "quote",
- "thiserror",
 ]
 
 [[package]]
@@ -1798,7 +1743,7 @@ version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ef7896459152fd0a92cfd781619e9274572fe1296571cba4c0ed5ad718d84a99"
 dependencies = [
- "darling 0.20.10",
+ "darling",
  "proc-macro2",
  "quote",
  "syn 2.0.77",
@@ -2294,12 +2239,12 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "dynamic-linking",
- "ecs",
  "geng",
  "geng-utils",
  "image",
  "parry2d",
  "serde",
+ "stecs",
  "toml 0.7.8",
 ]
 
@@ -4011,16 +3956,32 @@ dependencies = [
 ]
 
 [[package]]
+name = "stecs"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ef14bcaef4cfe2d09124a0e5cf68ad35ebf1c54ec35c6ebdc24fe2db8cc4517a"
+dependencies = [
+ "slotmap",
+ "stecs-derive",
+]
+
+[[package]]
+name = "stecs-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7886fb9c0d258980cbddacb720ab25b92e95cf26ec65ec283491d95afba79b92"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "thiserror",
+]
+
+[[package]]
 name = "strict-num"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6637bab7722d379c8b41ba849228d680cc12d0a45ba1fa2b48f2a30577a06731"
-
-[[package]]
-name = "strsim"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "73473c0e59e6d5812c5dfe2a064a6444949f089e20eec9a2e5506596494e4623"
 
 [[package]]
 name = "strsim"
@@ -4437,7 +4398,7 @@ version = "0.17.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f7a177bc43a36c9f755b3cac28c13685fd7b5f171745dc3e395de8e510d17547"
 dependencies = [
- "darling 0.20.10",
+ "darling",
  "proc-macro2",
  "quote",
  "syn 2.0.77",
