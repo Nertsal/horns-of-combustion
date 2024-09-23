@@ -24,14 +24,14 @@ mod render;
 mod util;
 
 mod prelude {
-    pub use stecs::{
-        prelude::*,
-        storage::arena::{Arena, ArenaId as Id},
-    };
     pub use geng::prelude::*;
     pub use geng_utils::{
         conversions::*,
         key::{self as key_utils, EventKey},
+    };
+    pub use stecs::{
+        prelude::*,
+        storage::arena::{Arena, ArenaId as Id},
     };
 
     pub type Position = geng_utils::torus::PositionTorus<crate::model::Coord>;
